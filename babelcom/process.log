@@ -1,0 +1,40 @@
+2025-07-04T19:47:23+12:00 | topic: "Computer Science" | duration: 11.956145678s | depth: 0
+2025-07-04T19:47:29+12:00 | topic: "History of Mathematics" | duration: 5.619359596s | depth: 0
+2025-07-04T19:47:36+12:00 | topic: "The Lord of the Rings" | duration: 6.744420811s | depth: 0
+2025-07-04T19:47:43+12:00 | topic: "Computer" | duration: 6.900614192s | depth: 0
+2025-07-04T19:47:50+12:00 | topic: "Science" | duration: 7.318909536s | depth: 1
+2025-07-04T19:47:58+12:00 | topic: "Algorithms" | duration: 7.724280542s | depth: 1
+2025-07-04T19:48:06+12:00 | topic: "Programming" | duration: 8.179346716s | depth: 1
+2025-07-04T19:48:13+12:00 | topic: "Languages" | duration: 6.850227587s | depth: 1
+2025-07-04T19:49:43+12:00 | topic: "Data Structures" | duration: 5.188466905s | depth: 1 | article_length: 4218
+2025-07-04T19:49:50+12:00 | topic: "Database" | duration: 6.591157042s | depth: 1 | article_length: 5628
+2025-07-04T19:49:57+12:00 | topic: "Networking" | duration: 6.934000773s | depth: 1 | article_length: 5856
+2025-07-04T19:50:03+12:00 | topic: "Artificial Intelligence" | duration: 6.874503058s | depth: 1 | article_length: 5691
+2025-07-04T19:50:09+12:00 | topic: "Machine Learning" | duration: 5.340911474s | depth: 1 | article_length: 4349
+2025-07-04T19:50:17+12:00 | topic: "Deep Learning" | duration: 8.654411503s | depth: 1 | article_length: 6752
+2025-07-04T19:50:23+12:00 | topic: "Cybersecurity" | duration: 5.343319616s | depth: 1 | article_length: 4342
+2025-07-04T19:50:28+12:00 | topic: "Cyber Threats" | duration: 5.158308508s | depth: 1 | article_length: 3713
+2025-07-04T19:50:33+12:00 | topic: "Code" | duration: 4.752667647s | depth: 1 | article_length: 4088
+2025-07-04T19:50:39+12:00 | topic: "Software" | duration: 6.107458967s | depth: 1 | article_length: 5339
+2025-07-04T19:50:46+12:00 | topic: "Applications" | duration: 6.794522372s | depth: 1 | article_length: 5904
+2025-07-04T19:50:50+12:00 | topic: "Fields" | duration: 4.657302234s | depth: 1 | article_length: 3667
+2025-07-04T19:50:55+12:00 | topic: "Branches" | duration: 4.331270964s | depth: 1 | article_length: 3476
+2025-07-04T19:51:00+12:00 | topic: "Disciplines" | duration: 5.527562378s | depth: 1 | article_length: 4412
+2025-07-04T19:52:56+12:00 | topic: "Research" | duration: 5.750263749s | depth: 1 | article_length: 4891
+2025-07-04T19:53:04+12:00 | topic: "Advancements" | duration: 7.153838654s | depth: 1 | article_length: 5487
+2025-07-04T19:53:09+12:00 | topic: "Future" | duration: 4.997819305s | depth: 1 | article_length: 4321
+2025-07-04T19:55:25+12:00 | topic: "Technologies" | duration: 4.570199506s | depth: 1 | article_length: 4179
+2025-07-04T19:55:30+12:00 | topic: "Lord" | duration: 4.553845651s | depth: 1 | article_length: 3865
+2025-07-04T19:57:00+12:00 | topic: "of" | duration: 5.410685252s | depth: 1 | article_length: 3589
+2025-07-04T19:57:05+12:00 | topic: "the" | duration: 4.327324903s | depth: 1 | article_length: 2995
+2025-07-04T19:57:11+12:00 | topic: "Rings" | duration: 6.231035231s | depth: 1 | article_length: 4819
+2025-07-04T19:57:15+12:00 | topic: "The" | duration: 4.179549061s | depth: 1 | article_length: 2938
+2025-07-04T20:03:19+12:00 | topic: "Fellowship" | duration: 10.915213282s | depth: 1 | article_length: 4176
+2025-07-04T20:03:24+12:00 | topic: "Ring" | duration: 4.156964865s | depth: 1 | article_length: 2791
+2025-07-04T20:03:29+12:00 | topic: "Gandalf" | duration: 5.388415413s | depth: 1 | article_length: 3028
+2025-07-04T20:03:34+12:00 | topic: "Bilbo" | duration: 4.640241133s | depth: 1 | article_length: 3090
+2025-07-04T20:03:38+12:00 | topic: "Baggins" | duration: 4.480369209s | depth: 1 | article_length: 3295
+2025-07-04T20:10:22+12:00 | topic: "Physics" | duration: 8.865942625s | depth: 2 | article_length: 3873
+2025-07-04T20:10:27+12:00 | topic: "Biology" | duration: 5.530799201s | depth: 2 | article_length: 4195
+2025-07-04T20:10:58+12:00 | topic: "Chemistry" | duration: 4.789826307s | depth: 2 | article_length: 3496
+2025-07-04T20:11:04+12:00 | topic: "Earth Sciences" | duration: 6.09008881s | depth: 2 | article_length: 4588
