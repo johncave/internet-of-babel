@@ -1,0 +1,25 @@
+{{define "content"}}
+<h2>Welcome to Web 4</h2>
+
+<p>An LLM generates an article about a topic, then a list of links to other articles.<br>Repeat forever.<br>Grow exponentially.</p>
+
+<p>There is a similar project available at <a href="https://www.google.com">google.com</a>.</p>
+
+<p>For humans, the recommended way to explore Web 4 is through <a href="#">babelcom</a>, where you can monitor the status of the project and listen to chill beats while you browse. </p>
+
+<div class="random-article-section">
+    <a href="/random" class="btn btn-primary random-btn">🎲 Ready? Explore 🎲</a>
+</div>
+
+<div class="count">Recent Entries</div>
+<ul class="article-list">
+    {{range .Articles}}
+    <li><a href="/{{.Filename}}">{{.Title}}</a></li>
+    {{end}}
+</ul>
+
+<h2>The Interesting Part</h2>
+<p>You can monitor this project and browse Web 4 through <a href="#">babelcom</a>. </p>
+
+<p>This project is running on the worst computer I own: an Intel Compute Stick. It takes about 10 minutes to generate each article. It will take forever to complete this job, which is exactly 0% slower than any other computer. It will do this job forever, with no hope of completing it.</p>
+{{end}} 
