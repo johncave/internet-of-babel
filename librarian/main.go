@@ -21,7 +21,7 @@ import (
 	"github.com/gomarkdown/markdown/parser"
 )
 
-const articlesDir = "../articles"
+var articlesDir = "../articles"
 
 //go:embed templates
 var templates embed.FS
@@ -326,6 +326,13 @@ func randomArticleHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+
+	// Check if ARTICLES_DIR environment variable exists
+	envArticlesDir := os.Getenv("ARTICLES_DIR")
+	if envArticlesDir != "" {
+		articlesDir = envArticlesDir
+	}
+
 	// Check if articles directory exists
 	if _, err := os.Stat(articlesDir); os.IsNotExist(err) {
 		log.Fatal("Articles directory not found. Please run the article generator first.")
