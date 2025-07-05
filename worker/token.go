@@ -10,9 +10,33 @@ import (
 
 var tokenConn *websocket.Conn
 
+func SendReset() {
+	if tokenConn == nil {
+		return
+	}
+
+	message := map[string]interface{}{
+		"type": "reset",
+	}
+
+	data, err := json.Marshal(message)
+	if err != nil {
+		log.Printf("Failed to marshal reset message: %v", err)
+		return
+	}
+
+	err = tokenConn.WriteMessage(websocket.TextMessage, data)
+	if err != nil {
+		log.Printf("Failed to send reset message: %v", err)
+		return
+	}
+
+	log.Println("Sent reset message to WebSocket")
+}
+
 // SendToken sends a single token to the WebSocket
 func SendToken(token string) {
-	return // Disable token sending for now
+	//return // Disable token sending for now
 
 	if tokenConn == nil {
 		return

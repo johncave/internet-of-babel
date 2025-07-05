@@ -1,499 +1,500 @@
-Idealism|3
-Materialism|3
-objectives|3
-quantifiable|3
-Musical Repetition|3
-personal challenges|3
-Scientic|3
-online platform|3
-physics|3
-application|3
-classical|3
-introduce|3
-new|3
-definitional|3
-theories|3
-uncovering|3
-exploration|3
-Physical Inventions|3
-sudden|3
-insight|3
-Change|3
-event|3
-Concepts|3
-Types of Culture|3
-Individual Culture|3
-universality|3
-point of view|3
-attitude|3
-understanding|3
-quantum mechanics|3
-wave function collapse|3
-Deep Learning|3
-AI Techniques|3
-Things|3
-anthropogenic|3
-carbon dioxide|3
-loss|3
-species|3
-artificial|3
-technological_unemployment|3
-interconnectedness|3
-non-linearity|3
-Leaders|3
-Leadership|3
-Strategic|3
-Thinking|3
-territory|3
-Mechanisms of Power Dynamics|3
-Structural Power|3
-Social Power|3
-Institutional Power|3
-Group Power|3
-Coercion|3
-exclusion|3
-Injustices|3
-Historical Development of Etymology|3
-Anglo-Saxon|3
-transitional stage|3
-Contemporary English|3
-Locative prepositions|3
-schema|3
-cognitive schema theory|3
-acquisition|3
-cause|3
-effect|3
-geography|3
-Direction|3
-Components of Pronunciation|3
-Articulation|3
-Resonance|3
-Stress|3
-Intonation|3
-Phonetics|3
-term|3
-utilization|3
-Language origins|3
-Proto-Afroasiatic|3
-Proto-Indo-European|3
-Language families|3
-Identity|3
-Convention|3
-Ring Style|3
-Classic Ring Style|3
-Tension Ring Style|3
-Fashion|3
-trends|3
-subculture|3
-Anthropology|3
-technological advancements|3
-minerals|3
-inorganic|3
-Spiritual|3
-Significance|3
-Personal|3
-Glamorous|3
-designs|3
-Minimalist|3
-Streetwear|3
-Western|3
-Cowboy|3
-Wear|3
-Additive Manufacturing|3
-Metal Printing|3
-sustainable|3
-technical|3
-Fellowships|3
-Academic Fellowships|3
-mentorship|3
-fellowship|3
-community|3
-academic|3
-artistic|3
-socially responsible|3
-career|3
-stages|3
-individuals|3
-factors|3
-external|3
-barriers|3
-succession|3
-Expertise|3
-mathematical shape|3
-two-dimensional|3
-straight sides|3
-vertices|3
-American rock band|3
-San Diego California|3
-Angles Within Polygon|3
-shape|3
-American heavy metal band|3
-algebra|3
-calculus|3
-variables|3
-algebraic|3
-group|3
-quaternion|3
-branch|3
-Angles|3
-Types of Congruence|3
-Symmetric Congruence|3
-graphics|3
-textures|3
-Sauron|3
-Middle-earth|3
-Dark Lord|3
-Ring of Power|3
-Theorin Oakenshield|3
-J.R.R. Tolkien's Middle-earth legendarium|3
-Lake-town|3
-J.R.R.|3
-Early Life|3
-adjective|3
-Latin|3
-danger|3
-hazard|3
-treacherous|3
-explorer|3
-ability|3
-think|3
-creatively|3
-environmental|3
-self-awareness|3
-computing|3
-Doctor Who|3
-BBC|3
-Science Fiction|3
-evolution|3
-social structure|3
-Population|3
-Climate|3
-International Relations|3
-abstraction|4
-methods|4
-classes|4
-objects|4
-block|4
-sequences|4
-plant|4
-cells|4
-cell walls|4
-interactions|4
-plants|4
-animals|4
-traits|4
-differentiation|4
-differences|4
-building blocks|4
-organismic|4
-Metabolism|4
-Aerobic Metabolism|4
-Anaerobic Metabolism|4
-Genes|4
-mouth|4
-esophagus|4
-living organisms|4
-conservation biology|4
-photosynthesis|4
-Fermentation|4
-Cancer|4
-type|4
-atom|4
-atomic|4
-physical bonding|4
-fuel|4
-oxygen|4
-heat|4
-light|4
-Precautions|4
-protective|4
-measuring instruments|4
-pre-laboratory|4
-thermodynamics|4
-organic|4
-chemistry|4
-analytical|4
-protons|4
-atom arrangement|4
-types of chemical bonds|4
-theories of elementary composition|4
-terrestrial|4
-natural sciences|4
-hydrological cycle|4
-land surface|4
-oceans and seas|4
-oceans|4
-magnetism|4
-electric current|4
-geomagnetic field|4
-plates|4
-Thick layer|4
-innermost layer|4
-in-memory composition|4
-out-of-memory composition|4
-reusability|4
-force|4
-liquid|4
-atmospheric circulation|4
-topography|4
-Lithosphere|4
-volcanic|4
-wearing|4
-observations|4
-methane|4
-land|4
-object|4
-Epistemology|4
-logic|4
-reasoning|4
-experimental|4
-Active Observation|4
-informed decision-making|4
-statistical models|4
-occurance|4
-descriptive statistics|4
-academic writing|4
-complex psychological and physiological state|4
-doubt|4
-explanation|4
-Software Development|4
-Poland|4
-gestation|4
-capital|4
-name|4
-deception|4
-moral|4
-ethical|4
-institutional|4
-virtuous|4
-chromosomes|4
-non-coding regions|4
-double-stranded helix|4
-wave-particle duality|4
-quantization of energy|4
-Control|4
-Physical Disparity|4
-Linnaean System|4
-Kingdom|4
-Pi(e) language|4
-Tibetan people|4
-Tibetan language|4
-family|4
-largest|4
-sapere aude|4
-interactionist|4
-psychology|4
-systemic|4
-Biological System|4
-customs|4
-practices|4
-systems|4
-allocated|4
-responsibilities|4
-management|4
-system|4
-object-oriented|4
-data structure|4
-cataloging|4
-self-description|4
-format|4
-Graph|4
-Acquiring|4
-Preserving|4
-Purchasing|4
-Trading|4
-headings|4
-molecular|4
-data_storage|4
-Packet|4
-Switching|4
-Dial-Up|4
-DSL|4
-Cable Modem|4
-Fiber Optic|4
-Broadband|4
-radio|4
-waves|4
-wires and cables|4
-Execution Flow|4
-Intrusion Detection and Prevention Systems|4
-electronic device|4
-central processing unit|4
-Transmission|4
-Protocol|4
-Request-Response Process|4
-web|4
-client-server architecture|4
-VPN|4
-HTTP Screen Sharing|4
-TCP/IP Screen Sharing|4
-Representation|4
-electrical signals|4
-frequency|4
-physical quantities|4
-length|4
-absolute|4
-Rule-based|4
-Text Data|4
-Virtual Assistant|4
-Machine Learning Algorithms|4
-Personal Virtual Assistant|4
-Rule-based systems|4
-Reasoning ability|4
-Common sense|4
-authority|4
-Numerical|4
-Mechanical Components|4
-Electrical Components|4
-Mathematical Concept|4
-Vector Space Extension|4
-Module Extension|4
-Ring Extension|4
-Algebraic Geometry|4
-subject|4
-examining|4
-closely|4
-Data Structures|4
-Software Engineering|4
-Computer Systems|4
-Database Management Systems|4
-summary measures|4
-meaning|4
-Formal|4
-Classroom-Based Training|4
-Hands-On Training|4
-Instructional Design|4
-financial outlays|4
-personal expenses|4
-business expenses|4
-signal processing|4
-emotions|4
-Material Properties|4
-Refactoring|4
-Types of Machine Learning|4
-programming language|4
-high-end|4
-mental activity|4
-Metaphysical|4
-tasks|4
-small unit of an object|4
-reusable and modular|4
-Agent|4
-Actions|4
-Reward|4
-Statistical Model|4
-Phenomena|4
-Acoustic Modeling|4
-Probabilistic Models|4
-Trojans|4
-RNA viruses|4
-Annelida|4
-Tampering with Equipment|4
-Protection|4
-Virus|4
-Trojan Horse|4
-Physical Detection|4
-CyberDetection|4
-types of cybersecurity threats|4
-efficient|4
-SSL|4
-static|4
-types_of_networks|4
-Unapproved Entry|4
-Malicious Threats|4
-Causes of Lack of Security Measures|4
-Types of Lack of Security Measures|4
-Consequences of Lack of Security Measures|4
-lockers|4
-words|4
-unit|4
-ideas|4
-archaeological|4
-programming|4
-biological environment|4
-Positive outcomes|4
-Gains|4
-Action|4
-Decision|4
-Organizations|4
-Firmware|4
-Degree|4
-operating|4
-strategic plan|4
-chemical|4
-platform|4
-instruction|4
-control structures|4
-input/output|4
-black box testing|4
-Mechanism|4
-System V Release 1|4
-Unix-like systems|4
-master|4
-release|4
-Data Management|4
-software program|4
-devices|4
-handheld|4
-touchscreen|4
-integrated|4
-instruments|4
-device|4
-System Utilities|4
-Application Utilities|4
-Development Utilities|4
-Utility Type|4
-Visual|4
-Auditory|4
-Economic inequality|4
-Cost Accounting Theory|4
-Global warming|4
-consequences|4
-vector|4
-phylum|4
-division|4
-domains|4
-geometric relationships|4
-topological relationships|4
-objective tone|4
-sensory perception|4
-visual perception|4
-organism|4
-contribution|4
-producers|4
-mineral particles|4
-planned|4
-sociology|4
-modus_ponens|4
-research question|4
-Basic|4
-practical relevance|4
-Hierarchy|4
-Departments|4
-Teams|4
-Decision-making|4
-Conflict resolution|4
-Reputation|4
-Best practices|4
-statement|4
-cognitive|4
-regulate|4
-manage|4
-matter|4
-intrinsic|4
-resistance|4
-changes|4
-unwritten|4
-Parental Rules|4
-Environmental Factors|4
-Personality Traits|4
-Criticisms|4
-specialization|4
-visualization|4
-technologies|4
-documentation|4
-Physical Behavior|4
-detectability|4
-Amotivation|4
-autonomy|4
-Extrinsic|4
+Chlorophyll A|1
+Thylakoid Membrane|1
+Electron Transport Chain|1
+Enzyme Complex|1
+Plant Cell|1
+Photosynthesis Process|1
+Life on Earth|1
+Earth's Climate|1
+Aquatic Ecosystem|1
+Phytoplankton|1
+Carbon Cycle|1
+Pigment Molecule|1
+Electron|1
+Atp Synthesis|1
+Nadph Synthesis|1
+Calvin Cycle (light-independent Reactions)|1
+Stroma|1
+Molecular Energy|1
+Software|2
+Operating System|2
+Application|2
+Gaming|2
+Productivity|2
+Education|2
+Security|2
+Hacking|2
+Virus|2
+Malware|2
+Enzyme|2
+Systematic Study|2
+Observation|2
+Experimentation|2
+Evidence-based Reasoning|2
+Scientific Method|2
+Uncertainty Principle|2
+Relativity Vs Certainty|2
+Funding and Access to Resource|2
+Global Challenge|2
+Improving Our Understanding of the World|2
+Addressing Global Challenge|2
+Technological Advancement|2
+Pandemic|2
+Poverty|2
+Climat Change|2
+Engineering|2
+Principle|2
+Technique|2
+Efficacy|2
+Requirement|2
+Design|2
+Implementation|2
+Testing|2
+Validation|2
+Maintenance|2
+Methodology|2
+Agile|2
+Waterfall|2
+Devop|2
+Ide|2
+Version control|2
+Programming language|2
+Testing framework|2
+Integration|2
+Development|2
+Code review|2
+Test driven development|2
+Continuous integration and delivery|2
+Best practice|2
+Complexity|2
+Time to market|2
+Requirements gathering|2
+Interface design|2
+Componentization|2
+Modularity|2
+Scalability|2
+Usability|2
+Test Automation|2
+Machine Learning|2
+Deep Learning|2
+Neural Network|2
+Ai Application|2
+Computer Vision|2
+Natural Language Processing|2
+Robotic|2
+Bias and Fairness|2
+Autonomy and Job Displacement|2
+Privacy and Security|2
+Alan Turing|2
+Marvin Minsky|2
+John Mccarthy|2
+Logical Theorist|2
+Rule-based System|2
+Expert System|2
+Machine Intelligence|2
+Superintelligence|2
+General or Strong Ai|2
+Supervised Learning|2
+Unsupervised Learning|2
+Reinforcement Learning|2
+Neural Networks With Multiple Layer|2
+Feedforward Network|2
+Recurrent Network|2
+Computer Vision Application|2
+Natural Language Processing Application|2
+Robotics Application|2
+Bias and Fairness in Ai|2
+Autonomy and Job Displacement in Ai|2
+Data Mining|2
+Data Visualization|2
+Statistical Inference|2
+Framework|2
+Data Science Framework|2
+Data Science Library|2
+Applications of Data Science|2
+Career Paths in Data Science|2
+Database|2
+Management|2
+System|2
+DBM|2
+Relational|2
+Nosql|2
+Object-oriented|2
+Object|2
+Orientation|2
+Class|2
+Inheritance|2
+Polymorphism|2
+Encapsulation|2
+Query|2
+Language|2
+Definition|2
+Create|2
+Modify|2
+Delete|2
+Storage|2
+Organization|2
+Structured|2
+Approach|2
+Datum|2
+Authentication|2
+Authorization|2
+Permission|2
+Role|2
+User|2
+Account|2
+Access|2
+Control|2
+Feature|2
+Encryption|2
+Benefit|2
+Throughput|2
+Indexing|2
+Caching|2
+Optimization|2
+Retrieval|2
+Manipulation|2
+Operation|2
+Modern|2
+Component|2
+Designer|2
+Performance|2
+Cost|2
+Technology|2
+HCI|2
+User Experience|2
+UX|2
+Interaction Design|2
+User Interface|2
+User Research|2
+Usability Engineering|2
+Cognitive Load Theory|2
+Heuristic Evaluation|2
+Conducting Usability Testing|2
+Virtual Assistant|2
+Wearable Device|2
+Virtual Reality|2
+Augmented Reality|2
+Human Factor|2
+Design Thinking|2
+Empathy|2
+User-centered Design|2
+Alan|2
+British|2
+Mathematician|2
+Computer Scientist|2
+Logician|2
+Philosopher|2
+Molecular Biologist|2
+Computing|2
+Machine|2
+Codebreaking|2
+Turing Test|2
+Programming|2
+Computer Architecture|2
+Automated Computing Engine|2
+ACE|2
+Bletchley Park|2
+World War Ii|2
+Bravery|2
+Genius|2
+Institution|2
+University of Manchester|2
+King's College|2
+Government Code and Cypher School|2
+GC&C|2
+Order of the Bath|2
+CBE|2
+World Wide Web|2
+Url|2
+HTTP|2
+HTML|2
+Java Platform|2
+Open-source Software|2
+Nobel Prize in Physic|2
+CERN|2
+Internet Regulation|2
+Digital Economy|2
+Global Connectivity|2
+Innovation and Creativity|2
+Information Management|2
+Tim|2
+Web Browser|2
+Netscape Navigator|2
+Internet Information System|2
+SARA|2
+Simple Access to Remote Archive|2
+Email|2
+CP/M|2
+Dial-up Modem|2
+WWW|2
+Launched in April 1991|2
+Inventions and Legacy|2
+National Medal of Technology|2
+Order of the British Empire|2
+Knight Bachelor|2
+Fellow of the Royal Society|2
+Award|2
+Dispute With W3c|2
+Google Search Engine|2
+Apple|2
+Divorced|2
+Married Katharine Collin|2
+Patricia Mckenna|2
+Net Worth|2
+Cyberspace|2
+Hypertext|2
+Css|2
+Javascript|2
+Protocol|2
+Architecture|2
+Client-server|2
+Server|2
+Client|2
+Hyperlink|2
+Static|2
+Dynamic|2
+Webpage|2
+Phishing|2
+Sql Injection|2
+Blogging|2
+E-commerce|2
+Social Media|2
+Online Education|2
+Domain Name|2
+Ip Address|2
+Dn|2
+Server-side|2
+Client-server Architecture|2
+Infrastructure|2
+GDP|2
+Institutional Framework|2
+Investment|2
+Trade|2
+Education and Skill|2
+Infrastructure Development|2
+Contractionary Growth|2
+Expansive Growth|2
+Stagnant Growth|2
+Output|2
+Inflation|2
+Employment|2
+Innovation|2
+Poverty Reduction|2
+Living Standard|2
+Competition|2
+Inequality|2
+Environmental Degradation|2
+Job Displacement|2
+Financial Crisis|2
+Medical History|2
+Antibiotic|2
+Vaccine|2
+Organ Transplantation|2
+Surgery|2
+Minimally Invasive Surgery|2
+Robotic Surgery|2
+Genetic Engineering|2
+Stem Cell Therapy|2
+Gene Therapy|2
+Crispr-cas9|2
+Personalized Medicine|2
+Synthetic Biology|2
+Biotechnology|2
+Regenerative Medicine|2
+Pharmaceutical|2
+Radiosensitive|2
+Robotic-assisted Surgery|2
+Genetic Defect|2
+Cancer Treatment|2
+Radiation Therapy|2
+Medicinal Plant|2
+Herbalism|2
+Traditional Medicine|2
+Hospital Care|2
+Vaccination|2
+Penicillin|2
+Alexander Fleming|2
+Dna Structure|2
+Antibiotic Resistance|2
+Precision Medicine|2
+Pharmacology|2
+Radiation Oncology|2
+Medical Research|2
+Science Revolution|2
+Advancement|2
+Improvement|2
+Treatment Option|2
+Patient Outcome|2
+Disease Prevention|2
+Genetic Disease|2
+Multifaceted|2
+Powerful Tool|2
+Social Interaction|2
+Emotional Regulation|2
+Well-being|2
+Relationship|2
+Verbal|2
+Nonverbal|2
+Visual|2
+Sarcasm|2
+Exaggeration|2
+Distortion|2
+Convention|2
+Structure|2
+Cognitive Process|2
+Interpretation|2
+Behavior|2
+Someone Else's Expense|2
+Absurdity|2
+Criticism|2
+Commentary|2
+Therapy|2
+Psychology|2
+Societal Norm|2
+Value|2
+Social Bonding|2
+Coping Mechanism|2
+Stress|2
+Adversity|2
+Perception|2
+Appreciation|2
+Figure|2
+Speech|2
+Congruity|2
+Contradiction|2
+Situational|2
+Dramatic|2
+Cultural|2
+Cosmic|2
+Understatement|2
+Incongruence|2
+Emotion|2
+Tone|2
+Literary|2
+Device|2
+Critical|2
+Impact|2
+Depth|2
+Resonance|2
+Audience|2
+Expression|2
+Meaning|2
+Argument|2
+Idea|2
+Diction|2
+Stylistic|2
+Formality|2
+Informalization|2
+Dramatic Irony|2
+Cosmic Irony|2
+Cultural Irony|2
+History|2
+Type|2
+Autonomous|2
+Artificially|2
+Construted|2
+Quantum|2
+Replication|2
+DNA|2
+Artificial|2
+Material|2
+Stability|2
+Research|2
+Discovery|2
+Phenomenon|2
+Consequence|2
+Influence|2
+External|2
+Environmental|2
+Adaptation|2
+Flexibility|2
+Strategy|2
+Politic|2
+Demographic|2
+Age-group|2
+Learning-style|2
+Teaching-method|2
+Customer-behavior|2
+Preference|2
+Marketing-strategy|2
+Internet Meme|2
+Current Event|2
+Community Building|2
+Online Forum|2
+Humorous Comment|2
+Insight|2
+Trend|2
+Attitude|2
+Identity|2
+Cultural Relevance|2
+Meme Fatigue|2
+Creativity|2
+Misinterpretation|2
+Dank|2
+Internet Slang|2
+Writing|2
+Art|2
+Comedy|2
+Sarah Silverman|2
+Dank Meme|2
+All Your Base Are Belong to Us|2
+Matt Furie|2
+Ryan Ingell|2
+Online Community|2
+Sub-genre|2
+Reference|2
+Popular Culture|2
+Marketing Campaign|2
+Comedian|2
+Dank Writing|2
+Dank Artist|2
+Ipr|2
+Copyright|2
+Patent|2
+Trademark|2
+Fair Use|2
+Infringement|2
+Per Se|2
+WIPO|2
+Wto Agreement|2
+TRIP|2
+Economic Impact|2
+Creative Freedom|2
+Social Impact|2
+Copyright Culture|2
+Digital Divide|2
+Legal Framework|2
+Copyright Law|2
+Patent Law|2
+Trademark Law|2
+Distinctiveness|2
+Non-functional Use|2
+Prior Art|2
+Novelty|2
+Functionality|2
+Prejudice|2
+Bia|2
+Hate|2
+Discrimination|2
+Systemic Racism|2
+Cultural Difference|2
+Historical Trauma|2
+Power Dynamic|2
+Image Generation|2
+Short-form Video|2
+Music Integration|2
+Social Community|2
+Dark Reaction|2
+Chlorophyll|2
+Color|2
+Adenosine Triphosphate|2
+Triphosphate|2
+Rubisco|2
+Ribulose-1,5-bisphosphate Carboxylase/oxygenase|2
+Crassulacean Acid Metabolism (cam) Pathway|2
+Essential|2
+Atmosphere|2
+Simple Carbohydrate|2
+Greenhouse Gas|2
+Electron Transfer Chain|2

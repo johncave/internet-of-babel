@@ -1,7 +1,9 @@
 package main
 
 import (
+	"embed"
 	"fmt"
+	"io/fs"
 	"log"
 	"net/http"
 
@@ -9,9 +11,22 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+//go:embed static/*
+var staticFiles embed.FS
+
+// serveEmbeddedFile serves a file from the embedded filesystem
+func serveEmbeddedFile(c *gin.Context, path string, contentType string) {
+	content, err := staticFiles.ReadFile(path)
+	if err != nil {
+		c.String(http.StatusNotFound, "File not found")
+		return
+	}
+	c.Data(http.StatusOK, contentType, content)
+}
+
 // Serve static files
 func serveStatic(c *gin.Context) {
-	c.File("./static/index.html")
+	serveEmbeddedFile(c, "static/index.html", "text/html")
 }
 
 func main() {
@@ -32,7 +47,17 @@ func main() {
 
 	// Routes
 	router.GET("/", serveStatic)
-	router.Static("/static", "./static")
+	router.GET("/favicon.ico", func(c *gin.Context) {
+		serveEmbeddedFile(c, "static/favicon.ico", "image/x-icon")
+	})
+
+	// Serve embedded static files
+	staticFS, err := fs.Sub(staticFiles, "static")
+	if err != nil {
+		log.Fatal("Failed to create static filesystem:", err)
+	}
+	router.StaticFS("/static", http.FS(staticFS))
+
 	router.GET("/ws", server.handleBroadcastWebSocket)
 	router.GET("/ws/llm", server.handleLLMWebSocket)
 

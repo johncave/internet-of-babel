@@ -232,3 +232,25 @@ func StartStatusMonitor(websocketURL string, interval time.Duration) {
 		}
 	}()
 }
+
+// SendManualStatusUpdate sends a status update immediately
+func SendManualStatusUpdate() {
+	// Create a temporary monitor to send one status update
+	monitor := NewStatusMonitor("", 0) // URL and interval don't matter for manual send
+
+	// Try to connect to the WebSocket
+	websocketURL := "ws://localhost:8080/ws/llm?api_key=babelcom-secret-key"
+	if err := monitor.Connect(websocketURL); err != nil {
+		log.Printf("Failed to connect for manual status update: %v", err)
+		return
+	}
+	defer monitor.Disconnect()
+
+	// Generate and send status
+	status := monitor.generateStatus()
+	if err := monitor.sendStatus(status); err != nil {
+		log.Printf("Failed to send manual status update: %v", err)
+	} else {
+		log.Printf("Manual status update sent successfully")
+	}
+}

@@ -65,16 +65,15 @@ const SystemMonitorApp = {
                     
                     <div class="real-time-output">
                         <h4>📝 Output</h4>
-                        <div class="output-container" id="output-container">
-                            <div class="output-line info">System monitor initialized...</div>
-                            <div class="output-line info">Connecting to WebSocket backend...</div>
+                        <div class="llm-output-container" id="llm-output-container">
+                            <div class="output-line info">Waiting for LLM output...</div>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Performance Metrics (Bottom) -->
                 <div class="performance-metrics">
-                    <h3>📈 Performance Metrics</h3>
+                    <h3>📈 Overview</h3>
                     <div class="metrics-grid">
                         <div class="metric-item">
                             <span class="metric-label">Articles Generated:</span>
@@ -180,7 +179,11 @@ const SystemMonitorApp = {
                     break;
                     
                 case 'token':
-                    this.updateCurrentWord(message.data);
+                    this.addLLMOutput(message.token);
+                    break;
+                    
+                case 'reset':
+                    this.clearLLMOutput();
                     break;
                     
                     
@@ -207,6 +210,10 @@ const SystemMonitorApp = {
                 this.addOutputLine(msg.message, msg.type, false);
             });
         }
+        
+        // Clear LLM output on initial connection
+        const llmContainer = document.getElementById('llm-output-container');
+        llmContainer.innerHTML = '<div class="output-line info">Connected to LLM stream...</div>';
     },
     
     updateSystemStatus: function(status) {
@@ -271,6 +278,38 @@ const SystemMonitorApp = {
         while (container.children.length > 50) {
             container.removeChild(container.firstChild);
         }
+    },
+    
+    addLLMOutput: function(token) {
+        const container = document.getElementById('llm-output-container');
+        
+        // Create a span for the token
+        const tokenSpan = document.createElement('span');
+        tokenSpan.className = 'llm-token';
+        tokenSpan.textContent = token;
+        
+        // Add a space after the token (except for punctuation)
+        // if (!token.match(/^[.,!?;:]$/)) {
+        //     tokenSpan.textContent += ' ';
+        // }
+
+        tokenSpan.innerHTML = token.replace(/\n/g, '<br>');
+        
+        container.appendChild(tokenSpan);
+        
+        // Auto-scroll to bottom
+        container.scrollTop = container.scrollHeight;
+        
+        // Keep only last 1000 tokens to prevent memory issues
+        while (container.children.length > 1000) {
+            container.removeChild(container.firstChild);
+        }
+    },
+    
+    clearLLMOutput: function() {
+        const container = document.getElementById('llm-output-container');
+        container.innerHTML = '';
+        console.log('LLM output cleared');
     },
     
     addStyles: function() {
@@ -343,6 +382,32 @@ const SystemMonitorApp = {
                 font-family: 'Share Tech Mono', monospace;
                 font-size: 0.9em;
                 line-height: 1.4;
+            }
+            
+            .llm-output-container {
+                background: rgba(0, 0, 0, 0.9);
+                border: 1px solid rgba(255, 107, 157, 0.3);
+                border-radius: 10px;
+                padding: 15px;
+                height: 300px;
+                overflow-y: auto;
+                font-family: 'Share Tech Mono', monospace;
+                font-size: 1em;
+                line-height: 1.6;
+                color: #e0e0e0;
+                word-wrap: break-word;
+            }
+            
+            .llm-token {
+                display: inline;
+                color: #00ffff;
+                text-shadow: 0 0 3px rgba(0, 255, 255, 0.3);
+                transition: color 0.1s ease;
+            }
+            
+            .llm-token:hover {
+                color: #ff6b9d;
+                text-shadow: 0 0 5px rgba(255, 107, 157, 0.5);
             }
             
             .output-line {

@@ -788,3 +788,106 @@
 2025-07-05T20:18:51+12:00 | topic: "Intrinsic motivation" | duration: 7.270934519s | depth: 3 | article_length: 6170
 2025-07-05T20:18:56+12:00 | topic: "Extrinsic motivation" | duration: 5.268844262s | depth: 3 | article_length: 4289
 2025-07-05T20:19:03+12:00 | topic: "Philosophy" | duration: 6.493752526s | depth: 3 | article_length: 4860
+2025-07-05T20:31:25+12:00 | topic: "Idealism" | duration: 9.736556519s | depth: 3 | article_length: 4973
+2025-07-05T20:31:41+12:00 | topic: "Materialism" | duration: 4.878501077s | depth: 3 | article_length: 3819
+2025-07-05T20:34:23+12:00 | topic: "objectives" | duration: 9.513573104s | depth: 3 | article_length: 7379
+2025-07-05T20:34:29+12:00 | topic: "quantifiable" | duration: 5.724156432s | depth: 3 | article_length: 4165
+2025-07-05T20:43:13+12:00 | topic: "Musical Repetition" | duration: 8.573622772s | depth: 3 | article_length: 3875
+2025-07-05T20:43:19+12:00 | topic: "personal challenges" | duration: 5.825829996s | depth: 3 | article_length: 4147
+2025-07-05T20:43:23+12:00 | topic: "Scientic" | duration: 3.64485499s | depth: 3 | article_length: 3158
+2025-07-05T20:43:28+12:00 | topic: "online platform" | duration: 5.707410145s | depth: 3 | article_length: 4690
+2025-07-05T20:43:35+12:00 | topic: "physics" | duration: 6.898243059s | depth: 3 | article_length: 4664
+2025-07-05T20:48:21+12:00 | topic: "application" | duration: 5.68006741s | depth: 3 | article_length: 4184
+2025-07-05T20:49:30+12:00 | topic: "classical" | duration: 7.309127414s | depth: 3 | article_length: 4568
+2025-07-05T20:49:34+12:00 | topic: "introduce" | duration: 4.278229427s | depth: 3 | article_length: 2467
+2025-07-05T20:50:12+12:00 | topic: "definitional" | duration: 4.927191526s | depth: 3 | article_length: 3590
+2025-07-05T20:59:10+12:00 | topic: "Computer Science" | duration: 6.454362349s | depth: 0 | article_length: 4828
+2025-07-05T20:59:17+12:00 | topic: "Meme Culture" | duration: 6.98024109s | depth: 0 | article_length: 4323
+2025-07-05T20:59:22+12:00 | topic: "The Internet" | duration: 5.889063842s | depth: 0 | article_length: 4542
+2025-07-05T21:02:14+12:00 | topic: "Photosynthesis" | duration: 6.474361429s | depth: 0 | article_length: 4289
+2025-07-05T21:06:35+12:00 | topic: "Computer Science" | duration: 6.494285467s | depth: 0 | article_length: 4687
+2025-07-05T21:06:41+12:00 | topic: "Meme Culture" | duration: 5.549004786s | depth: 0 | article_length: 4500
+2025-07-05T21:06:46+12:00 | topic: "The Internet" | duration: 5.519388349s | depth: 0 | article_length: 4317
+2025-07-05T21:06:52+12:00 | topic: "Photosynthesis" | duration: 5.690106528s | depth: 0 | article_length: 4506
+2025-07-05T21:07:53+12:00 | topic: "Physics" | duration: 5.675599176s | depth: 0 | article_length: 4426
+2025-07-05T21:14:47+12:00 | topic: "Computer Science" | duration: 9.786812129s | depth: 0 | article_length: 5208
+2025-07-05T21:14:52+12:00 | topic: "Meme Culture" | duration: 4.792492926s | depth: 0 | article_length: 3497
+2025-07-05T21:14:59+12:00 | topic: "The Internet" | duration: 6.630293496s | depth: 0 | article_length: 4502
+2025-07-05T21:15:05+12:00 | topic: "Photosynthesis" | duration: 6.252461981s | depth: 0 | article_length: 3986
+2025-07-05T21:15:14+12:00 | topic: "Physics" | duration: 8.901757183s | depth: 0 | article_length: 6009
+2025-07-05T21:15:19+12:00 | topic: "Programming Language" | duration: 5.252157921s | depth: 1 | article_length: 4243
+2025-07-05T21:15:25+12:00 | topic: "Algorithm" | duration: 5.763629501s | depth: 1 | article_length: 4284
+2025-07-05T21:15:32+12:00 | topic: "Computer Hardware" | duration: 7.485537978s | depth: 1 | article_length: 5692
+2025-07-05T21:15:38+12:00 | topic: "Software Engineering" | duration: 5.951648268s | depth: 1 | article_length: 4869
+2025-07-05T21:15:46+12:00 | topic: "Artificial Intelligence" | duration: 7.604626341s | depth: 1 | article_length: 5853
+2025-07-05T21:17:44+12:00 | topic: "Computer Science" | duration: 8.282004895s | depth: 0 | article_length: 7003
+2025-07-05T21:17:50+12:00 | topic: "Meme Culture" | duration: 5.439742261s | depth: 0 | article_length: 3589
+2025-07-05T21:17:57+12:00 | topic: "The Internet" | duration: 6.97859361s | depth: 0 | article_length: 4824
+2025-07-05T21:18:02+12:00 | topic: "Photosynthesis" | duration: 5.457542271s | depth: 0 | article_length: 3492
+2025-07-05T21:18:08+12:00 | topic: "Physics" | duration: 5.728212306s | depth: 0 | article_length: 4198
+2025-07-05T21:18:14+12:00 | topic: "Internet Meme" | duration: 5.98730123s | depth: 1 | article_length: 3793
+2025-07-05T21:18:19+12:00 | topic: "Evolutionary Biology" | duration: 5.214583996s | depth: 1 | article_length: 4493
+2025-07-05T21:18:24+12:00 | topic: "Selfish Gene" | duration: 4.753895711s | depth: 1 | article_length: 3497
+2025-07-05T21:18:31+12:00 | topic: "Satire and Irony" | duration: 7.2262618s | depth: 1 | article_length: 3796
+2025-07-05T21:18:36+12:00 | topic: "Absurdity and Humor" | duration: 5.388974213s | depth: 1 | article_length: 3709
+2025-07-05T21:18:44+12:00 | topic: "Interactivity" | duration: 7.447104271s | depth: 1 | article_length: 5697
+2025-07-05T21:18:49+12:00 | topic: "Community" | duration: 4.81550842s | depth: 1 | article_length: 3657
+2025-07-05T21:18:54+12:00 | topic: "Image Macro" | duration: 5.464876502s | depth: 1 | article_length: 3658
+2025-07-05T21:19:00+12:00 | topic: "Video" | duration: 5.705180889s | depth: 1 | article_length: 4149
+2025-07-05T21:19:07+12:00 | topic: "Joke" | duration: 7.034825178s | depth: 1 | article_length: 4292
+2025-07-05T21:21:03+12:00 | topic: "Computer Science" | duration: 6.554454087s | depth: 0 | article_length: 5395
+2025-07-05T21:21:08+12:00 | topic: "Meme Culture" | duration: 5.055416322s | depth: 0 | article_length: 3388
+2025-07-05T21:21:15+12:00 | topic: "The Internet" | duration: 6.731205463s | depth: 0 | article_length: 4461
+2025-07-05T21:21:22+12:00 | topic: "Photosynthesis" | duration: 7.255028697s | depth: 0 | article_length: 4381
+2025-07-05T21:21:36+12:00 | topic: "Physics" | duration: 13.546893686s | depth: 0 | article_length: 9235
+2025-07-05T21:21:41+12:00 | topic: "Computer" | duration: 5.648489283s | depth: 1 | article_length: 4443
+2025-07-05T21:21:49+12:00 | topic: "Science" | duration: 7.439426318s | depth: 1 | article_length: 6300
+2025-07-05T21:21:55+12:00 | topic: "Algorithm" | duration: 6.20599785s | depth: 1 | article_length: 4443
+2025-07-05T21:22:03+12:00 | topic: "Hardware" | duration: 8.337028607s | depth: 1 | article_length: 6293
+2025-07-05T21:22:11+12:00 | topic: "Data Structure" | duration: 7.403089992s | depth: 1 | article_length: 5807
+2025-07-05T21:22:19+12:00 | topic: "Software Engineering" | duration: 8.065681643s | depth: 1 | article_length: 5825
+2025-07-05T21:22:25+12:00 | topic: "Artificial Intelligence" | duration: 5.702720036s | depth: 1 | article_length: 3932
+2025-07-05T21:22:32+12:00 | topic: "Data Science" | duration: 7.732019185s | depth: 1 | article_length: 6381
+2025-07-05T21:22:40+12:00 | topic: "Database Management System" | duration: 7.348559447s | depth: 1 | article_length: 4580
+2025-07-05T21:22:47+12:00 | topic: "Human-computer Interaction" | duration: 6.8702108s | depth: 1 | article_length: 5464
+2025-07-05T21:22:53+12:00 | topic: "Turing" | duration: 6.338228219s | depth: 1 | article_length: 4033
+2025-07-05T21:22:59+12:00 | topic: "Berners-lee" | duration: 6.562433841s | depth: 1 | article_length: 4783
+2025-07-05T21:23:05+12:00 | topic: "Tim Berners-lee" | duration: 5.99878942s | depth: 1 | article_length: 3409
+2025-07-05T21:23:12+12:00 | topic: "Web" | duration: 6.272264977s | depth: 1 | article_length: 4271
+2025-07-05T21:23:17+12:00 | topic: "Communication" | duration: 5.477682178s | depth: 1 | article_length: 4607
+2025-07-05T21:23:23+12:00 | topic: "Economic Growth" | duration: 5.785028787s | depth: 1 | article_length: 4647
+2025-07-05T21:23:32+12:00 | topic: "Medical Advance" | duration: 8.565736078s | depth: 1 | article_length: 5455
+2025-07-05T21:23:36+12:00 | topic: "Meme" | duration: 4.668780222s | depth: 1 | article_length: 3284
+2025-07-05T21:23:42+12:00 | topic: "Culture" | duration: 5.904883741s | depth: 1 | article_length: 4375
+2025-07-05T21:23:50+12:00 | topic: "Internet" | duration: 7.562136697s | depth: 1 | article_length: 5329
+2025-07-05T21:23:56+12:00 | topic: "Humor" | duration: 6.445540321s | depth: 1 | article_length: 4189
+2025-07-05T21:24:03+12:00 | topic: "Irony" | duration: 6.241056155s | depth: 1 | article_length: 4107
+2025-07-05T21:24:08+12:00 | topic: "Self-replicating" | duration: 5.144893789s | depth: 1 | article_length: 3967
+2025-07-05T21:24:11+12:00 | topic: "Context-dependent" | duration: 3.758830551s | depth: 1 | article_length: 2703
+2025-07-05T21:24:17+12:00 | topic: "Image Macro" | duration: 5.558970072s | depth: 1 | article_length: 4053
+2025-07-05T21:24:22+12:00 | topic: "Dank Culture" | duration: 5.159510561s | depth: 1 | article_length: 3605
+2025-07-05T21:24:28+12:00 | topic: "Grumpy Cat" | duration: 5.361829008s | depth: 1 | article_length: 3508
+2025-07-05T21:24:36+12:00 | topic: "Satire" | duration: 8.701362259s | depth: 1 | article_length: 6390
+2025-07-05T21:24:43+12:00 | topic: "Advertising" | duration: 6.475113017s | depth: 1 | article_length: 5405
+2025-07-05T21:24:51+12:00 | topic: "Intellectual Property Right" | duration: 8.251548239s | depth: 1 | article_length: 6448
+2025-07-05T21:24:58+12:00 | topic: "Addiction" | duration: 6.49828613s | depth: 1 | article_length: 4765
+2025-07-05T21:25:04+12:00 | topic: "Escapism" | duration: 5.951513657s | depth: 1 | article_length: 4471
+2025-07-05T21:25:09+12:00 | topic: "Misogyny" | duration: 5.081173894s | depth: 1 | article_length: 3464
+2025-07-05T21:25:15+12:00 | topic: "Racism" | duration: 6.569787234s | depth: 1 | article_length: 4842
+2025-07-05T21:25:21+12:00 | topic: "Ai-generated Meme" | duration: 5.335230062s | depth: 1 | article_length: 3732
+2025-07-05T21:25:26+12:00 | topic: "Short-form Content" | duration: 5.640442586s | depth: 1 | article_length: 4129
+2025-07-05T21:25:35+12:00 | topic: "Tiktok" | duration: 9.255686491s | depth: 1 | article_length: 6497
+2025-07-05T21:25:41+12:00 | topic: "Community" | duration: 5.384171122s | depth: 1 | article_length: 4342
+2025-07-05T21:25:45+12:00 | topic: "Originality" | duration: 4.435762498s | depth: 1 | article_length: 3285
+2025-07-05T21:25:52+12:00 | topic: "Chloroplast" | duration: 7.146627171s | depth: 1 | article_length: 4669
+2025-07-05T21:25:59+12:00 | topic: "Pigment" | duration: 6.448579285s | depth: 1 | article_length: 4057
+2025-07-05T21:26:04+12:00 | topic: "Light Energy" | duration: 5.54965437s | depth: 1 | article_length: 3557
+2025-07-05T21:26:10+12:00 | topic: "ATP" | duration: 5.390777626s | depth: 1 | article_length: 3230
+2025-07-05T21:26:16+12:00 | topic: "NADPH" | duration: 5.686092656s | depth: 1 | article_length: 3302
+2025-07-05T21:26:21+12:00 | topic: "Calvin Cycle" | duration: 5.607117522s | depth: 1 | article_length: 3524
+2025-07-05T21:26:26+12:00 | topic: "Carbon Fixation" | duration: 5.215610424s | depth: 1 | article_length: 3685
+2025-07-05T21:26:31+12:00 | topic: "Rubp" | duration: 4.393878191s | depth: 1 | article_length: 2528
+2025-07-05T21:26:36+12:00 | topic: "Oxygen" | duration: 5.357108157s | depth: 1 | article_length: 3245
+2025-07-05T21:26:43+12:00 | topic: "Glucose" | duration: 6.312585318s | depth: 1 | article_length: 4545
+2025-07-05T21:26:49+12:00 | topic: "Carbon Dioxide" | duration: 6.21996861s | depth: 1 | article_length: 4195
+2025-07-05T21:26:56+12:00 | topic: "Light-dependent Reaction" | duration: 6.807945768s | depth: 1 | article_length: 4082

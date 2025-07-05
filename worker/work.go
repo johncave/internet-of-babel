@@ -10,9 +10,85 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"unicode"
 
+	pluralize "github.com/gertd/go-pluralize"
 	"github.com/ollama/ollama/api"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
+
+func AllUpper(s string) bool {
+	for _, r := range s {
+		if !unicode.IsUpper(r) && unicode.IsLetter(r) {
+			return false
+		}
+	}
+	return true
+}
+
+// toTitleCase converts a string to proper title case
+func toTitleCase(s string) string {
+	if s == "" {
+		return s
+	}
+
+	if AllUpper(s) {
+		return s
+	}
+
+	// Convert to lowercase first, then capitalize
+	s = strings.ToLower(s)
+	words := strings.Fields(s)
+
+	for i, word := range words {
+		// Skip common words that should remain lowercase (except first and last word)
+		if i > 0 && i < len(words)-1 {
+			switch word {
+			case "a", "an", "and", "as", "at", "but", "by", "for", "if", "in", "nor", "of", "on", "or", "so", "the", "to", "up", "yet":
+				continue
+			}
+		}
+
+		// Capitalize the word
+		if len(word) > 0 {
+			words[i] = strings.ToUpper(word[:1]) + word[1:]
+			continue
+		}
+
+		caser := cases.Title(language.English)
+		words[i] = caser.String(word)
+	}
+
+	return strings.Join(words, " ")
+}
+
+// singularize attempts to convert a word to its singular form
+func singularize(word string) string {
+	var clientShit = pluralize.NewClient()
+	return clientShit.Singular(word)
+}
+
+// normalizeTitle normalizes a title for duplication checking
+func normalizeTitle(title string) string {
+
+	log.Println("Normalizing title:", title)
+
+	// Convert to title case
+	title = toTitleCase(title)
+
+	// Singularize the title
+	title = singularize(title)
+
+	// Remove any underscores and replace with spaces
+	title = strings.ReplaceAll(title, "_", " ")
+
+	title = strings.TrimSpace(title)
+
+	log.Println("Normalized title:", title)
+
+	return title
+}
 
 // Add a set of basic English stopwords
 var stopwords = map[string]struct{}{
@@ -61,7 +137,10 @@ func work() {
 		fmt.Sscanf(queueItems[0][1], "%d", &depth)
 		queueItems = queueItems[1:] // Remove from queue
 
-		filename := sanitizeFilename(topic) + ".md"
+		// Normalize the topic for better duplication checking
+		normalizedTopic := normalizeTitle(topic)
+
+		filename := sanitizeFilename(normalizedTopic) + ".md"
 		articlePath := filepath.Join(articlesDir, filename)
 		if _, err := os.Stat(articlePath); err == nil {
 			// Already processed, skip
@@ -86,6 +165,7 @@ func work() {
 		log.Println("Generating article...")
 		generationStatus.Title = topic
 		generationStatus.Phase = "Writing"
+		SendManualStatusUpdate()
 		// Generate article
 		articleContent := ""
 		articleRespFunc := func(resp api.ChatResponse) error {
@@ -123,6 +203,7 @@ func work() {
 		})
 
 		generationStatus.Phase = "Analyzing"
+		SendManualStatusUpdate()
 
 		keywordsContent := ""
 		keywordsRespFunc := func(resp api.ChatResponse) error {
@@ -164,6 +245,8 @@ func work() {
 		if depth < maxDepth {
 			var keywords []string
 			if err := json.Unmarshal([]byte(keywordsContent), &keywords); err == nil {
+
+				log.Println("Processing keywords for topic:", topic, keywords)
 				// Read the current queue again to avoid duplicates
 				currentQueue, _ := readQueue(queuePath)
 				for _, kw := range keywords {
@@ -174,11 +257,15 @@ func work() {
 					if _, isStopword := stopwords[strings.ToLower(kw)]; isStopword {
 						continue
 					}
+
+					// Normalize the keyword for better duplication checking
+					normalizedKw := normalizeTitle(kw)
+
 					// Make file existence check case-insensitive by checking all files in the directory
 					alreadyProcessed := false
 					files, _ := os.ReadDir(articlesDir)
 					for _, f := range files {
-						if strings.EqualFold(f.Name(), sanitizeFilename(kw)+".md") {
+						if strings.EqualFold(f.Name(), sanitizeFilename(normalizedKw)+".md") {
 							alreadyProcessed = true
 							break
 						}
@@ -187,8 +274,8 @@ func work() {
 						continue // Already processed
 					}
 					// Only add to queue if queue length is below the limit
-					if len(queueItems) < maxQueueLen && !isInQueue(currentQueue, kw) && !isInQueue(queueItems, kw) {
-						queueItems = append(queueItems, [2]string{kw, fmt.Sprintf("%d", depth+1)})
+					if len(queueItems) < maxQueueLen && !isInQueue(currentQueue, normalizedKw) && !isInQueue(queueItems, normalizedKw) {
+						queueItems = append(queueItems, [2]string{normalizedKw, fmt.Sprintf("%d", depth+1)})
 					}
 				}
 			}
@@ -197,5 +284,7 @@ func work() {
 		if err := writeQueue(queuePath, queueItems); err != nil {
 			log.Fatalf("Failed to update queue.txt: %v", err)
 		}
+
+		SendReset() // Notify WebSocket of reset
 	}
 }
