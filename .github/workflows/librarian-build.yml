@@ -3,12 +3,12 @@ name: Build Librarian Image
 on:
   push:
     branches: [ main ]
-    # paths:
-    #   - 'librarian/**'
+    paths:
+      - 'librarian/**'
   pull_request:
     branches: [ main ]
-    # paths:
-    #   - 'librarian/**'
+    paths:
+      - 'librarian/**'
 
 jobs:
   build:

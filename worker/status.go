@@ -50,7 +50,7 @@ func (sm *StatusMonitor) Connect(websocketURL string) error {
 	if err != nil {
 		return fmt.Errorf("failed to connect to WebSocket: %v", err)
 	}
-	log.Printf("Connected to WebSocket: %s", websocketURL)
+	//log.Printf("Connected to WebSocket: %s", websocketURL)
 	return nil
 }
 
@@ -180,8 +180,8 @@ func (sm *StatusMonitor) sendStatus(status SystemStatus) error {
 		return fmt.Errorf("failed to send status: %v", err)
 	}
 
-	log.Printf("Sent status update: CPU=%.1f%%, Memory=%.1f%%, Uptime=%s",
-		status.CPUUsage, status.MemoryUsage, status.Uptime)
+	//log.Printf("Sent status update: CPU=%.1f%%, Memory=%.1f%%, Uptime=%s",
+	//	status.CPUUsage, status.MemoryUsage, status.Uptime)
 	return nil
 }
 
@@ -220,11 +220,11 @@ func (sm *StatusMonitor) Start(websocketURL string) error {
 }
 
 // StartStatusMonitor starts the status monitoring in a goroutine
-func StartStatusMonitor(websocketURL string, interval time.Duration) {
+func StartStatusMonitor(interval time.Duration) {
 	go func() {
-		monitor := NewStatusMonitor(websocketURL, interval)
+		monitor := NewStatusMonitor(WebSocketURL, interval)
 		for {
-			if err := monitor.Start(websocketURL); err != nil {
+			if err := monitor.Start(WebSocketURL); err != nil {
 				log.Printf("Status monitor error: %v", err)
 				log.Printf("Retrying in 30 seconds...")
 				time.Sleep(30 * time.Second)
@@ -239,8 +239,7 @@ func SendManualStatusUpdate() {
 	monitor := NewStatusMonitor("", 0) // URL and interval don't matter for manual send
 
 	// Try to connect to the WebSocket
-	websocketURL := "ws://localhost:8080/ws/llm?api_key=babelcom-secret-key"
-	if err := monitor.Connect(websocketURL); err != nil {
+	if err := monitor.Connect(WebSocketURL); err != nil {
 		log.Printf("Failed to connect for manual status update: %v", err)
 		return
 	}
@@ -250,7 +249,5 @@ func SendManualStatusUpdate() {
 	status := monitor.generateStatus()
 	if err := monitor.sendStatus(status); err != nil {
 		log.Printf("Failed to send manual status update: %v", err)
-	} else {
-		log.Printf("Manual status update sent successfully")
 	}
 }

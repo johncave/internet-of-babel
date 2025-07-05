@@ -3,12 +3,12 @@ name: Build Babelcom Image
 on:
   push:
     branches: [ main ]
-    # paths:
-    #   - 'babelcom/**'
+    paths:
+      - 'babelcom/**'
   pull_request:
     branches: [ main ]
-    # paths:
-    #   - 'babelcom/**'
+    paths:
+      - 'babelcom/**'
 
 jobs:
   build:

@@ -1,15 +1,3 @@
-Chlorophyll A|1
-Thylakoid Membrane|1
-Electron Transport Chain|1
-Enzyme Complex|1
-Plant Cell|1
-Photosynthesis Process|1
-Life on Earth|1
-Earth's Climate|1
-Aquatic Ecosystem|1
-Phytoplankton|1
-Carbon Cycle|1
-Pigment Molecule|1
 Electron|1
 Atp Synthesis|1
 Nadph Synthesis|1
@@ -498,3 +486,13 @@ Atmosphere|2
 Simple Carbohydrate|2
 Greenhouse Gas|2
 Electron Transfer Chain|2
+Chemical Energy|2
+Stoma|2
+Transport|2
+Cell|2
+Organelle|2
+Climate|2
+Atmospheric Circulation|2
+Solar Radiation|2
+Plant|2
+Microscopic|2

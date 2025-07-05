@@ -72,8 +72,6 @@ func singularize(word string) string {
 // normalizeTitle normalizes a title for duplication checking
 func normalizeTitle(title string) string {
 
-	log.Println("Normalizing title:", title)
-
 	// Convert to title case
 	title = toTitleCase(title)
 
@@ -84,8 +82,6 @@ func normalizeTitle(title string) string {
 	title = strings.ReplaceAll(title, "_", " ")
 
 	title = strings.TrimSpace(title)
-
-	log.Println("Normalized title:", title)
 
 	return title
 }
@@ -246,7 +242,7 @@ func work() {
 			var keywords []string
 			if err := json.Unmarshal([]byte(keywordsContent), &keywords); err == nil {
 
-				log.Println("Processing keywords for topic:", topic, keywords)
+				//log.Println("Processing keywords for topic:", topic, keywords)
 				// Read the current queue again to avoid duplicates
 				currentQueue, _ := readQueue(queuePath)
 				for _, kw := range keywords {

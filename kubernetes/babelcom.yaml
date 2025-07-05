@@ -18,7 +18,7 @@ spec:
     matchLabels:
       app: babelcom
   strategy:
-    type: Recreate
+    type: RollingUpdate
   template:
     metadata:
       labels:

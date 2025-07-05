@@ -9,6 +9,11 @@ import (
 	"time"
 )
 
+// Global constants
+const (
+	WebSocketURL = "wss://babelcom.johncave.co.nz/ws/llm?api_key=babelcom-secret-key"
+)
+
 var shutdownRequested bool
 var done chan (bool)
 
@@ -16,12 +21,11 @@ func init() {
 	go work()
 
 	// Start status monitor to send system status to WebSocket
-	websocketURL := "ws://localhost:8080/ws/llm?api_key=babelcom-secret-key"
 	interval := 10 * time.Second // Send status every 10 seconds
-	StartStatusMonitor(websocketURL, interval)
+	StartStatusMonitor(interval)
 
 	// Connect to token WebSocket
-	if err := ConnectTokenWebSocket(websocketURL); err != nil {
+	if err := ConnectTokenWebSocket(WebSocketURL); err != nil {
 		log.Printf("Failed to connect to token WebSocket: %v", err)
 	}
 }

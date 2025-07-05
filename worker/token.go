@@ -31,7 +31,7 @@ func SendReset() {
 		return
 	}
 
-	log.Println("Sent reset message to WebSocket")
+	//log.Println("Sent reset message to WebSocket")
 }
 
 // SendToken sends a single token to the WebSocket
