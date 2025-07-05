@@ -121,7 +121,7 @@ const SystemMonitorApp = {
     },
     
     connectWebSocket: function() {
-        const wsUrl = 'ws://localhost:8080/ws';
+        const wsUrl = 'wss://babelcom.johncave.co.nz/ws';
         
         try {
             this.websocket = new WebSocket(wsUrl);
