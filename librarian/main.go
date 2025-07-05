@@ -2,29 +2,23 @@ package main
 
 import (
 	"embed"
-	"encoding/json"
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
-	"regexp"
-	"sort"
 	"strings"
-	"time"
 
-	"math/rand"
-
-	"github.com/gomarkdown/markdown"
-	"github.com/gomarkdown/markdown/html"
-	"github.com/gomarkdown/markdown/parser"
+	"github.com/gin-contrib/gzip"
+	"github.com/gin-gonic/gin"
 )
 
-var articlesDir = "../articles"
+var articlesDir = "../worker/articles"
 
 //go:embed templates
 var templates embed.FS
+
+//go:embed static
+var staticFiles embed.FS
 
 func getTotalArticleCount(articlesDir string) int {
 	articles, err := os.ReadDir(articlesDir)
@@ -41,292 +35,66 @@ func getTotalArticleCount(articlesDir string) int {
 	return count
 }
 
-type PageData struct {
-	Title   string
-	Content template.HTML
-	Count   int
+// faviconHandler serves the favicon from the embedded static directory
+func faviconHandler(c *gin.Context) {
+	// Try to read the favicon from the embedded filesystem
+	content, err := staticFiles.ReadFile("static/favicon.ico")
+	if err != nil {
+		c.Status(http.StatusNotFound)
+		return
+	}
+
+	c.Header("Content-Type", "image/x-icon")
+	c.Header("Cache-Control", "public, max-age=86400") // Cache for 24 hours
+	c.Data(http.StatusOK, "image/x-icon", content)
 }
 
-type IndexData struct {
-	Title    string
-	Count    int
-	Articles []ArticleInfo
-}
+// staticHandler serves static files from the embedded static directory
+func staticHandler(c *gin.Context) {
+	// Get the file path from the URL
+	filePath := c.Param("filepath")
 
-type ArticleInfo struct {
-	Filename    string
-	Title       string
-	CreatedTime time.Time
-}
+	if filePath == "" {
+		c.Status(http.StatusNotFound)
+		return
+	}
 
-func mdToHTML(md []byte) []byte {
-	// Create markdown parser with extensions
-	extensions := parser.CommonExtensions | parser.AutoHeadingIDs
-	parser := parser.NewWithExtensions(extensions)
+	// Remove leading slash if present
+	filePath = strings.TrimPrefix(filePath, "/")
 
-	doc := parser.Parse(md)
+	// Construct the full path within the embedded filesystem
+	fullPath := "static/" + filePath
 
-	// Create HTML renderer with extensions
-	htmlFlags := html.CommonFlags | html.HrefTargetBlank
-	opts := html.RendererOptions{Flags: htmlFlags}
-	renderer := html.NewRenderer(opts)
-
-	return markdown.Render(doc, renderer)
-}
-
-func addKeywordLinks(mdContent string, keywordsPath string, articlesDir string) string {
-	// Read keywords from JSON file
-	keywordsData, err := os.ReadFile(keywordsPath)
+	// Try to read the file from the embedded filesystem
+	content, err := staticFiles.ReadFile(fullPath)
 	if err != nil {
-		// If keywords file doesn't exist, return original content
-		return mdContent
-	}
-
-	var keywords []string
-	if err := json.Unmarshal(keywordsData, &keywords); err != nil {
-		// If JSON parsing fails, return original content
-		return mdContent
-	}
-
-	// Create a map for faster lookup
-	keywordMap := make(map[string]bool)
-	for _, kw := range keywords {
-		keywordMap[strings.ToLower(kw)] = true
-	}
-
-	// Replace keywords with links
-	// Use word boundaries to avoid partial matches
-	for keyword := range keywordMap {
-		// Create regex pattern with word boundaries
-		pattern := regexp.MustCompile(`(?i)\b` + regexp.QuoteMeta(keyword) + `\b`)
-
-		// Find the original keyword (preserving case) and create link
-		mdContent = pattern.ReplaceAllStringFunc(mdContent, func(match string) string {
-			// Find the original keyword from the keywords list to preserve case
-			for _, originalKw := range keywords {
-				if strings.EqualFold(originalKw, match) {
-					// Check if the target article exists
-					targetPath := filepath.Join(articlesDir, sanitizeFilename(originalKw)+".md")
-					if _, err := os.Stat(targetPath); err == nil {
-						// Article exists - normal markdown link
-						return fmt.Sprintf("[%s](/%s)", originalKw, sanitizeFilename(originalKw))
-					} else {
-						// Article doesn't exist - insert raw HTML with missing-article class
-						return fmt.Sprintf(`<a href="/%s" class="missing-article">%s</a>`, sanitizeFilename(originalKw), originalKw)
-					}
-				}
-			}
-			return match
-		})
-	}
-
-	return mdContent
-}
-
-func sanitizeFilename(name string) string {
-	re := regexp.MustCompile(`[^a-zA-Z0-9_-]+`)
-	return strings.Trim(re.ReplaceAllString(name, "_"), "_")
-}
-
-func desanitizeTitle(filename string) string {
-	// Remove .md extension if present
-	filename = strings.TrimSuffix(filename, ".md")
-	// Replace underscores with spaces
-	title := strings.ReplaceAll(filename, "_", " ")
-	// Capitalize first letter of each word
-	words := strings.Fields(title)
-	for i, word := range words {
-		if len(word) > 0 {
-			words[i] = strings.ToUpper(word[:1]) + strings.ToLower(word[1:])
-		}
-	}
-	return strings.Join(words, " ")
-}
-
-func notFoundHandler(w http.ResponseWriter, r *http.Request, articleName string) {
-	// Parse the embedded template
-	tmpl, err := template.ParseFS(templates, "templates/base.html", "templates/404.html")
-	if err != nil {
-		http.Error(w, "Template error", http.StatusInternalServerError)
+		c.Status(http.StatusNotFound)
 		return
 	}
 
-	// Prepare the page data
-	data := PageData{
-		Title:   desanitizeTitle(articleName),
-		Content: template.HTML(""), // Content is handled by the 404 template
-		Count:   getTotalArticleCount(articlesDir),
+	// Set appropriate content type based on file extension
+	contentType := "text/plain"
+	if strings.HasSuffix(filePath, ".css") {
+		contentType = "text/css"
+	} else if strings.HasSuffix(filePath, ".js") {
+		contentType = "application/javascript"
+	} else if strings.HasSuffix(filePath, ".png") {
+		contentType = "image/png"
+	} else if strings.HasSuffix(filePath, ".jpg") || strings.HasSuffix(filePath, ".jpeg") {
+		contentType = "image/jpeg"
+	} else if strings.HasSuffix(filePath, ".gif") {
+		contentType = "image/gif"
+	} else if strings.HasSuffix(filePath, ".svg") {
+		contentType = "image/svg+xml"
 	}
 
-	// Set 404 status
-	w.WriteHeader(http.StatusNotFound)
+	c.Header("Content-Type", contentType)
 
-	// Execute the template
-	err = tmpl.Execute(w, data)
-	if err != nil {
-		http.Error(w, "Template execution error", http.StatusInternalServerError)
-		return
-	}
-}
-
-func articleHandler(w http.ResponseWriter, r *http.Request) {
-	// Extract article name from URL path
-	path := strings.TrimPrefix(r.URL.Path, "/")
-	if path == "" {
-		// Serve index page
-		http.Redirect(w, r, "/", http.StatusSeeOther)
-		return
-	}
-
-	// Sanitize the path to prevent directory traversal
-	if strings.Contains(path, "..") || strings.Contains(path, "/") {
-		http.Error(w, "Invalid article name", http.StatusBadRequest)
-		return
-	}
-
-	// Construct the markdown file path
-	mdPath := filepath.Join(articlesDir, path+".md")
-
-	// Read the markdown file
-	mdContent, err := os.ReadFile(mdPath)
-	if err != nil {
-		// Article not found - serve 404 page
-		notFoundHandler(w, r, path)
-		return
-	}
-
-	// Add keyword links before converting to HTML
-	keywordsPath := filepath.Join(articlesDir, "keywords", path+".json")
-	mdContentWithLinks := addKeywordLinks(string(mdContent), keywordsPath, articlesDir)
-
-	// Convert markdown to HTML
-	htmlContent := mdToHTML([]byte(mdContentWithLinks))
-
-	// Parse the embedded template
-	tmpl, err := template.ParseFS(templates, "templates/base.html", "templates/article.html")
-	if err != nil {
-		http.Error(w, "Template error", http.StatusInternalServerError)
-		return
-	}
-
-	// Prepare the page data
-	data := PageData{
-		Title:   desanitizeTitle(path),
-		Content: template.HTML(htmlContent),
-		Count:   getTotalArticleCount(articlesDir),
-	}
-
-	// Execute the template
-	err = tmpl.Execute(w, data)
-	if err != nil {
-		http.Error(w, "Template execution error", http.StatusInternalServerError)
-		return
-	}
-}
-
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	// List all available articles
-	articles, err := os.ReadDir(articlesDir)
-	if err != nil {
-		http.Error(w, "Could not read articles directory", http.StatusInternalServerError)
-		return
-	}
-
-	var articleList []ArticleInfo
-	for _, article := range articles {
-		if !article.IsDir() && strings.HasSuffix(article.Name(), ".md") {
-			// Remove .md extension
-			filename := strings.TrimSuffix(article.Name(), ".md")
-			title := desanitizeTitle(filename)
-
-			// Get file info for creation time
-			fileInfo, err := article.Info()
-			if err != nil {
-				// If we can't get file info, use current time
-				articleList = append(articleList, ArticleInfo{
-					Filename:    filename,
-					Title:       title,
-					CreatedTime: time.Now(),
-				})
-				continue
-			}
-
-			articleList = append(articleList, ArticleInfo{
-				Filename:    filename,
-				Title:       title,
-				CreatedTime: fileInfo.ModTime(),
-			})
-		}
-	}
-
-	// Sort by creation time, most recent first
-	sort.Slice(articleList, func(i, j int) bool {
-		return articleList[i].CreatedTime.After(articleList[j].CreatedTime)
-	})
-
-	// Store total count before limiting
-	totalCount := len(articleList)
-
-	// Limit to 10 most recent articles
-	if len(articleList) > 10 {
-		articleList = articleList[:10]
-	}
-
-	// Parse the embedded template
-	tmpl, err := template.ParseFS(templates, "templates/base.html", "templates/index.html")
-	if err != nil {
-		http.Error(w, "Template error", http.StatusInternalServerError)
-		return
-	}
-
-	// Prepare the page data
-	data := IndexData{
-		Title:    "Articles",
-		Count:    totalCount,
-		Articles: articleList,
-	}
-
-	// Execute the template
-	err = tmpl.Execute(w, data)
-	if err != nil {
-		http.Error(w, "Template execution error", http.StatusInternalServerError)
-		return
-	}
-}
-
-func randomArticleHandler(w http.ResponseWriter, r *http.Request) {
-	// List all available articles
-	articles, err := os.ReadDir(articlesDir)
-	if err != nil {
-		http.Error(w, "Could not read articles directory", http.StatusInternalServerError)
-		return
-	}
-
-	var articleList []string
-	for _, article := range articles {
-		if !article.IsDir() && strings.HasSuffix(article.Name(), ".md") {
-			// Remove .md extension
-			filename := strings.TrimSuffix(article.Name(), ".md")
-			articleList = append(articleList, filename)
-		}
-	}
-
-	if len(articleList) == 0 {
-		http.Error(w, "No articles available", http.StatusNotFound)
-		return
-	}
-
-	// Pick a random article
-	rand.Seed(time.Now().UnixNano())
-	randomIndex := rand.Intn(len(articleList))
-	randomArticle := articleList[randomIndex]
-
-	// Redirect to the random article
-	http.Redirect(w, r, "/"+randomArticle, http.StatusSeeOther)
+	c.Header("Cache-Control", "public, max-age=3600") // Cache for 1 hour
+	c.Data(http.StatusOK, contentType, content)
 }
 
 func main() {
-
 	// Check if ARTICLES_DIR environment variable exists
 	envArticlesDir := os.Getenv("ARTICLES_DIR")
 	if envArticlesDir != "" {
@@ -338,20 +106,55 @@ func main() {
 		log.Fatal("Articles directory not found. Please run the article generator first.")
 	}
 
-	// Set up routes
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/" {
-			indexHandler(w, r)
-		} else if r.URL.Path == "/random" {
-			randomArticleHandler(w, r)
-		} else {
-			articleHandler(w, r)
+	// Set Gin to release mode for production
+	gin.SetMode(gin.ReleaseMode)
+
+	// Create Gin router
+	r := gin.New()
+
+	// Add logging middleware
+	r.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
+		timestamp := param.TimeStamp.Format("02/Jan/2006:15:04:05 -0700")
+		clientIP := param.ClientIP
+		userAgent := param.Request.UserAgent()
+		if userAgent == "" {
+			userAgent = "-"
 		}
-	})
+		referer := param.Request.Header.Get("Referer")
+		if referer == "" {
+			referer = "-"
+		}
+		return fmt.Sprintf(`%s - - [%s] "%s %s %s" %d %d "%s" "%s" %.3f`+"\n",
+			clientIP,
+			timestamp,
+			param.Method,
+			param.Path,
+			param.Request.Proto,
+			param.StatusCode,
+			param.BodySize,
+			referer,
+			userAgent,
+			param.Latency.Seconds(),
+		)
+	}))
+
+	// Add recovery middleware
+	r.Use(gin.Recovery())
+
+	r.Use(gzip.Gzip(gzip.DefaultCompression))
+
+	// Static file routes
+	r.GET("/static/*filepath", staticHandler)
+	r.GET("/favicon.ico", faviconHandler)
+
+	// Main routes
+	r.GET("/", indexHandler)
+	r.GET("/random", randomArticleHandler)
+	r.GET("/:article", articleHandler)
 
 	port := ":8080"
 	fmt.Printf("Starting server on http://localhost%s\n", port)
 	fmt.Println("Press Ctrl+C to stop the server")
 
-	log.Fatal(http.ListenAndServe(port, nil))
+	log.Fatal(r.Run(port))
 }
