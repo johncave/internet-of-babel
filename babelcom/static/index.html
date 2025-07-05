@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Babelcom - Internet of Babel</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://rawcdn.githack.com/nextapps-de/winbox/0.2.82/dist/winbox.bundle.min.js"></script>
+</head>
+<body>
+    <div class="desktop">
+        <!-- Desktop Background -->
+        <div class="desktop-background"></div>
+        
+        <!-- Taskbar -->
+        <div class="taskbar">
+            <div class="taskbar-left">
+                <div class="start-button" onclick="toggleStartMenu()">
+                    <span class="start-icon">🚀</span>
+                    <span class="start-text">BABELCOM</span>
+                </div>
+            </div>
+            <div class="taskbar-center">
+                <div class="running-apps" id="runningApps">
+                    <!-- Running app windows will be shown here -->
+                </div>
+            </div>
+            <div class="taskbar-right">
+                <div class="system-tray">
+                    <div class="clock" id="clock"></div>
+                    <div class="status-indicator" id="statusIndicator">
+                        <span class="status-dot"></span>
+                        <span class="status-text">SYSTEM ONLINE</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Start Menu -->
+        <div class="start-menu" id="startMenu">
+            <div class="start-menu-header">
+                <h3>Applications</h3>
+            </div>
+            <div class="start-menu-apps">
+                <div class="app-item" onclick="openApp('system-monitor')">
+                    <div class="app-icon">📊</div>
+                    <div class="app-name">System Monitor</div>
+                </div>
+                <div class="app-item" onclick="openApp('library-browser')">
+                    <div class="app-icon">📚</div>
+                    <div class="app-name">Library Browser</div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Desktop Icons -->
+        <div class="desktop-icons">
+            <div class="desktop-icon" onclick="openApp('system-monitor')">
+                <div class="icon">📊</div>
+                <div class="icon-label">System Monitor</div>
+            </div>
+            <div class="desktop-icon" onclick="openApp('library-browser')">
+                <div class="icon">📚</div>
+                <div class="icon-label">Library Browser</div>
+            </div>
+
+        </div>
+
+        <!-- Window Container -->
+        <div id="windowContainer"></div>
+    </div>
+
+    <script src="/static/app.js"></script>
+    <script src="/static/apps/system-monitor.js"></script>
+    <script src="/static/apps/library-browser.js"></script>
+</body>
+</html> 

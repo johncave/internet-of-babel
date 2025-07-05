@@ -1,496 +1,499 @@
-Scientific Method|2
-Observation|2
-Questioning|2
-Prediction|2
-Experimentation|2
-Data Analysis|2
-Conclusion|2
-Caution|2
-Skepticism|2
-Correspondence|2
-Falsifiability|2
-Isaac Newton|2
-Albert Einstein|2
-Marie Curie|2
-Stephen Hawking|2
-Lack of empirical evidence|2
-Confirmation bias|2
-Science vs. Politics|2
-Ethics and Responsibility|2
-Honesty|2
-Transparency|2
-Sensitivity|2
-Genomics|2
-Computational Biology|2
-Quantum Computing|2
-Access to resources|2
-Inequity|2
-Definition|2
-Classification|2
-Types of Languages|2
-Indo-European Languages|2
-Sino-Tibetan Languages|2
-Niger-Congo Languages|2
-Austronesian Languages|2
-Afro-Asiatic Languages|2
-Semitic Languages|2
-Indo-Iranian Languages|2
-Bilingualism|2
-Language Acquisition|2
-Communication|2
-Culture|2
-Economy|2
-Politics|2
-database|2
-relational database management system|2
-NoSQL database|2
-relational model|2
-relational tables|2
-indexed query|2
-key-value pairs|2
-self-descriptive data formats|2
-graph database|2
-nodes|2
-edges|2
-weighted edges|2
-real-time analysis|2
-time-series databases|2
-table structure|2
-indexing structures|2
-query performance|2
-access controls|2
-security measures|2
-History of Networking|2
-Types of Networking|2
-Local Area Network|2
-Wide Area Network|2
-Metropolitan Area Network|2
-Wireless Networking|2
-Network Components|2
-Switches|2
-Routers|2
-Firewalls|2
-Servers|2
-Clients|2
-TCP/IP|2
-HTTP|2
-FTP|2
-Firewall|2
-Encryption|2
-Authentication|2
-Remote Access|2
-Virtual Private Networks|2
-Cloud Computing|2
-Packet Loss|2
-Jitter|2
-Throughput|2
-Measurement and Analysis|2
-Challenges of Networking|2
-Natural Language Processing|2
-Neural Networks|2
-Computer Vision|2
-Virtual Assistants|2
-Image Recognition|2
-Chatbots|2
-Narrow or Weak AI|2
-General or Strong AI|2
-Data|2
-Algorithm|2
-Hardware|2
-Challenges|2
-Limitations|2
-Future Developments|2
-Code Examples|2
-Learning|2
-Subfield|2
-Machine|2
-Statistical|2
-Models|2
-Mathematical|2
-Properties|2
-Complexity|2
-Analysis|2
-Interpretation|2
-Predictions|2
-Outcomes|2
-Advantages|2
-Disadvantages|2
-Training|2
-Time|2
-Cost|2
-Accuracy|2
-Complex Relationships|2
-Flexibility|2
-Modifications|2
-Fine-tuning|2
-Computational|2
-Expensive|2
-Time-consuming|2
-DataQuality|2
-Development|2
-Nature|2
-Neural|2
-Information|2
-Strategies|2
-Architecture|2
-MachineLearning|2
-ComputerVision|2
-NaturalLanguageProcessing|2
-SpeechRecognition|2
-Threats|2
-Vulnerabilities|2
-Malware|2
-Phishing|2
-Network Attacks|2
-Insider Threats|2
-Antivirus Software|2
-Access Control|2
-Incident Response Plans|2
-Cybersecurity Measures|2
-Encryption Algorithms|2
-Secure Sockets Layer/Transport Layer Security|2
-Biometric Authentication|2
-Cybersecurity Best Practices|2
-Culture of Security|2
-Regular Vulnerability Assessments|2
-Monitoring Network Activity|2
-Strong Passwords|2
-Data Breaches|2
-Ransomware Attacks|2
-Identity Theft|2
-code|2
-definition|2
-history|2
-types|2
-programming languages|2
-development environments|2
-code review|2
-security concerns|2
-code sharing|2
-glossary|2
-Operating System|2
-Application Software|2
-System Software|2
-Utility Software|2
-Games|2
-Development Life Cycle|2
-Requirements Gathering|2
-Design|2
-Implementation|2
-Testing|2
-Deployment|2
-Security|2
-Access Control Lists|2
-Licensing Models|2
-Open Source Software|2
-Commercial Software Ecosystem|2
-Technology|2
-Industrial Revolution|2
-Computers|2
-Internet|2
-Mobile Devices|2
-Social Media|2
-Productivity|2
-Entertainment|2
-Education|2
-Transportation|2
-Energy and Utilities|2
-Gaming and Entertainment|2
-Accessibility|2
-Security Risks|2
-Cost and Inequality|2
-Environmental Impact|2
-Social Implications|2
-field|2
-agricultural|2
-fields|2
-classifications|2
-characteristics|2
-size|2
-land_use|2
-infrastructure|2
-accessibility|2
-safety|2
-ecological_importance|2
-biodiversity|2
-soil_conservation|2
-water_cycle|2
-climate_regulation|2
-scientific_field|2
-recreational_field|2
-sports_field|2
-scientific_research|2
-military_field|2
-Discipline|2
-systematic|2
-structured|2
-approach|2
-goals|2
-activities|2
-skills|2
-knowledge|2
-habits|2
-self-control|2
-moderation|2
-dedication|2
-exercise|2
-physical|2
-mental|2
-social|2
-norms|2
-rules|2
-expectations|2
-professional|2
-industry|2
-performance|2
-efficiency|2
-productivity|2
-stealthy|2
-improvement|2
-feedback|2
-motivation|2
-perfectionism|2
-burnout|2
-reality|2
-achievable|2
-measurable|2
-repetitive|2
-challenge|2
-perfectionist|2
-Technological|2
-Scientific|2
-Engineering|2
-Historical|2
-Globalization|2
-Innovation|2
-Improvement|2
-Progress|2
-History|2
-Discovery|2
-Invention|2
-Creation|2
-Breakthrough|2
-Transformation|2
-Impact|2
-Economic|2
-Social|2
-Cultural|2
-Global|2
-future|2
-philosophical|2
-perspectives|2
-determinism|2
-indeterminism|2
-optimism|2
-artificial_intelligence|2
-internet_of_things|2
-quantum_computing|2
-climate_change|2
-overpopulation|2
-biodiversity_loss|2
-technological_singularity|2
-post_scarcity_economy|2
-singularity|2
-complexities|2
-Nobility|2
-Feudalism|2
-Bourgeoisie|2
-Military Leaders|2
-Conquest|2
-Hereditary Titles|2
-Legislative Bodies|2
-Judicial Roles|2
-Administrative Roles|2
-Privileges and Rights|2
-Power Dynamics|2
-Exclusion and Inequality|2
-Injustices and Corruption|2
-Etymology|2
-Old English|2
-Middle English|2
-Modern English|2
-Preposition|2
-Introducing a clause|2
-Showing relation to something|2
-Possession|2
-Relation|2
-Cause and effect|2
-Location|2
-Direction and movement|2
-Idioms and Phrases|2
-Non-standard usage|2
-Standardization|2
-Variations and Regional Differences|2
-etymology|2
-pronunciation|2
-function|2
-usage|2
-nouns|2
-prerequisites|2
-idiomatic expressions|2
-linguistic history|2
-cultural significance|2
-conventions|2
-style|2
-musical styles|2
-Types of Rings|2
-Materials|2
-Symbolism|2
-Fashion Trends|2
-Cultural Significance|2
-Contemporary Trends|2
-Metals|2
-Stone|2
-Gemstones|2
-Love and Commitment|2
-Spiritual Significance|2
-Status and Wealth|2
-Glamorous Designs|2
-Minimalist Chic|2
-Modern Fashion Trends|2
-Ancient Egyptian Jewelry|2
-Norse Mythology|2
-Western Fashion Trends|2
-Recycled Metal|2
-3D-Printed Metal|2
-Sustainable Fashion|2
-Customization|2
-Alternative Materials|2
-types of fellowships|2
-academic fellowship|2
-mentorship fellowship|2
-community fellowship|2
-professional fellowship|2
-benefits of fellowships|2
-history of fellowships|2
-modern-day fellowships|2
-collaboration|2
-social impact|2
-fellowship arrangements|2
-mutual support|2
-shared responsibilities|2
-career development|2
-professional growth|2
-visibility and credibility|2
-networking opportunities|2
-Geometric Shape|2
-Polygon|2
-Six Sides|2
-All Sides Equal|2
-Internal Angles Right|2
-Closed Shape|2
-No Holes|2
-Interior Surface Area|2
-Geometry and Trigonometry|2
-Mathematics|2
-Algebraic Structures|2
-Groups|2
-Quaternions|2
-Geometry|2
-Trigonometry|2
-Symmetry|2
-Congruence|2
-Similarity of Polygons|2
-Computer Graphics|2
-Game Development|2
-Physics Engines|2
-smaug|2
-one ring|2
-erebor|2
-dwarves|2
-thorin oakenshield|2
-gollum|2
-tolkien|2
-legendarium|2
-protagonist|2
-companion|2
-journey|2
-perilous|2
-adventurer|2
-character development|2
-friendship|2
-resourcefulness|2
-determination|2
-personal transformation|2
-legacy|2
-bibliography|2
-editor|2
-John Howe|2
-Origins|2
-Society|2
-Members|2
-Relationships|2
-Locations|2
-life|3
-organisms|3
-living|3
-structures|3
-functions|3
-processes|3
-branching|3
-subfields|3
-botany|3
-zoology|3
-microbiology|3
-ecology|3
-genetics|3
-heredity|3
-variation|3
-cellular|3
-organismal|3
-ecosystems|3
-environment|3
-metabolic|3
-genetic|3
-respiration|3
-digestion|3
-nutrients|3
-energy|3
-sustaining|3
-disease|3
-biological|3
-molecules|3
-elements|3
-atomic theory|3
-bonding|3
-chemical reactions|3
-synthesis reaction|3
-decomposition reaction|3
-combustion reaction|3
-safety precautions|3
-protective gear|3
-lab equipment|3
-proper laboratory procedures|3
-physical chemistry|3
-organic chemistry|3
-inorganic chemistry|3
-analytical chemistry|3
-atomic structure|3
-molecular structure|3
-chemical bonds|3
-elementary composition|3
-earth|3
-sciences|3
-geology|3
-meteorology|3
-hydrology|3
-oceanography|3
-geophysics|3
-gravitational field|3
-magnetic field|3
-crust|3
-mantle|3
-outer core|3
-inner core|3
-atmosphere|3
-composition|3
-pressure|3
-evaporation|3
-condensation|3
-precipitation|3
-plate tectonics|3
-volcanic activity|3
-erosion|3
-climate science|3
-greenhouse gases|3
-land use patterns|3
+Idealism|3
+Materialism|3
+objectives|3
+quantifiable|3
+Musical Repetition|3
+personal challenges|3
+Scientic|3
+online platform|3
+physics|3
+application|3
+classical|3
+introduce|3
+new|3
+definitional|3
+theories|3
+uncovering|3
+exploration|3
+Physical Inventions|3
+sudden|3
+insight|3
+Change|3
+event|3
+Concepts|3
+Types of Culture|3
+Individual Culture|3
+universality|3
+point of view|3
+attitude|3
+understanding|3
+quantum mechanics|3
+wave function collapse|3
+Deep Learning|3
+AI Techniques|3
+Things|3
+anthropogenic|3
+carbon dioxide|3
+loss|3
+species|3
+artificial|3
+technological_unemployment|3
+interconnectedness|3
+non-linearity|3
+Leaders|3
+Leadership|3
+Strategic|3
+Thinking|3
+territory|3
+Mechanisms of Power Dynamics|3
+Structural Power|3
+Social Power|3
+Institutional Power|3
+Group Power|3
+Coercion|3
+exclusion|3
+Injustices|3
+Historical Development of Etymology|3
+Anglo-Saxon|3
+transitional stage|3
+Contemporary English|3
+Locative prepositions|3
+schema|3
+cognitive schema theory|3
+acquisition|3
+cause|3
+effect|3
+geography|3
+Direction|3
+Components of Pronunciation|3
+Articulation|3
+Resonance|3
+Stress|3
+Intonation|3
+Phonetics|3
+term|3
+utilization|3
+Language origins|3
+Proto-Afroasiatic|3
+Proto-Indo-European|3
+Language families|3
+Identity|3
+Convention|3
+Ring Style|3
+Classic Ring Style|3
+Tension Ring Style|3
+Fashion|3
+trends|3
+subculture|3
+Anthropology|3
+technological advancements|3
+minerals|3
+inorganic|3
+Spiritual|3
+Significance|3
+Personal|3
+Glamorous|3
+designs|3
+Minimalist|3
+Streetwear|3
+Western|3
+Cowboy|3
+Wear|3
+Additive Manufacturing|3
+Metal Printing|3
+sustainable|3
+technical|3
+Fellowships|3
+Academic Fellowships|3
+mentorship|3
+fellowship|3
+community|3
+academic|3
+artistic|3
+socially responsible|3
+career|3
+stages|3
+individuals|3
+factors|3
+external|3
+barriers|3
+succession|3
+Expertise|3
+mathematical shape|3
+two-dimensional|3
+straight sides|3
+vertices|3
+American rock band|3
+San Diego California|3
+Angles Within Polygon|3
+shape|3
+American heavy metal band|3
+algebra|3
+calculus|3
+variables|3
+algebraic|3
+group|3
+quaternion|3
+branch|3
+Angles|3
+Types of Congruence|3
+Symmetric Congruence|3
+graphics|3
+textures|3
+Sauron|3
+Middle-earth|3
+Dark Lord|3
+Ring of Power|3
+Theorin Oakenshield|3
+J.R.R. Tolkien's Middle-earth legendarium|3
+Lake-town|3
+J.R.R.|3
+Early Life|3
+adjective|3
+Latin|3
+danger|3
+hazard|3
+treacherous|3
+explorer|3
+ability|3
+think|3
+creatively|3
+environmental|3
+self-awareness|3
+computing|3
+Doctor Who|3
+BBC|3
+Science Fiction|3
+evolution|3
+social structure|3
+Population|3
+Climate|3
+International Relations|3
+abstraction|4
+methods|4
+classes|4
+objects|4
+block|4
+sequences|4
+plant|4
+cells|4
+cell walls|4
+interactions|4
+plants|4
+animals|4
+traits|4
+differentiation|4
+differences|4
+building blocks|4
+organismic|4
+Metabolism|4
+Aerobic Metabolism|4
+Anaerobic Metabolism|4
+Genes|4
+mouth|4
+esophagus|4
+living organisms|4
+conservation biology|4
+photosynthesis|4
+Fermentation|4
+Cancer|4
+type|4
+atom|4
+atomic|4
+physical bonding|4
+fuel|4
+oxygen|4
+heat|4
+light|4
+Precautions|4
+protective|4
+measuring instruments|4
+pre-laboratory|4
+thermodynamics|4
+organic|4
+chemistry|4
+analytical|4
+protons|4
+atom arrangement|4
+types of chemical bonds|4
+theories of elementary composition|4
+terrestrial|4
+natural sciences|4
+hydrological cycle|4
+land surface|4
+oceans and seas|4
+oceans|4
+magnetism|4
+electric current|4
+geomagnetic field|4
+plates|4
+Thick layer|4
+innermost layer|4
+in-memory composition|4
+out-of-memory composition|4
+reusability|4
+force|4
+liquid|4
+atmospheric circulation|4
+topography|4
+Lithosphere|4
+volcanic|4
+wearing|4
+observations|4
+methane|4
+land|4
+object|4
+Epistemology|4
+logic|4
+reasoning|4
+experimental|4
+Active Observation|4
+informed decision-making|4
+statistical models|4
+occurance|4
+descriptive statistics|4
+academic writing|4
+complex psychological and physiological state|4
+doubt|4
+explanation|4
+Software Development|4
+Poland|4
+gestation|4
+capital|4
+name|4
+deception|4
+moral|4
+ethical|4
+institutional|4
+virtuous|4
+chromosomes|4
+non-coding regions|4
+double-stranded helix|4
+wave-particle duality|4
+quantization of energy|4
+Control|4
+Physical Disparity|4
+Linnaean System|4
+Kingdom|4
+Pi(e) language|4
+Tibetan people|4
+Tibetan language|4
+family|4
+largest|4
+sapere aude|4
+interactionist|4
+psychology|4
+systemic|4
+Biological System|4
+customs|4
+practices|4
+systems|4
+allocated|4
+responsibilities|4
+management|4
+system|4
+object-oriented|4
+data structure|4
+cataloging|4
+self-description|4
+format|4
+Graph|4
+Acquiring|4
+Preserving|4
+Purchasing|4
+Trading|4
+headings|4
+molecular|4
+data_storage|4
+Packet|4
+Switching|4
+Dial-Up|4
+DSL|4
+Cable Modem|4
+Fiber Optic|4
+Broadband|4
+radio|4
+waves|4
+wires and cables|4
+Execution Flow|4
+Intrusion Detection and Prevention Systems|4
+electronic device|4
+central processing unit|4
+Transmission|4
+Protocol|4
+Request-Response Process|4
+web|4
+client-server architecture|4
+VPN|4
+HTTP Screen Sharing|4
+TCP/IP Screen Sharing|4
+Representation|4
+electrical signals|4
+frequency|4
+physical quantities|4
+length|4
+absolute|4
+Rule-based|4
+Text Data|4
+Virtual Assistant|4
+Machine Learning Algorithms|4
+Personal Virtual Assistant|4
+Rule-based systems|4
+Reasoning ability|4
+Common sense|4
+authority|4
+Numerical|4
+Mechanical Components|4
+Electrical Components|4
+Mathematical Concept|4
+Vector Space Extension|4
+Module Extension|4
+Ring Extension|4
+Algebraic Geometry|4
+subject|4
+examining|4
+closely|4
+Data Structures|4
+Software Engineering|4
+Computer Systems|4
+Database Management Systems|4
+summary measures|4
+meaning|4
+Formal|4
+Classroom-Based Training|4
+Hands-On Training|4
+Instructional Design|4
+financial outlays|4
+personal expenses|4
+business expenses|4
+signal processing|4
+emotions|4
+Material Properties|4
+Refactoring|4
+Types of Machine Learning|4
+programming language|4
+high-end|4
+mental activity|4
+Metaphysical|4
+tasks|4
+small unit of an object|4
+reusable and modular|4
+Agent|4
+Actions|4
+Reward|4
+Statistical Model|4
+Phenomena|4
+Acoustic Modeling|4
+Probabilistic Models|4
+Trojans|4
+RNA viruses|4
+Annelida|4
+Tampering with Equipment|4
+Protection|4
+Virus|4
+Trojan Horse|4
+Physical Detection|4
+CyberDetection|4
+types of cybersecurity threats|4
+efficient|4
+SSL|4
+static|4
+types_of_networks|4
+Unapproved Entry|4
+Malicious Threats|4
+Causes of Lack of Security Measures|4
+Types of Lack of Security Measures|4
+Consequences of Lack of Security Measures|4
+lockers|4
+words|4
+unit|4
+ideas|4
+archaeological|4
+programming|4
+biological environment|4
+Positive outcomes|4
+Gains|4
+Action|4
+Decision|4
+Organizations|4
+Firmware|4
+Degree|4
+operating|4
+strategic plan|4
+chemical|4
+platform|4
+instruction|4
+control structures|4
+input/output|4
+black box testing|4
+Mechanism|4
+System V Release 1|4
+Unix-like systems|4
+master|4
+release|4
+Data Management|4
+software program|4
+devices|4
+handheld|4
+touchscreen|4
+integrated|4
+instruments|4
+device|4
+System Utilities|4
+Application Utilities|4
+Development Utilities|4
+Utility Type|4
+Visual|4
+Auditory|4
+Economic inequality|4
+Cost Accounting Theory|4
+Global warming|4
+consequences|4
+vector|4
+phylum|4
+division|4
+domains|4
+geometric relationships|4
+topological relationships|4
+objective tone|4
+sensory perception|4
+visual perception|4
+organism|4
+contribution|4
+producers|4
+mineral particles|4
+planned|4
+sociology|4
+modus_ponens|4
+research question|4
+Basic|4
+practical relevance|4
+Hierarchy|4
+Departments|4
+Teams|4
+Decision-making|4
+Conflict resolution|4
+Reputation|4
+Best practices|4
+statement|4
+cognitive|4
+regulate|4
+manage|4
+matter|4
+intrinsic|4
+resistance|4
+changes|4
+unwritten|4
+Parental Rules|4
+Environmental Factors|4
+Personality Traits|4
+Criticisms|4
+specialization|4
+visualization|4
+technologies|4
+documentation|4
+Physical Behavior|4
+detectability|4
+Amotivation|4
+autonomy|4
+Extrinsic|4

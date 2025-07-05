@@ -1,2 +1,8 @@
 # Ignore tmp folders
-tmp/ 
+tmp/
+
+# Ignore articles folders
+articles/ 
+
+worker/process.log
+worker/queue.txt

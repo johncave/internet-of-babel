@@ -38,3 +38,753 @@
 2025-07-04T20:10:27+12:00 | topic: "Biology" | duration: 5.530799201s | depth: 2 | article_length: 4195
 2025-07-04T20:10:58+12:00 | topic: "Chemistry" | duration: 4.789826307s | depth: 2 | article_length: 3496
 2025-07-04T20:11:04+12:00 | topic: "Earth Sciences" | duration: 6.09008881s | depth: 2 | article_length: 4588
+2025-07-05T18:40:28+12:00 | topic: "Scientific Method" | duration: 14.475550531s | depth: 2 | article_length: 9725
+2025-07-05T18:49:02+12:00 | topic: "Observation" | duration: 7.445081926s | depth: 2 | article_length: 3656
+2025-07-05T18:49:09+12:00 | topic: "Questioning" | duration: 7.191281046s | depth: 2 | article_length: 5100
+2025-07-05T18:49:14+12:00 | topic: "Prediction" | duration: 5.146602326s | depth: 2 | article_length: 4289
+2025-07-05T18:49:19+12:00 | topic: "Experimentation" | duration: 4.84669821s | depth: 2 | article_length: 4028
+2025-07-05T18:49:26+12:00 | topic: "Data Analysis" | duration: 6.735580476s | depth: 2 | article_length: 5646
+2025-07-05T18:49:30+12:00 | topic: "Conclusion" | duration: 4.811194827s | depth: 2 | article_length: 3622
+2025-07-05T18:49:37+12:00 | topic: "Caution" | duration: 6.908673798s | depth: 2 | article_length: 5560
+2025-07-05T18:49:42+12:00 | topic: "Skepticism" | duration: 4.889004637s | depth: 2 | article_length: 3504
+2025-07-05T18:49:47+12:00 | topic: "Correspondence" | duration: 4.930227048s | depth: 2 | article_length: 4206
+2025-07-05T18:49:54+12:00 | topic: "Falsifiability" | duration: 7.130587037s | depth: 2 | article_length: 5892
+2025-07-05T18:50:02+12:00 | topic: "Isaac Newton" | duration: 7.137069739s | depth: 2 | article_length: 3492
+2025-07-05T18:50:21+12:00 | topic: "Marie Curie" | duration: 5.886344699s | depth: 2 | article_length: 3579
+2025-07-05T18:50:29+12:00 | topic: "Stephen Hawking" | duration: 8.091642107s | depth: 2 | article_length: 5490
+2025-07-05T18:50:35+12:00 | topic: "Lack of empirical evidence" | duration: 5.836389629s | depth: 2 | article_length: 4752
+2025-07-05T18:50:40+12:00 | topic: "Confirmation bias" | duration: 5.096163155s | depth: 2 | article_length: 4266
+2025-07-05T18:50:46+12:00 | topic: "Science vs. Politics" | duration: 6.183477788s | depth: 2 | article_length: 5310
+2025-07-05T18:50:53+12:00 | topic: "Ethics and Responsibility" | duration: 6.44894686s | depth: 2 | article_length: 5009
+2025-07-05T18:51:00+12:00 | topic: "Honesty" | duration: 5.130743375s | depth: 2 | article_length: 4158
+2025-07-05T18:51:05+12:00 | topic: "Transparency" | duration: 4.572568627s | depth: 2 | article_length: 4020
+2025-07-05T18:51:11+12:00 | topic: "Sensitivity" | duration: 6.516823822s | depth: 2 | article_length: 5188
+2025-07-05T18:51:18+12:00 | topic: "Genomics" | duration: 6.487241678s | depth: 2 | article_length: 4890
+2025-07-05T18:51:25+12:00 | topic: "Computational Biology" | duration: 7.161626829s | depth: 2 | article_length: 5779
+2025-07-05T18:51:34+12:00 | topic: "Quantum Computing" | duration: 9.018362416s | depth: 2 | article_length: 7138
+2025-07-05T18:51:39+12:00 | topic: "Access to resources" | duration: 5.150773901s | depth: 2 | article_length: 4382
+2025-07-05T18:51:44+12:00 | topic: "Inequity" | duration: 4.778150556s | depth: 2 | article_length: 3695
+2025-07-05T18:51:47+12:00 | topic: "Definition" | duration: 3.335968912s | depth: 2 | article_length: 2606
+2025-07-05T18:51:56+12:00 | topic: "Classification" | duration: 8.067894256s | depth: 2 | article_length: 6661
+2025-07-05T18:52:36+12:00 | topic: "Types of Languages" | duration: 8.389362909s | depth: 2 | article_length: 5431
+2025-07-05T18:52:42+12:00 | topic: "Indo-European Languages" | duration: 6.168064712s | depth: 2 | article_length: 4219
+2025-07-05T18:52:49+12:00 | topic: "Sino-Tibetan Languages" | duration: 7.113852104s | depth: 2 | article_length: 4261
+2025-07-05T18:52:56+12:00 | topic: "Niger-Congo Languages" | duration: 7.322854289s | depth: 2 | article_length: 4679
+2025-07-05T18:53:02+12:00 | topic: "Austronesian Languages" | duration: 5.653964402s | depth: 2 | article_length: 3210
+2025-07-05T18:53:08+12:00 | topic: "Afro-Asiatic Languages" | duration: 6.607653463s | depth: 2 | article_length: 4233
+2025-07-05T18:53:14+12:00 | topic: "Semitic Languages" | duration: 5.30364944s | depth: 2 | article_length: 4023
+2025-07-05T18:53:18+12:00 | topic: "Indo-Iranian Languages" | duration: 4.247892116s | depth: 2 | article_length: 2910
+2025-07-05T18:53:23+12:00 | topic: "Bilingualism" | duration: 4.53850617s | depth: 2 | article_length: 3800
+2025-07-05T18:53:28+12:00 | topic: "Language Acquisition" | duration: 5.56454827s | depth: 2 | article_length: 4397
+2025-07-05T18:53:33+12:00 | topic: "Communication" | duration: 5.20061351s | depth: 2 | article_length: 4126
+2025-07-05T18:53:39+12:00 | topic: "Culture" | duration: 5.981911726s | depth: 2 | article_length: 4654
+2025-07-05T18:53:47+12:00 | topic: "Economy" | duration: 7.747137967s | depth: 2 | article_length: 5639
+2025-07-05T18:53:54+12:00 | topic: "Politics" | duration: 6.469485904s | depth: 2 | article_length: 5639
+2025-07-05T18:53:59+12:00 | topic: "database" | duration: 5.711206311s | depth: 2 | article_length: 4635
+2025-07-05T18:54:07+12:00 | topic: "relational database management system" | duration: 7.937102286s | depth: 2 | article_length: 6049
+2025-07-05T18:54:16+12:00 | topic: "NoSQL database" | duration: 6.021183419s | depth: 2 | article_length: 4725
+2025-07-05T18:54:23+12:00 | topic: "relational model" | duration: 7.087594809s | depth: 2 | article_length: 5566
+2025-07-05T18:54:30+12:00 | topic: "relational tables" | duration: 6.390922715s | depth: 2 | article_length: 4899
+2025-07-05T18:54:35+12:00 | topic: "indexed query" | duration: 5.157903802s | depth: 2 | article_length: 3861
+2025-07-05T18:54:41+12:00 | topic: "key-value pairs" | duration: 5.929749365s | depth: 2 | article_length: 4365
+2025-07-05T18:54:48+12:00 | topic: "self-descriptive data formats" | duration: 7.674898061s | depth: 2 | article_length: 5893
+2025-07-05T18:54:53+12:00 | topic: "graph database" | duration: 4.825782599s | depth: 2 | article_length: 3949
+2025-07-05T18:54:59+12:00 | topic: "nodes" | duration: 5.87927552s | depth: 2 | article_length: 4651
+2025-07-05T18:55:05+12:00 | topic: "edges" | duration: 5.707078152s | depth: 2 | article_length: 4067
+2025-07-05T18:55:09+12:00 | topic: "weighted edges" | duration: 4.32134341s | depth: 2 | article_length: 3428
+2025-07-05T18:55:14+12:00 | topic: "real-time analysis" | duration: 4.926623924s | depth: 2 | article_length: 4358
+2025-07-05T18:55:22+12:00 | topic: "time-series databases" | duration: 7.452875261s | depth: 2 | article_length: 5476
+2025-07-05T18:55:29+12:00 | topic: "table structure" | duration: 6.942476907s | depth: 2 | article_length: 4900
+2025-07-05T18:55:38+12:00 | topic: "indexing structures" | duration: 5.044514184s | depth: 2 | article_length: 3979
+2025-07-05T18:55:44+12:00 | topic: "query performance" | duration: 6.354942398s | depth: 2 | article_length: 4615
+2025-07-05T18:55:52+12:00 | topic: "access controls" | duration: 6.10802093s | depth: 2 | article_length: 5035
+2025-07-05T18:55:57+12:00 | topic: "security measures" | duration: 5.37706429s | depth: 2 | article_length: 4387
+2025-07-05T18:56:06+12:00 | topic: "History of Networking" | duration: 6.917713058s | depth: 2 | article_length: 4865
+2025-07-05T18:56:11+12:00 | topic: "Types of Networking" | duration: 5.87674766s | depth: 2 | article_length: 4696
+2025-07-05T18:56:17+12:00 | topic: "Local Area Network" | duration: 5.640649099s | depth: 2 | article_length: 4491
+2025-07-05T18:56:22+12:00 | topic: "Wide Area Network" | duration: 5.326022021s | depth: 2 | article_length: 4378
+2025-07-05T18:56:29+12:00 | topic: "Metropolitan Area Network" | duration: 6.11886647s | depth: 2 | article_length: 5210
+2025-07-05T18:56:34+12:00 | topic: "Wireless Networking" | duration: 5.740162363s | depth: 2 | article_length: 4427
+2025-07-05T18:56:41+12:00 | topic: "Network Components" | duration: 7.20777892s | depth: 2 | article_length: 5787
+2025-07-05T18:56:48+12:00 | topic: "Switches" | duration: 6.357055382s | depth: 2 | article_length: 4907
+2025-07-05T18:56:53+12:00 | topic: "Routers" | duration: 5.067111113s | depth: 2 | article_length: 3885
+2025-07-05T18:57:06+12:00 | topic: "Firewalls" | duration: 7.948253029s | depth: 2 | article_length: 6416
+2025-07-05T18:57:12+12:00 | topic: "Servers" | duration: 6.293052188s | depth: 2 | article_length: 5047
+2025-07-05T19:03:26+12:00 | topic: "Clients" | duration: 7.858760397s | depth: 2 | article_length: 4096
+2025-07-05T19:03:32+12:00 | topic: "TCP/IP" | duration: 5.988796151s | depth: 2 | article_length: 4659
+2025-07-05T19:03:42+12:00 | topic: "HTTP" | duration: 9.589200526s | depth: 2 | article_length: 6599
+2025-07-05T19:06:19+12:00 | topic: "FTP" | duration: 6.698087289s | depth: 2 | article_length: 4605
+2025-07-05T19:06:36+12:00 | topic: "Firewall" | duration: 5.858494495s | depth: 2 | article_length: 4236
+2025-07-05T19:09:56+12:00 | topic: "Encryption" | duration: 6.321840111s | depth: 2 | article_length: 4719
+2025-07-05T19:10:04+12:00 | topic: "Authentication" | duration: 7.687106127s | depth: 2 | article_length: 6104
+2025-07-05T19:10:10+12:00 | topic: "Remote Access" | duration: 6.491396869s | depth: 2 | article_length: 5451
+2025-07-05T19:10:16+12:00 | topic: "Virtual Private Networks" | duration: 5.613822808s | depth: 2 | article_length: 4142
+2025-07-05T19:10:23+12:00 | topic: "Cloud Computing" | duration: 6.834921994s | depth: 2 | article_length: 5215
+2025-07-05T19:10:28+12:00 | topic: "Packet Loss" | duration: 4.955162488s | depth: 2 | article_length: 3555
+2025-07-05T19:10:32+12:00 | topic: "Jitter" | duration: 4.865295097s | depth: 2 | article_length: 4156
+2025-07-05T19:10:37+12:00 | topic: "Throughput" | duration: 4.59531159s | depth: 2 | article_length: 3643
+2025-07-05T19:10:42+12:00 | topic: "Measurement and Analysis" | duration: 5.136457445s | depth: 2 | article_length: 4321
+2025-07-05T19:10:48+12:00 | topic: "Challenges of Networking" | duration: 6.205512746s | depth: 2 | article_length: 5603
+2025-07-05T19:10:56+12:00 | topic: "Natural Language Processing" | duration: 7.360731946s | depth: 2 | article_length: 5989
+2025-07-05T19:11:04+12:00 | topic: "Neural Networks" | duration: 8.087123472s | depth: 2 | article_length: 5514
+2025-07-05T19:11:11+12:00 | topic: "Computer Vision" | duration: 6.693493536s | depth: 2 | article_length: 5403
+2025-07-05T19:11:17+12:00 | topic: "Virtual Assistants" | duration: 6.698576698s | depth: 2 | article_length: 5981
+2025-07-05T19:11:23+12:00 | topic: "Image Recognition" | duration: 5.477681593s | depth: 2 | article_length: 4253
+2025-07-05T19:11:32+12:00 | topic: "Chatbots" | duration: 9.364048736s | depth: 2 | article_length: 7249
+2025-07-05T19:11:39+12:00 | topic: "Narrow or Weak AI" | duration: 6.955927968s | depth: 2 | article_length: 4966
+2025-07-05T19:11:45+12:00 | topic: "General or Strong AI" | duration: 5.689602707s | depth: 2 | article_length: 4649
+2025-07-05T19:11:51+12:00 | topic: "Data" | duration: 6.492824416s | depth: 2 | article_length: 5647
+2025-07-05T19:11:59+12:00 | topic: "Algorithm" | duration: 7.511759718s | depth: 2 | article_length: 5607
+2025-07-05T19:12:07+12:00 | topic: "Hardware" | duration: 7.934801254s | depth: 2 | article_length: 6085
+2025-07-05T19:12:12+12:00 | topic: "Challenges" | duration: 5.316743942s | depth: 2 | article_length: 4178
+2025-07-05T19:12:19+12:00 | topic: "Limitations" | duration: 6.653295152s | depth: 2 | article_length: 4898
+2025-07-05T19:12:27+12:00 | topic: "Future Developments" | duration: 7.923835724s | depth: 2 | article_length: 6850
+2025-07-05T19:13:47+12:00 | topic: "Code Examples" | duration: 5.35636198s | depth: 2 | article_length: 4135
+2025-07-05T19:13:52+12:00 | topic: "Learning" | duration: 4.927820092s | depth: 2 | article_length: 4235
+2025-07-05T19:13:58+12:00 | topic: "Subfield" | duration: 5.878083023s | depth: 2 | article_length: 3759
+2025-07-05T19:14:04+12:00 | topic: "Machine" | duration: 6.130235737s | depth: 2 | article_length: 4086
+2025-07-05T19:14:10+12:00 | topic: "Statistical" | duration: 5.545316225s | depth: 2 | article_length: 4542
+2025-07-05T19:14:15+12:00 | topic: "Models" | duration: 5.673257798s | depth: 2 | article_length: 4787
+2025-07-05T19:14:22+12:00 | topic: "Mathematical" | duration: 6.923632053s | depth: 2 | article_length: 5510
+2025-07-05T19:14:28+12:00 | topic: "Properties" | duration: 6.00578096s | depth: 2 | article_length: 5138
+2025-07-05T19:14:33+12:00 | topic: "Complexity" | duration: 4.798537218s | depth: 2 | article_length: 3987
+2025-07-05T19:14:42+12:00 | topic: "Analysis" | duration: 8.913347256s | depth: 2 | article_length: 6230
+2025-07-05T19:14:47+12:00 | topic: "Interpretation" | duration: 5.258254447s | depth: 2 | article_length: 4159
+2025-07-05T19:14:53+12:00 | topic: "Predictions" | duration: 5.290911255s | depth: 2 | article_length: 4597
+2025-07-05T19:14:57+12:00 | topic: "Outcomes" | duration: 4.60286938s | depth: 2 | article_length: 3629
+2025-07-05T19:15:02+12:00 | topic: "Advantages" | duration: 4.823342391s | depth: 2 | article_length: 3975
+2025-07-05T19:15:07+12:00 | topic: "Disadvantages" | duration: 4.806877872s | depth: 2 | article_length: 3965
+2025-07-05T19:15:12+12:00 | topic: "Training" | duration: 4.736059545s | depth: 2 | article_length: 4290
+2025-07-05T19:15:16+12:00 | topic: "Time" | duration: 4.850732038s | depth: 2 | article_length: 3554
+2025-07-05T19:15:23+12:00 | topic: "Cost" | duration: 6.145792865s | depth: 2 | article_length: 5059
+2025-07-05T19:15:36+12:00 | topic: "Complex Relationships" | duration: 5.267270248s | depth: 2 | article_length: 4766
+2025-07-05T19:15:42+12:00 | topic: "Flexibility" | duration: 5.996730828s | depth: 2 | article_length: 5021
+2025-07-05T19:15:47+12:00 | topic: "Modifications" | duration: 4.466640242s | depth: 2 | article_length: 4242
+2025-07-05T19:15:53+12:00 | topic: "Fine-tuning" | duration: 6.365057544s | depth: 2 | article_length: 4974
+2025-07-05T19:17:52+12:00 | topic: "Computational" | duration: 5.91988281s | depth: 2 | article_length: 5187
+2025-07-05T19:17:56+12:00 | topic: "Expensive" | duration: 4.673050902s | depth: 2 | article_length: 3439
+2025-07-05T19:18:00+12:00 | topic: "Time-consuming" | duration: 4.233047693s | depth: 2 | article_length: 3622
+2025-07-05T19:18:06+12:00 | topic: "DataQuality" | duration: 5.30266471s | depth: 2 | article_length: 4642
+2025-07-05T19:18:12+12:00 | topic: "Development" | duration: 6.658369867s | depth: 2 | article_length: 4821
+2025-07-05T19:18:19+12:00 | topic: "Nature" | duration: 6.757821879s | depth: 2 | article_length: 4959
+2025-07-05T19:18:25+12:00 | topic: "Neural" | duration: 5.536031702s | depth: 2 | article_length: 4122
+2025-07-05T19:18:29+12:00 | topic: "Information" | duration: 4.5795332s | depth: 2 | article_length: 3560
+2025-07-05T19:18:34+12:00 | topic: "Strategies" | duration: 5.064827155s | depth: 2 | article_length: 3799
+2025-07-05T19:18:43+12:00 | topic: "Architecture" | duration: 8.191257879s | depth: 2 | article_length: 6912
+2025-07-05T19:18:48+12:00 | topic: "MachineLearning" | duration: 5.595766297s | depth: 2 | article_length: 4366
+2025-07-05T19:18:55+12:00 | topic: "ComputerVision" | duration: 6.93433213s | depth: 2 | article_length: 5402
+2025-07-05T19:19:05+12:00 | topic: "NaturalLanguageProcessing" | duration: 9.486434215s | depth: 2 | article_length: 6856
+2025-07-05T19:19:12+12:00 | topic: "SpeechRecognition" | duration: 7.170123539s | depth: 2 | article_length: 5189
+2025-07-05T19:19:18+12:00 | topic: "Threats" | duration: 5.745921127s | depth: 2 | article_length: 4471
+2025-07-05T19:19:23+12:00 | topic: "Vulnerabilities" | duration: 5.728593213s | depth: 2 | article_length: 4612
+2025-07-05T19:19:29+12:00 | topic: "Malware" | duration: 6.006400054s | depth: 2 | article_length: 4714
+2025-07-05T19:19:34+12:00 | topic: "Phishing" | duration: 5.095406405s | depth: 2 | article_length: 4009
+2025-07-05T19:19:41+12:00 | topic: "Network Attacks" | duration: 6.275002619s | depth: 2 | article_length: 5008
+2025-07-05T19:19:46+12:00 | topic: "Insider Threats" | duration: 5.639026734s | depth: 2 | article_length: 4922
+2025-07-05T19:19:52+12:00 | topic: "Antivirus Software" | duration: 5.956223443s | depth: 2 | article_length: 4424
+2025-07-05T19:19:59+12:00 | topic: "Access Control" | duration: 6.686721471s | depth: 2 | article_length: 5208
+2025-07-05T19:20:08+12:00 | topic: "Incident Response Plans" | duration: 8.607618349s | depth: 2 | article_length: 7400
+2025-07-05T19:20:15+12:00 | topic: "Cybersecurity Measures" | duration: 7.466419148s | depth: 2 | article_length: 6646
+2025-07-05T19:20:22+12:00 | topic: "Encryption Algorithms" | duration: 7.153224275s | depth: 2 | article_length: 5954
+2025-07-05T19:20:30+12:00 | topic: "Secure Sockets Layer/Transport Layer Security" | duration: 8.145321347s | depth: 2 | article_length: 5364
+2025-07-05T19:20:37+12:00 | topic: "Biometric Authentication" | duration: 6.547692913s | depth: 2 | article_length: 5664
+2025-07-05T19:20:43+12:00 | topic: "Cybersecurity Best Practices" | duration: 6.260542038s | depth: 2 | article_length: 5396
+2025-07-05T19:20:48+12:00 | topic: "Culture of Security" | duration: 4.735489373s | depth: 2 | article_length: 4218
+2025-07-05T19:20:53+12:00 | topic: "Regular Vulnerability Assessments" | duration: 4.826329203s | depth: 2 | article_length: 4113
+2025-07-05T19:20:58+12:00 | topic: "Monitoring Network Activity" | duration: 4.972245366s | depth: 2 | article_length: 3963
+2025-07-05T19:21:02+12:00 | topic: "Strong Passwords" | duration: 4.568455505s | depth: 2 | article_length: 3738
+2025-07-05T19:21:09+12:00 | topic: "Data Breaches" | duration: 6.71194358s | depth: 2 | article_length: 5002
+2025-07-05T19:21:16+12:00 | topic: "Ransomware Attacks" | duration: 6.773605833s | depth: 2 | article_length: 4934
+2025-07-05T19:21:22+12:00 | topic: "Identity Theft" | duration: 5.752060305s | depth: 2 | article_length: 4679
+2025-07-05T19:21:27+12:00 | topic: "code" | duration: 5.564845092s | depth: 2 | article_length: 4450
+2025-07-05T19:21:32+12:00 | topic: "definition" | duration: 4.909056626s | depth: 2 | article_length: 3270
+2025-07-05T19:21:41+12:00 | topic: "history" | duration: 8.914063385s | depth: 2 | article_length: 6343
+2025-07-05T19:21:48+12:00 | topic: "types" | duration: 6.808002044s | depth: 2 | article_length: 4715
+2025-07-05T19:21:53+12:00 | topic: "programming languages" | duration: 5.545526158s | depth: 2 | article_length: 4353
+2025-07-05T19:22:00+12:00 | topic: "development environments" | duration: 6.339145989s | depth: 2 | article_length: 5209
+2025-07-05T19:22:05+12:00 | topic: "code review" | duration: 5.699085208s | depth: 2 | article_length: 5010
+2025-07-05T19:22:11+12:00 | topic: "security concerns" | duration: 5.728766768s | depth: 2 | article_length: 4412
+2025-07-05T19:22:16+12:00 | topic: "code sharing" | duration: 4.572760305s | depth: 2 | article_length: 3625
+2025-07-05T19:22:20+12:00 | topic: "glossary" | duration: 4.206552259s | depth: 2 | article_length: 3352
+2025-07-05T19:22:26+12:00 | topic: "Operating System" | duration: 5.795467682s | depth: 2 | article_length: 4482
+2025-07-05T19:22:34+12:00 | topic: "Application Software" | duration: 8.078124992s | depth: 2 | article_length: 7279
+2025-07-05T19:22:41+12:00 | topic: "System Software" | duration: 6.620395047s | depth: 2 | article_length: 5523
+2025-07-05T19:22:47+12:00 | topic: "Utility Software" | duration: 6.207083263s | depth: 2 | article_length: 5184
+2025-07-05T19:22:52+12:00 | topic: "Games" | duration: 5.462688257s | depth: 2 | article_length: 3684
+2025-07-05T19:23:00+12:00 | topic: "Development Life Cycle" | duration: 7.466923848s | depth: 2 | article_length: 5855
+2025-07-05T19:23:06+12:00 | topic: "Requirements Gathering" | duration: 6.100025083s | depth: 2 | article_length: 5241
+2025-07-05T19:23:12+12:00 | topic: "Design" | duration: 6.294485725s | depth: 2 | article_length: 4997
+2025-07-05T19:23:17+12:00 | topic: "Implementation" | duration: 5.086802368s | depth: 2 | article_length: 4193
+2025-07-05T19:23:24+12:00 | topic: "Testing" | duration: 6.664981544s | depth: 2 | article_length: 5556
+2025-07-05T19:23:31+12:00 | topic: "Deployment" | duration: 6.828118235s | depth: 2 | article_length: 5702
+2025-07-05T19:23:37+12:00 | topic: "Security" | duration: 5.910183098s | depth: 2 | article_length: 4538
+2025-07-05T19:23:43+12:00 | topic: "Access Control Lists" | duration: 5.915920322s | depth: 2 | article_length: 4207
+2025-07-05T19:23:47+12:00 | topic: "Licensing Models" | duration: 4.539540809s | depth: 2 | article_length: 3553
+2025-07-05T19:23:52+12:00 | topic: "Open Source Software" | duration: 5.233170614s | depth: 2 | article_length: 4236
+2025-07-05T19:23:58+12:00 | topic: "Commercial Software Ecosystem" | duration: 5.290116092s | depth: 2 | article_length: 4539
+2025-07-05T19:24:03+12:00 | topic: "Technology" | duration: 5.829854307s | depth: 2 | article_length: 5353
+2025-07-05T19:24:09+12:00 | topic: "Industrial Revolution" | duration: 5.803809245s | depth: 2 | article_length: 4175
+2025-07-05T19:24:15+12:00 | topic: "Computers" | duration: 6.074937754s | depth: 2 | article_length: 4784
+2025-07-05T19:24:21+12:00 | topic: "Internet" | duration: 5.960947163s | depth: 2 | article_length: 4863
+2025-07-05T19:24:28+12:00 | topic: "Mobile Devices" | duration: 6.631585729s | depth: 2 | article_length: 5681
+2025-07-05T19:24:34+12:00 | topic: "Social Media" | duration: 6.001211373s | depth: 2 | article_length: 4787
+2025-07-05T19:24:41+12:00 | topic: "Productivity" | duration: 6.961018802s | depth: 2 | article_length: 5522
+2025-07-05T19:24:45+12:00 | topic: "Entertainment" | duration: 4.181800618s | depth: 2 | article_length: 3657
+2025-07-05T19:24:53+12:00 | topic: "Education" | duration: 7.48253144s | depth: 2 | article_length: 6578
+2025-07-05T19:25:00+12:00 | topic: "Transportation" | duration: 7.636999432s | depth: 2 | article_length: 5731
+2025-07-05T19:25:07+12:00 | topic: "Energy and Utilities" | duration: 7.192517666s | depth: 2 | article_length: 5640
+2025-07-05T19:25:13+12:00 | topic: "Gaming and Entertainment" | duration: 5.427741874s | depth: 2 | article_length: 4050
+2025-07-05T19:25:18+12:00 | topic: "Accessibility" | duration: 4.898674016s | depth: 2 | article_length: 4194
+2025-07-05T19:25:24+12:00 | topic: "Security Risks" | duration: 6.60868592s | depth: 2 | article_length: 5912
+2025-07-05T19:25:30+12:00 | topic: "Cost and Inequality" | duration: 5.505051671s | depth: 2 | article_length: 4277
+2025-07-05T19:25:35+12:00 | topic: "Environmental Impact" | duration: 4.962277147s | depth: 2 | article_length: 4047
+2025-07-05T19:25:40+12:00 | topic: "Social Implications" | duration: 4.874053344s | depth: 2 | article_length: 3824
+2025-07-05T19:25:45+12:00 | topic: "field" | duration: 4.75796626s | depth: 2 | article_length: 3713
+2025-07-05T19:25:50+12:00 | topic: "agricultural" | duration: 5.201180435s | depth: 2 | article_length: 4321
+2025-07-05T19:25:54+12:00 | topic: "fields" | duration: 4.335768805s | depth: 2 | article_length: 3330
+2025-07-05T19:26:00+12:00 | topic: "classifications" | duration: 5.994529255s | depth: 2 | article_length: 4284
+2025-07-05T19:26:04+12:00 | topic: "characteristics" | duration: 3.819687467s | depth: 2 | article_length: 3121
+2025-07-05T19:26:09+12:00 | topic: "size" | duration: 5.050386373s | depth: 2 | article_length: 3904
+2025-07-05T19:26:16+12:00 | topic: "land_use" | duration: 7.127463028s | depth: 2 | article_length: 6222
+2025-07-05T19:26:20+12:00 | topic: "infrastructure" | duration: 4.257133834s | depth: 2 | article_length: 3918
+2025-07-05T19:26:27+12:00 | topic: "accessibility" | duration: 6.425114419s | depth: 2 | article_length: 5544
+2025-07-05T19:26:32+12:00 | topic: "safety" | duration: 5.64258973s | depth: 2 | article_length: 4378
+2025-07-05T19:26:37+12:00 | topic: "ecological_importance" | duration: 4.981760025s | depth: 2 | article_length: 4189
+2025-07-05T19:26:42+12:00 | topic: "biodiversity" | duration: 4.702014618s | depth: 2 | article_length: 4094
+2025-07-05T19:26:47+12:00 | topic: "soil_conservation" | duration: 5.25418515s | depth: 2 | article_length: 4547
+2025-07-05T19:26:52+12:00 | topic: "water_cycle" | duration: 4.831312692s | depth: 2 | article_length: 3626
+2025-07-05T19:26:58+12:00 | topic: "climate_regulation" | duration: 6.056755332s | depth: 2 | article_length: 4739
+2025-07-05T19:27:04+12:00 | topic: "scientific_field" | duration: 5.940753854s | depth: 2 | article_length: 4447
+2025-07-05T19:27:09+12:00 | topic: "recreational_field" | duration: 4.942357884s | depth: 2 | article_length: 3836
+2025-07-05T19:27:18+12:00 | topic: "sports_field" | duration: 8.537608732s | depth: 2 | article_length: 6462
+2025-07-05T19:27:25+12:00 | topic: "scientific_research" | duration: 6.92997902s | depth: 2 | article_length: 5543
+2025-07-05T19:27:30+12:00 | topic: "military_field" | duration: 4.761694197s | depth: 2 | article_length: 4271
+2025-07-05T19:27:33+12:00 | topic: "Discipline" | duration: 3.530996578s | depth: 2 | article_length: 2816
+2025-07-05T19:27:38+12:00 | topic: "systematic" | duration: 5.183279755s | depth: 2 | article_length: 4608
+2025-07-05T19:27:44+12:00 | topic: "structured" | duration: 5.473286954s | depth: 2 | article_length: 4925
+2025-07-05T19:27:49+12:00 | topic: "approach" | duration: 4.923935781s | depth: 2 | article_length: 4028
+2025-07-05T19:27:54+12:00 | topic: "goals" | duration: 5.488024124s | depth: 2 | article_length: 4337
+2025-07-05T19:27:58+12:00 | topic: "activities" | duration: 4.103953339s | depth: 2 | article_length: 3259
+2025-07-05T19:28:02+12:00 | topic: "skills" | duration: 4.136126017s | depth: 2 | article_length: 3476
+2025-07-05T19:28:08+12:00 | topic: "knowledge" | duration: 5.933024373s | depth: 2 | article_length: 4882
+2025-07-05T19:28:14+12:00 | topic: "habits" | duration: 5.280113565s | depth: 2 | article_length: 3808
+2025-07-05T19:28:21+12:00 | topic: "self-control" | duration: 7.641941208s | depth: 2 | article_length: 6016
+2025-07-05T19:28:26+12:00 | topic: "moderation" | duration: 4.890546419s | depth: 2 | article_length: 4542
+2025-07-05T19:28:31+12:00 | topic: "dedication" | duration: 4.493657161s | depth: 2 | article_length: 3190
+2025-07-05T19:28:35+12:00 | topic: "exercise" | duration: 4.732042696s | depth: 2 | article_length: 3823
+2025-07-05T19:28:41+12:00 | topic: "physical" | duration: 5.760556679s | depth: 2 | article_length: 4278
+2025-07-05T19:28:46+12:00 | topic: "mental" | duration: 5.096687641s | depth: 2 | article_length: 4240
+2025-07-05T19:28:51+12:00 | topic: "social" | duration: 4.926078726s | depth: 2 | article_length: 3583
+2025-07-05T19:28:57+12:00 | topic: "norms" | duration: 5.818561072s | depth: 2 | article_length: 4729
+2025-07-05T19:29:03+12:00 | topic: "rules" | duration: 5.45807379s | depth: 2 | article_length: 4955
+2025-07-05T19:29:08+12:00 | topic: "expectations" | duration: 5.773835147s | depth: 2 | article_length: 5022
+2025-07-05T19:29:13+12:00 | topic: "professional" | duration: 5.046945202s | depth: 2 | article_length: 4369
+2025-07-05T19:29:18+12:00 | topic: "industry" | duration: 4.740711498s | depth: 2 | article_length: 3903
+2025-07-05T19:29:23+12:00 | topic: "performance" | duration: 4.890256574s | depth: 2 | article_length: 4232
+2025-07-05T19:29:30+12:00 | topic: "efficiency" | duration: 6.646074587s | depth: 2 | article_length: 4902
+2025-07-05T19:29:35+12:00 | topic: "productivity" | duration: 4.816911413s | depth: 2 | article_length: 4187
+2025-07-05T19:29:40+12:00 | topic: "stealthy" | duration: 5.397765882s | depth: 2 | article_length: 3960
+2025-07-05T19:29:44+12:00 | topic: "improvement" | duration: 4.519739096s | depth: 2 | article_length: 4069
+2025-07-05T19:29:53+12:00 | topic: "feedback" | duration: 8.738987122s | depth: 2 | article_length: 7678
+2025-07-05T19:29:59+12:00 | topic: "motivation" | duration: 6.08036665s | depth: 2 | article_length: 4952
+2025-07-05T19:30:07+12:00 | topic: "perfectionism" | duration: 7.284643352s | depth: 2 | article_length: 5965
+2025-07-05T19:30:12+12:00 | topic: "burnout" | duration: 5.725304949s | depth: 2 | article_length: 3550
+2025-07-05T19:30:19+12:00 | topic: "reality" | duration: 6.930482631s | depth: 2 | article_length: 5783
+2025-07-05T19:30:24+12:00 | topic: "achievable" | duration: 4.515017123s | depth: 2 | article_length: 4114
+2025-07-05T19:30:28+12:00 | topic: "measurable" | duration: 4.091212302s | depth: 2 | article_length: 3358
+2025-07-05T19:30:33+12:00 | topic: "repetitive" | duration: 4.755826911s | depth: 2 | article_length: 3495
+2025-07-05T19:30:37+12:00 | topic: "challenge" | duration: 4.701614734s | depth: 2 | article_length: 3696
+2025-07-05T19:30:43+12:00 | topic: "perfectionist" | duration: 5.894773528s | depth: 2 | article_length: 4832
+2025-07-05T19:30:48+12:00 | topic: "Technological" | duration: 4.590124549s | depth: 2 | article_length: 4058
+2025-07-05T19:30:52+12:00 | topic: "Scientific" | duration: 4.422488564s | depth: 2 | article_length: 3611
+2025-07-05T19:30:58+12:00 | topic: "Engineering" | duration: 5.420507289s | depth: 2 | article_length: 4630
+2025-07-05T19:31:03+12:00 | topic: "Historical" | duration: 4.797398028s | depth: 2 | article_length: 4086
+2025-07-05T19:31:08+12:00 | topic: "Globalization" | duration: 5.876613691s | depth: 2 | article_length: 5105
+2025-07-05T19:31:13+12:00 | topic: "Innovation" | duration: 5.004743568s | depth: 2 | article_length: 4192
+2025-07-05T19:31:18+12:00 | topic: "Improvement" | duration: 4.296553928s | depth: 2 | article_length: 4030
+2025-07-05T19:31:22+12:00 | topic: "Progress" | duration: 4.619312957s | depth: 2 | article_length: 3908
+2025-07-05T19:31:28+12:00 | topic: "History" | duration: 6.000499693s | depth: 2 | article_length: 4482
+2025-07-05T19:31:33+12:00 | topic: "Discovery" | duration: 5.10019021s | depth: 2 | article_length: 4142
+2025-07-05T19:31:38+12:00 | topic: "Invention" | duration: 4.487369689s | depth: 2 | article_length: 3812
+2025-07-05T19:31:43+12:00 | topic: "Creation" | duration: 4.554555824s | depth: 2 | article_length: 3854
+2025-07-05T19:31:48+12:00 | topic: "Breakthrough" | duration: 5.083201669s | depth: 2 | article_length: 3747
+2025-07-05T19:31:53+12:00 | topic: "Transformation" | duration: 4.876642391s | depth: 2 | article_length: 4213
+2025-07-05T19:31:59+12:00 | topic: "Impact" | duration: 6.093513789s | depth: 2 | article_length: 5513
+2025-07-05T19:32:09+12:00 | topic: "Economic" | duration: 10.491172087s | depth: 2 | article_length: 9811
+2025-07-05T19:32:13+12:00 | topic: "Social" | duration: 3.995717926s | depth: 2 | article_length: 3520
+2025-07-05T19:32:18+12:00 | topic: "Cultural" | duration: 4.801491769s | depth: 2 | article_length: 4117
+2025-07-05T19:32:22+12:00 | topic: "Global" | duration: 4.066700349s | depth: 2 | article_length: 3624
+2025-07-05T19:32:28+12:00 | topic: "future" | duration: 5.739039166s | depth: 2 | article_length: 4733
+2025-07-05T19:32:36+12:00 | topic: "philosophical" | duration: 8.137716218s | depth: 2 | article_length: 4811
+2025-07-05T19:32:42+12:00 | topic: "perspectives" | duration: 6.380598532s | depth: 2 | article_length: 5431
+2025-07-05T19:32:50+12:00 | topic: "determinism" | duration: 8.018117742s | depth: 2 | article_length: 6903
+2025-07-05T19:32:56+12:00 | topic: "indeterminism" | duration: 5.558734516s | depth: 2 | article_length: 4538
+2025-07-05T19:33:01+12:00 | topic: "optimism" | duration: 4.794917937s | depth: 2 | article_length: 3999
+2025-07-05T19:33:06+12:00 | topic: "artificial_intelligence" | duration: 5.6839316s | depth: 2 | article_length: 4766
+2025-07-05T19:33:13+12:00 | topic: "internet_of_things" | duration: 6.76313477s | depth: 2 | article_length: 5443
+2025-07-05T19:33:34+12:00 | topic: "quantum_computing" | duration: 20.595481408s | depth: 2 | article_length: 16881
+2025-07-05T19:33:40+12:00 | topic: "climate_change" | duration: 6.332462202s | depth: 2 | article_length: 5141
+2025-07-05T19:33:45+12:00 | topic: "overpopulation" | duration: 4.675386419s | depth: 2 | article_length: 3897
+2025-07-05T19:33:50+12:00 | topic: "biodiversity_loss" | duration: 4.876137704s | depth: 2 | article_length: 3669
+2025-07-05T19:33:55+12:00 | topic: "technological_singularity" | duration: 5.203715521s | depth: 2 | article_length: 4277
+2025-07-05T19:34:01+12:00 | topic: "post_scarcity_economy" | duration: 5.923443676s | depth: 2 | article_length: 4599
+2025-07-05T19:34:06+12:00 | topic: "singularity" | duration: 5.569503057s | depth: 2 | article_length: 4637
+2025-07-05T19:34:11+12:00 | topic: "complexities" | duration: 5.064902015s | depth: 2 | article_length: 4349
+2025-07-05T19:34:16+12:00 | topic: "Nobility" | duration: 4.843194378s | depth: 2 | article_length: 3876
+2025-07-05T19:34:22+12:00 | topic: "Feudalism" | duration: 5.487806396s | depth: 2 | article_length: 3982
+2025-07-05T19:34:26+12:00 | topic: "Bourgeoisie" | duration: 4.120085508s | depth: 2 | article_length: 3515
+2025-07-05T19:34:31+12:00 | topic: "Military Leaders" | duration: 5.460644306s | depth: 2 | article_length: 3822
+2025-07-05T19:34:37+12:00 | topic: "Conquest" | duration: 5.726220055s | depth: 2 | article_length: 4210
+2025-07-05T19:34:41+12:00 | topic: "Hereditary Titles" | duration: 4.066167301s | depth: 2 | article_length: 3198
+2025-07-05T19:34:48+12:00 | topic: "Legislative Bodies" | duration: 7.056910773s | depth: 2 | article_length: 6227
+2025-07-05T19:34:54+12:00 | topic: "Judicial Roles" | duration: 5.273951431s | depth: 2 | article_length: 4381
+2025-07-05T19:35:50+12:00 | topic: "Administrative Roles" | duration: 56.290335618s | depth: 2 | article_length: 54589
+2025-07-05T19:35:55+12:00 | topic: "Privileges and Rights" | duration: 4.951062674s | depth: 2 | article_length: 3923
+2025-07-05T19:36:00+12:00 | topic: "Power Dynamics" | duration: 5.301423714s | depth: 2 | article_length: 4297
+2025-07-05T19:36:05+12:00 | topic: "Exclusion and Inequality" | duration: 4.848738972s | depth: 2 | article_length: 4075
+2025-07-05T19:36:12+12:00 | topic: "Injustices and Corruption" | duration: 6.516241806s | depth: 2 | article_length: 5758
+2025-07-05T19:36:17+12:00 | topic: "Etymology" | duration: 5.686822848s | depth: 2 | article_length: 4505
+2025-07-05T19:36:24+12:00 | topic: "Old English" | duration: 7.061485968s | depth: 2 | article_length: 4924
+2025-07-05T19:36:29+12:00 | topic: "Middle English" | duration: 4.300246299s | depth: 2 | article_length: 3346
+2025-07-05T19:36:34+12:00 | topic: "Modern English" | duration: 5.252441943s | depth: 2 | article_length: 3757
+2025-07-05T19:36:39+12:00 | topic: "Preposition" | duration: 4.928428194s | depth: 2 | article_length: 3710
+2025-07-05T19:36:43+12:00 | topic: "Introducing a clause" | duration: 4.153858207s | depth: 2 | article_length: 3145
+2025-07-05T19:36:47+12:00 | topic: "Showing relation to something" | duration: 4.40174179s | depth: 2 | article_length: 3287
+2025-07-05T19:36:52+12:00 | topic: "Possession" | duration: 4.104911393s | depth: 2 | article_length: 3400
+2025-07-05T19:36:57+12:00 | topic: "Relation" | duration: 5.842365167s | depth: 2 | article_length: 4296
+2025-07-05T19:37:02+12:00 | topic: "Cause and effect" | duration: 4.745839905s | depth: 2 | article_length: 3883
+2025-07-05T19:37:07+12:00 | topic: "Location" | duration: 5.139296157s | depth: 2 | article_length: 4285
+2025-07-05T19:37:12+12:00 | topic: "Direction and movement" | duration: 5.043104874s | depth: 2 | article_length: 3599
+2025-07-05T19:37:18+12:00 | topic: "Idioms and Phrases" | duration: 5.129006023s | depth: 2 | article_length: 3695
+2025-07-05T19:37:22+12:00 | topic: "Non-standard usage" | duration: 4.593687038s | depth: 2 | article_length: 3597
+2025-07-05T19:37:27+12:00 | topic: "Standardization" | duration: 4.762261171s | depth: 2 | article_length: 4157
+2025-07-05T19:37:32+12:00 | topic: "Variations and Regional Differences" | duration: 5.355138588s | depth: 2 | article_length: 4668
+2025-07-05T19:37:38+12:00 | topic: "etymology" | duration: 5.387313323s | depth: 2 | article_length: 4107
+2025-07-05T19:37:42+12:00 | topic: "pronunciation" | duration: 4.441637253s | depth: 2 | article_length: 3522
+2025-07-05T19:37:49+12:00 | topic: "function" | duration: 6.906537316s | depth: 2 | article_length: 5353
+2025-07-05T19:37:53+12:00 | topic: "usage" | duration: 3.715930008s | depth: 2 | article_length: 2666
+2025-07-05T19:37:58+12:00 | topic: "nouns" | duration: 5.15458891s | depth: 2 | article_length: 3501
+2025-07-05T19:38:02+12:00 | topic: "prerequisites" | duration: 4.457653366s | depth: 2 | article_length: 3767
+2025-07-05T19:38:07+12:00 | topic: "idiomatic expressions" | duration: 5.146606574s | depth: 2 | article_length: 4097
+2025-07-05T19:38:14+12:00 | topic: "linguistic history" | duration: 6.551041707s | depth: 2 | article_length: 4801
+2025-07-05T19:38:19+12:00 | topic: "cultural significance" | duration: 4.651282461s | depth: 2 | article_length: 3879
+2025-07-05T19:38:24+12:00 | topic: "conventions" | duration: 5.304306587s | depth: 2 | article_length: 4640
+2025-07-05T19:38:28+12:00 | topic: "style" | duration: 3.589614669s | depth: 2 | article_length: 2860
+2025-07-05T19:38:34+12:00 | topic: "musical styles" | duration: 6.127431776s | depth: 2 | article_length: 4585
+2025-07-05T19:38:39+12:00 | topic: "Types of Rings" | duration: 5.565013369s | depth: 2 | article_length: 3911
+2025-07-05T19:38:46+12:00 | topic: "Materials" | duration: 6.337753675s | depth: 2 | article_length: 4848
+2025-07-05T19:38:51+12:00 | topic: "Symbolism" | duration: 5.200554477s | depth: 2 | article_length: 3619
+2025-07-05T19:38:56+12:00 | topic: "Fashion Trends" | duration: 4.748709585s | depth: 2 | article_length: 3712
+2025-07-05T19:39:01+12:00 | topic: "Cultural Significance" | duration: 4.860976062s | depth: 2 | article_length: 4307
+2025-07-05T19:39:08+12:00 | topic: "Contemporary Trends" | duration: 7.267268555s | depth: 2 | article_length: 6566
+2025-07-05T19:39:14+12:00 | topic: "Metals" | duration: 5.942508784s | depth: 2 | article_length: 4775
+2025-07-05T19:39:19+12:00 | topic: "Stone" | duration: 5.394693125s | depth: 2 | article_length: 3800
+2025-07-05T19:39:28+12:00 | topic: "Gemstones" | duration: 8.601594854s | depth: 2 | article_length: 4265
+2025-07-05T19:39:34+12:00 | topic: "Love and Commitment" | duration: 5.942203519s | depth: 2 | article_length: 5179
+2025-07-05T19:39:40+12:00 | topic: "Spiritual Significance" | duration: 6.254842035s | depth: 2 | article_length: 5376
+2025-07-05T19:39:44+12:00 | topic: "Status and Wealth" | duration: 4.167986963s | depth: 2 | article_length: 3458
+2025-07-05T19:39:49+12:00 | topic: "Glamorous Designs" | duration: 4.425543782s | depth: 2 | article_length: 3291
+2025-07-05T19:39:54+12:00 | topic: "Minimalist Chic" | duration: 5.380516865s | depth: 2 | article_length: 4503
+2025-07-05T19:40:01+12:00 | topic: "Modern Fashion Trends" | duration: 6.606748914s | depth: 2 | article_length: 5399
+2025-07-05T19:40:06+12:00 | topic: "Ancient Egyptian Jewelry" | duration: 4.923790286s | depth: 2 | article_length: 3935
+2025-07-05T19:40:13+12:00 | topic: "Norse Mythology" | duration: 7.45102168s | depth: 2 | article_length: 4336
+2025-07-05T19:40:18+12:00 | topic: "Western Fashion Trends" | duration: 5.223020871s | depth: 2 | article_length: 4357
+2025-07-05T19:40:23+12:00 | topic: "Recycled Metal" | duration: 4.382616019s | depth: 2 | article_length: 3758
+2025-07-05T19:40:30+12:00 | topic: "3D-Printed Metal" | duration: 7.263896826s | depth: 2 | article_length: 4970
+2025-07-05T19:40:35+12:00 | topic: "Sustainable Fashion" | duration: 4.72797199s | depth: 2 | article_length: 4101
+2025-07-05T19:40:40+12:00 | topic: "Customization" | duration: 5.598274768s | depth: 2 | article_length: 5139
+2025-07-05T19:40:48+12:00 | topic: "Alternative Materials" | duration: 8.120885757s | depth: 2 | article_length: 5864
+2025-07-05T19:40:54+12:00 | topic: "types of fellowships" | duration: 5.121939312s | depth: 2 | article_length: 4512
+2025-07-05T19:40:58+12:00 | topic: "academic fellowship" | duration: 4.60771188s | depth: 2 | article_length: 3962
+2025-07-05T19:41:02+12:00 | topic: "mentorship fellowship" | duration: 4.332652891s | depth: 2 | article_length: 3827
+2025-07-05T19:41:09+12:00 | topic: "community fellowship" | duration: 6.067305082s | depth: 2 | article_length: 4920
+2025-07-05T19:41:14+12:00 | topic: "professional fellowship" | duration: 5.062331898s | depth: 2 | article_length: 4567
+2025-07-05T19:41:18+12:00 | topic: "benefits of fellowships" | duration: 4.602814381s | depth: 2 | article_length: 4369
+2025-07-05T19:41:24+12:00 | topic: "history of fellowships" | duration: 5.33251827s | depth: 2 | article_length: 4429
+2025-07-05T19:41:29+12:00 | topic: "modern-day fellowships" | duration: 5.822448932s | depth: 2 | article_length: 5048
+2025-07-05T19:41:36+12:00 | topic: "collaboration" | duration: 6.471503835s | depth: 2 | article_length: 5637
+2025-07-05T19:41:40+12:00 | topic: "social impact" | duration: 4.230185117s | depth: 2 | article_length: 3588
+2025-07-05T19:41:45+12:00 | topic: "fellowship arrangements" | duration: 4.70616793s | depth: 2 | article_length: 4068
+2025-07-05T19:41:50+12:00 | topic: "mutual support" | duration: 5.632233445s | depth: 2 | article_length: 4561
+2025-07-05T19:41:55+12:00 | topic: "shared responsibilities" | duration: 4.485958924s | depth: 2 | article_length: 3935
+2025-07-05T19:42:00+12:00 | topic: "career development" | duration: 5.013674952s | depth: 2 | article_length: 4317
+2025-07-05T19:42:06+12:00 | topic: "professional growth" | duration: 6.477116299s | depth: 2 | article_length: 5226
+2025-07-05T19:42:11+12:00 | topic: "visibility and credibility" | duration: 4.602380149s | depth: 2 | article_length: 3877
+2025-07-05T19:42:15+12:00 | topic: "networking opportunities" | duration: 4.155214227s | depth: 2 | article_length: 3917
+2025-07-05T19:42:22+12:00 | topic: "Geometric Shape" | duration: 6.610993191s | depth: 2 | article_length: 4943
+2025-07-05T19:42:29+12:00 | topic: "Polygon" | duration: 7.513275141s | depth: 2 | article_length: 4947
+2025-07-05T19:42:34+12:00 | topic: "Six Sides" | duration: 4.471775126s | depth: 2 | article_length: 3091
+2025-07-05T19:42:37+12:00 | topic: "All Sides Equal" | duration: 3.564732697s | depth: 2 | article_length: 2508
+2025-07-05T19:42:42+12:00 | topic: "Internal Angles Right" | duration: 4.48639596s | depth: 2 | article_length: 3360
+2025-07-05T19:42:47+12:00 | topic: "Closed Shape" | duration: 4.733005394s | depth: 2 | article_length: 3392
+2025-07-05T19:42:52+12:00 | topic: "No Holes" | duration: 4.841303544s | depth: 2 | article_length: 2971
+2025-07-05T19:42:56+12:00 | topic: "Interior Surface Area" | duration: 4.211094731s | depth: 2 | article_length: 3227
+2025-07-05T19:43:01+12:00 | topic: "Geometry and Trigonometry" | duration: 5.53990556s | depth: 2 | article_length: 4299
+2025-07-05T19:43:09+12:00 | topic: "Mathematics" | duration: 7.346671424s | depth: 2 | article_length: 6085
+2025-07-05T19:43:14+12:00 | topic: "Algebraic Structures" | duration: 5.767938295s | depth: 2 | article_length: 3693
+2025-07-05T19:43:22+12:00 | topic: "Groups" | duration: 7.718254414s | depth: 2 | article_length: 5370
+2025-07-05T19:43:28+12:00 | topic: "Quaternions" | duration: 5.837963677s | depth: 2 | article_length: 4174
+2025-07-05T19:43:34+12:00 | topic: "Geometry" | duration: 6.083278001s | depth: 2 | article_length: 4285
+2025-07-05T19:43:41+12:00 | topic: "Trigonometry" | duration: 7.05108977s | depth: 2 | article_length: 4881
+2025-07-05T19:43:48+12:00 | topic: "Symmetry" | duration: 6.704855846s | depth: 2 | article_length: 5261
+2025-07-05T19:43:56+12:00 | topic: "Congruence" | duration: 7.817392575s | depth: 2 | article_length: 5642
+2025-07-05T19:44:00+12:00 | topic: "Similarity of Polygons" | duration: 4.480774887s | depth: 2 | article_length: 3433
+2025-07-05T19:44:07+12:00 | topic: "Computer Graphics" | duration: 6.649636719s | depth: 2 | article_length: 5521
+2025-07-05T19:44:15+12:00 | topic: "Game Development" | duration: 7.579551713s | depth: 2 | article_length: 5839
+2025-07-05T19:44:20+12:00 | topic: "Physics Engines" | duration: 5.12537272s | depth: 2 | article_length: 4537
+2025-07-05T19:44:24+12:00 | topic: "smaug" | duration: 4.291022786s | depth: 2 | article_length: 2892
+2025-07-05T19:44:29+12:00 | topic: "one ring" | duration: 4.914173851s | depth: 2 | article_length: 3055
+2025-07-05T19:44:34+12:00 | topic: "erebor" | duration: 5.142132125s | depth: 2 | article_length: 3046
+2025-07-05T19:44:39+12:00 | topic: "dwarves" | duration: 4.94518572s | depth: 2 | article_length: 3233
+2025-07-05T19:44:43+12:00 | topic: "thorin oakenshield" | duration: 3.989901953s | depth: 2 | article_length: 2446
+2025-07-05T19:44:48+12:00 | topic: "gollum" | duration: 5.36774821s | depth: 2 | article_length: 3178
+2025-07-05T19:44:54+12:00 | topic: "tolkien" | duration: 5.848522408s | depth: 2 | article_length: 3887
+2025-07-05T19:45:00+12:00 | topic: "legendarium" | duration: 5.494092276s | depth: 2 | article_length: 3575
+2025-07-05T19:45:04+12:00 | topic: "protagonist" | duration: 4.217704834s | depth: 2 | article_length: 3607
+2025-07-05T19:45:10+12:00 | topic: "companion" | duration: 6.491173579s | depth: 2 | article_length: 5367
+2025-07-05T19:45:17+12:00 | topic: "journey" | duration: 6.327680266s | depth: 2 | article_length: 5274
+2025-07-05T19:45:21+12:00 | topic: "perilous" | duration: 3.766742607s | depth: 2 | article_length: 2635
+2025-07-05T19:45:26+12:00 | topic: "adventurer" | duration: 5.665587441s | depth: 2 | article_length: 4319
+2025-07-05T19:45:31+12:00 | topic: "character development" | duration: 4.900148448s | depth: 2 | article_length: 4258
+2025-07-05T19:45:36+12:00 | topic: "friendship" | duration: 4.697318316s | depth: 2 | article_length: 4068
+2025-07-05T19:45:41+12:00 | topic: "resourcefulness" | duration: 5.300517477s | depth: 2 | article_length: 4215
+2025-07-05T19:45:47+12:00 | topic: "determination" | duration: 5.695944363s | depth: 2 | article_length: 4572
+2025-07-05T19:45:52+12:00 | topic: "personal transformation" | duration: 5.513534507s | depth: 2 | article_length: 4558
+2025-07-05T19:46:02+12:00 | topic: "legacy" | duration: 9.74056428s | depth: 2 | article_length: 6822
+2025-07-05T19:46:06+12:00 | topic: "bibliography" | duration: 3.570469935s | depth: 2 | article_length: 2560
+2025-07-05T19:46:11+12:00 | topic: "editor" | duration: 5.078873444s | depth: 2 | article_length: 4282
+2025-07-05T19:46:16+12:00 | topic: "John Howe" | duration: 5.123056313s | depth: 2 | article_length: 4018
+2025-07-05T19:46:23+12:00 | topic: "Origins" | duration: 6.828498577s | depth: 2 | article_length: 5082
+2025-07-05T19:46:29+12:00 | topic: "Society" | duration: 5.965492807s | depth: 2 | article_length: 4548
+2025-07-05T19:46:33+12:00 | topic: "Members" | duration: 4.380245641s | depth: 2 | article_length: 3654
+2025-07-05T19:46:41+12:00 | topic: "Relationships" | duration: 8.028498773s | depth: 2 | article_length: 5538
+2025-07-05T19:46:57+12:00 | topic: "Locations" | duration: 15.540058164s | depth: 2 | article_length: 14136
+2025-07-05T19:47:02+12:00 | topic: "life" | duration: 5.574976212s | depth: 3 | article_length: 5082
+2025-07-05T19:47:08+12:00 | topic: "organisms" | duration: 5.626360043s | depth: 3 | article_length: 4462
+2025-07-05T19:47:15+12:00 | topic: "living" | duration: 6.643758471s | depth: 3 | article_length: 5888
+2025-07-05T19:47:20+12:00 | topic: "structures" | duration: 5.798849695s | depth: 3 | article_length: 3922
+2025-07-05T19:47:28+12:00 | topic: "functions" | duration: 7.359895754s | depth: 3 | article_length: 5081
+2025-07-05T19:47:33+12:00 | topic: "processes" | duration: 5.255171761s | depth: 3 | article_length: 4138
+2025-07-05T19:47:39+12:00 | topic: "branching" | duration: 5.400659511s | depth: 3 | article_length: 4321
+2025-07-05T19:47:44+12:00 | topic: "subfields" | duration: 5.809768374s | depth: 3 | article_length: 3649
+2025-07-05T19:47:52+12:00 | topic: "botany" | duration: 7.168661759s | depth: 3 | article_length: 4803
+2025-07-05T19:47:56+12:00 | topic: "zoology" | duration: 4.83105983s | depth: 3 | article_length: 3980
+2025-07-05T19:48:02+12:00 | topic: "microbiology" | duration: 5.916146804s | depth: 3 | article_length: 5000
+2025-07-05T19:48:08+12:00 | topic: "ecology" | duration: 5.21773655s | depth: 3 | article_length: 4692
+2025-07-05T19:48:14+12:00 | topic: "genetics" | duration: 6.072987286s | depth: 3 | article_length: 4315
+2025-07-05T19:48:18+12:00 | topic: "heredity" | duration: 4.100004309s | depth: 3 | article_length: 3082
+2025-07-05T19:48:24+12:00 | topic: "variation" | duration: 5.821042319s | depth: 3 | article_length: 4819
+2025-07-05T19:48:29+12:00 | topic: "cellular" | duration: 5.004115102s | depth: 3 | article_length: 3626
+2025-07-05T19:48:34+12:00 | topic: "organismal" | duration: 4.890549362s | depth: 3 | article_length: 3797
+2025-07-05T19:48:39+12:00 | topic: "ecosystems" | duration: 5.226268337s | depth: 3 | article_length: 4364
+2025-07-05T19:48:43+12:00 | topic: "environment" | duration: 4.645129141s | depth: 3 | article_length: 3882
+2025-07-05T19:48:49+12:00 | topic: "metabolic" | duration: 5.181322636s | depth: 3 | article_length: 3753
+2025-07-05T19:48:55+12:00 | topic: "genetic" | duration: 6.363345007s | depth: 3 | article_length: 4229
+2025-07-05T19:49:00+12:00 | topic: "respiration" | duration: 4.836429593s | depth: 3 | article_length: 3461
+2025-07-05T19:49:06+12:00 | topic: "digestion" | duration: 6.249988107s | depth: 3 | article_length: 4733
+2025-07-05T19:49:11+12:00 | topic: "nutrients" | duration: 5.14211474s | depth: 3 | article_length: 3762
+2025-07-05T19:49:16+12:00 | topic: "energy" | duration: 4.775611405s | depth: 3 | article_length: 3782
+2025-07-05T19:49:21+12:00 | topic: "sustaining" | duration: 4.51175098s | depth: 3 | article_length: 4054
+2025-07-05T19:49:26+12:00 | topic: "disease" | duration: 5.675403291s | depth: 3 | article_length: 5125
+2025-07-05T19:49:33+12:00 | topic: "biological" | duration: 6.969133132s | depth: 3 | article_length: 5674
+2025-07-05T19:49:38+12:00 | topic: "molecules" | duration: 4.523036587s | depth: 3 | article_length: 3781
+2025-07-05T19:49:44+12:00 | topic: "elements" | duration: 5.827183999s | depth: 3 | article_length: 3760
+2025-07-05T19:49:48+12:00 | topic: "atomic theory" | duration: 4.771057741s | depth: 3 | article_length: 3502
+2025-07-05T19:49:53+12:00 | topic: "bonding" | duration: 4.604558657s | depth: 3 | article_length: 3485
+2025-07-05T19:49:59+12:00 | topic: "chemical reactions" | duration: 5.817402805s | depth: 3 | article_length: 4212
+2025-07-05T19:50:04+12:00 | topic: "synthesis reaction" | duration: 5.015819182s | depth: 3 | article_length: 3477
+2025-07-05T19:50:09+12:00 | topic: "decomposition reaction" | duration: 4.871231263s | depth: 3 | article_length: 3537
+2025-07-05T19:50:14+12:00 | topic: "combustion reaction" | duration: 5.272539489s | depth: 3 | article_length: 4186
+2025-07-05T19:50:22+12:00 | topic: "safety precautions" | duration: 7.853503906s | depth: 3 | article_length: 6150
+2025-07-05T19:50:28+12:00 | topic: "protective gear" | duration: 5.809389393s | depth: 3 | article_length: 4764
+2025-07-05T19:50:32+12:00 | topic: "lab equipment" | duration: 4.466251585s | depth: 3 | article_length: 3541
+2025-07-05T19:50:37+12:00 | topic: "proper laboratory procedures" | duration: 4.325130053s | depth: 3 | article_length: 3689
+2025-07-05T19:50:43+12:00 | topic: "physical chemistry" | duration: 6.289593352s | depth: 3 | article_length: 4971
+2025-07-05T19:50:49+12:00 | topic: "organic chemistry" | duration: 6.228660356s | depth: 3 | article_length: 4792
+2025-07-05T19:50:56+12:00 | topic: "inorganic chemistry" | duration: 6.631664195s | depth: 3 | article_length: 4855
+2025-07-05T19:51:02+12:00 | topic: "analytical chemistry" | duration: 6.146983005s | depth: 3 | article_length: 5016
+2025-07-05T19:51:09+12:00 | topic: "atomic structure" | duration: 6.534424205s | depth: 3 | article_length: 4444
+2025-07-05T19:51:15+12:00 | topic: "molecular structure" | duration: 6.76485692s | depth: 3 | article_length: 4773
+2025-07-05T19:51:20+12:00 | topic: "chemical bonds" | duration: 4.545517588s | depth: 3 | article_length: 3600
+2025-07-05T19:51:24+12:00 | topic: "elementary composition" | duration: 4.331529456s | depth: 3 | article_length: 3793
+2025-07-05T19:51:32+12:00 | topic: "earth" | duration: 7.749469449s | depth: 3 | article_length: 5462
+2025-07-05T19:51:40+12:00 | topic: "sciences" | duration: 8.205972588s | depth: 3 | article_length: 7259
+2025-07-05T19:51:48+12:00 | topic: "geology" | duration: 7.518086274s | depth: 3 | article_length: 5744
+2025-07-05T19:51:52+12:00 | topic: "meteorology" | duration: 3.837843199s | depth: 3 | article_length: 3311
+2025-07-05T19:51:56+12:00 | topic: "hydrology" | duration: 4.57183165s | depth: 3 | article_length: 3559
+2025-07-05T19:52:03+12:00 | topic: "oceanography" | duration: 7.071948591s | depth: 3 | article_length: 5706
+2025-07-05T19:52:08+12:00 | topic: "geophysics" | duration: 5.139176863s | depth: 3 | article_length: 3973
+2025-07-05T19:52:17+12:00 | topic: "gravitational field" | duration: 8.833288876s | depth: 3 | article_length: 3868
+2025-07-05T19:52:23+12:00 | topic: "magnetic field" | duration: 5.394936748s | depth: 3 | article_length: 4351
+2025-07-05T19:52:27+12:00 | topic: "crust" | duration: 4.489291119s | depth: 3 | article_length: 3270
+2025-07-05T19:52:32+12:00 | topic: "mantle" | duration: 4.784736708s | depth: 3 | article_length: 3260
+2025-07-05T19:52:37+12:00 | topic: "outer core" | duration: 4.518541462s | depth: 3 | article_length: 3176
+2025-07-05T19:52:42+12:00 | topic: "inner core" | duration: 5.899439395s | depth: 3 | article_length: 4467
+2025-07-05T19:52:48+12:00 | topic: "atmosphere" | duration: 5.6764161s | depth: 3 | article_length: 4022
+2025-07-05T19:52:56+12:00 | topic: "composition" | duration: 7.598938796s | depth: 3 | article_length: 6376
+2025-07-05T19:53:01+12:00 | topic: "pressure" | duration: 5.034181544s | depth: 3 | article_length: 4144
+2025-07-05T19:53:06+12:00 | topic: "evaporation" | duration: 4.741958386s | depth: 3 | article_length: 3556
+2025-07-05T19:53:09+12:00 | topic: "condensation" | duration: 3.71501334s | depth: 3 | article_length: 2959
+2025-07-05T19:53:16+12:00 | topic: "precipitation" | duration: 6.617892949s | depth: 3 | article_length: 5478
+2025-07-05T19:53:22+12:00 | topic: "plate tectonics" | duration: 6.424070402s | depth: 3 | article_length: 4573
+2025-07-05T19:53:28+12:00 | topic: "volcanic activity" | duration: 5.963689934s | depth: 3 | article_length: 4351
+2025-07-05T19:53:34+12:00 | topic: "erosion" | duration: 5.246979371s | depth: 3 | article_length: 4085
+2025-07-05T19:53:40+12:00 | topic: "climate science" | duration: 6.320208732s | depth: 3 | article_length: 5634
+2025-07-05T19:53:45+12:00 | topic: "greenhouse gases" | duration: 5.238725389s | depth: 3 | article_length: 4004
+2025-07-05T19:53:50+12:00 | topic: "land use patterns" | duration: 4.35710455s | depth: 3 | article_length: 3829
+2025-07-05T19:53:57+12:00 | topic: "method" | duration: 6.951430874s | depth: 3 | article_length: 5318
+2025-07-05T19:54:02+12:00 | topic: "empiricism" | duration: 5.872335623s | depth: 3 | article_length: 4659
+2025-07-05T19:54:08+12:00 | topic: "induction" | duration: 5.072293156s | depth: 3 | article_length: 4189
+2025-07-05T19:54:14+12:00 | topic: "deduction" | duration: 6.074554759s | depth: 3 | article_length: 4319
+2025-07-05T19:54:19+12:00 | topic: "experimental design" | duration: 4.874289865s | depth: 3 | article_length: 4123
+2025-07-05T19:54:24+12:00 | topic: "Types of Observation" | duration: 5.537889719s | depth: 3 | article_length: 4913
+2025-07-05T19:54:28+12:00 | topic: "Educated Guess" | duration: 4.254580312s | depth: 3 | article_length: 3651
+2025-07-05T19:54:36+12:00 | topic: "Forecasting" | duration: 7.350013755s | depth: 3 | article_length: 5335
+2025-07-05T19:54:42+12:00 | topic: "phenomenon" | duration: 5.751222521s | depth: 3 | article_length: 4404
+2025-07-05T19:54:48+12:00 | topic: "Statistics" | duration: 6.466348235s | depth: 3 | article_length: 4545
+2025-07-05T19:54:52+12:00 | topic: "thesis statement" | duration: 4.279268673s | depth: 3 | article_length: 3397
+2025-07-05T19:54:59+12:00 | topic: "feeling" | duration: 6.211369234s | depth: 3 | article_length: 4162
+2025-07-05T19:55:04+12:00 | topic: "Philosophical attitude of doubt and questioning" | duration: 5.696016142s | depth: 3 | article_length: 4732
+2025-07-05T19:55:10+12:00 | topic: "Theory" | duration: 5.246739232s | depth: 3 | article_length: 4143
+2025-07-05T19:55:15+12:00 | topic: "Testability" | duration: 4.90085083s | depth: 3 | article_length: 3811
+2025-07-05T19:55:20+12:00 | topic: "Polish" | duration: 5.790516546s | depth: 3 | article_length: 4345
+2025-07-05T19:55:26+12:00 | topic: "birth" | duration: 5.935396469s | depth: 3 | article_length: 4494
+2025-07-05T19:55:33+12:00 | topic: "Warsaw" | duration: 6.856324318s | depth: 3 | article_length: 4885
+2025-07-05T19:55:38+12:00 | topic: "Stephen" | duration: 4.482311874s | depth: 3 | article_length: 3043
+2025-07-05T19:55:41+12:00 | topic: "empirical" | duration: 3.256471011s | depth: 3 | article_length: 2566
+2025-07-05T19:55:47+12:00 | topic: "science" | duration: 6.411471757s | depth: 3 | article_length: 5670
+2025-07-05T19:55:54+12:00 | topic: "relationship" | duration: 6.148010043s | depth: 3 | article_length: 5123
+2025-07-05T19:55:59+12:00 | topic: "Ethics" | duration: 5.060422702s | depth: 3 | article_length: 3857
+2025-07-05T19:56:14+12:00 | topic: "types of honesty" | duration: 15.209490168s | depth: 3 | article_length: 12399
+2025-07-05T19:56:18+12:00 | topic: "quality" | duration: 3.864913057s | depth: 3 | article_length: 3044
+2025-07-05T19:56:22+12:00 | topic: "genome" | duration: 4.42406995s | depth: 3 | article_length: 3529
+2025-07-05T19:56:29+12:00 | topic: "DNA" | duration: 7.318371664s | depth: 3 | article_length: 5276
+2025-07-05T19:56:35+12:00 | topic: "Bioinformatics" | duration: 5.661449069s | depth: 3 | article_length: 4569
+2025-07-05T19:56:40+12:00 | topic: "Superposition" | duration: 5.31480005s | depth: 3 | article_length: 3664
+2025-07-05T19:56:46+12:00 | topic: "Access" | duration: 5.420728799s | depth: 3 | article_length: 4382
+2025-07-05T19:56:51+12:00 | topic: "Disparity" | duration: 5.269153351s | depth: 3 | article_length: 4549
+2025-07-05T19:57:01+12:00 | topic: "Types of Classification" | duration: 9.497355005s | depth: 3 | article_length: 9783
+2025-07-05T19:57:09+12:00 | topic: "Anatomical Classification" | duration: 7.939007214s | depth: 3 | article_length: 6305
+2025-07-05T19:57:14+12:00 | topic: "PIE language" | duration: 4.949798237s | depth: 3 | article_length: 3074
+2025-07-05T19:57:19+12:00 | topic: "word formation" | duration: 5.295640794s | depth: 3 | article_length: 3587
+2025-07-05T19:57:25+12:00 | topic: "Tibetan" | duration: 6.434118894s | depth: 3 | article_length: 4765
+2025-07-05T19:57:30+12:00 | topic: "Language Family" | duration: 4.424889916s | depth: 3 | article_length: 3845
+2025-07-05T19:57:36+12:00 | topic: "Afro-Asiatic" | duration: 5.736638929s | depth: 3 | article_length: 3289
+2025-07-05T19:57:42+12:00 | topic: "languages" | duration: 6.338309889s | depth: 3 | article_length: 4422
+2025-07-05T19:57:49+12:00 | topic: "Theories of Language Acquisition" | duration: 6.643749932s | depth: 3 | article_length: 5741
+2025-07-05T19:57:53+12:00 | topic: "Social Learning Theory" | duration: 4.786228888s | depth: 3 | article_length: 3664
+2025-07-05T19:57:58+12:00 | topic: "Interactionist Theory" | duration: 4.813152926s | depth: 3 | article_length: 4077
+2025-07-05T19:58:05+12:00 | topic: "Biological Theory" | duration: 6.626384792s | depth: 3 | article_length: 6031
+2025-07-05T19:58:10+12:00 | topic: "channels" | duration: 5.044906239s | depth: 3 | article_length: 3906
+2025-07-05T19:58:16+12:00 | topic: "traditional" | duration: 6.080980054s | depth: 3 | article_length: 4180
+2025-07-05T19:58:29+12:00 | topic: "production" | duration: 12.436873111s | depth: 3 | article_length: 10427
+2025-07-05T19:58:38+12:00 | topic: "History of Politics" | duration: 9.229380947s | depth: 3 | article_length: 5443
+2025-07-05T19:58:45+12:00 | topic: "organization" | duration: 7.580627368s | depth: 3 | article_length: 6578
+2025-07-05T19:58:53+12:00 | topic: "NoSQL" | duration: 7.230954363s | depth: 3 | article_length: 5701
+2025-07-05T19:58:58+12:00 | topic: "relational" | duration: 5.049216232s | depth: 3 | article_length: 4420
+2025-07-05T19:59:05+12:00 | topic: "database management system" | duration: 7.10700162s | depth: 3 | article_length: 5765
+2025-07-05T19:59:13+12:00 | topic: "tables" | duration: 8.683384638s | depth: 3 | article_length: 7109
+2025-07-05T19:59:24+12:00 | topic: "index" | duration: 10.260292059s | depth: 3 | article_length: 8993
+2025-07-05T19:59:29+12:00 | topic: "self-descriptive" | duration: 5.225461117s | depth: 3 | article_length: 4115
+2025-07-05T19:59:35+12:00 | topic: "formats" | duration: 6.250294025s | depth: 3 | article_length: 5336
+2025-07-05T19:59:41+12:00 | topic: "Graph Theory" | duration: 5.659190635s | depth: 3 | article_length: 4197
+2025-07-05T19:59:46+12:00 | topic: "Directed Edges" | duration: 5.402523872s | depth: 3 | article_length: 4451
+2025-07-05T19:59:51+12:00 | topic: "Undirected Edges" | duration: 4.929355841s | depth: 3 | article_length: 3517
+2025-07-05T19:59:56+12:00 | topic: "Weighs" | duration: 4.70214112s | depth: 3 | article_length: 3192
+2025-07-05T20:00:01+12:00 | topic: "Collecting" | duration: 4.898157463s | depth: 3 | article_length: 3966
+2025-07-05T20:00:05+12:00 | topic: "table" | duration: 4.195586057s | depth: 3 | article_length: 3291
+2025-07-05T20:00:11+12:00 | topic: "structure" | duration: 6.045065897s | depth: 3 | article_length: 4199
+2025-07-05T20:00:21+12:00 | topic: "query" | duration: 10.213696664s | depth: 3 | article_length: 7593
+2025-07-05T20:00:30+12:00 | topic: "queries" | duration: 8.763632073s | depth: 3 | article_length: 7380
+2025-07-05T20:00:37+12:00 | topic: "computer security" | duration: 6.668992851s | depth: 3 | article_length: 5820
+2025-07-05T20:00:41+12:00 | topic: "measures" | duration: 3.700946124s | depth: 3 | article_length: 2792
+2025-07-05T20:00:47+12:00 | topic: "Networking" | duration: 6.060715501s | depth: 3 | article_length: 5324
+2025-07-05T20:00:52+12:00 | topic: "Wireless" | duration: 4.960897539s | depth: 3 | article_length: 4296
+2025-07-05T20:00:58+12:00 | topic: "LAN" | duration: 5.961113398s | depth: 3 | article_length: 4855
+2025-07-05T20:01:03+12:00 | topic: "WAN" | duration: 5.09918424s | depth: 3 | article_length: 4132
+2025-07-05T20:01:12+12:00 | topic: "Wi-Fi" | duration: 9.724500964s | depth: 3 | article_length: 7228
+2025-07-05T20:01:16+12:00 | topic: "radio waves" | duration: 3.89991758s | depth: 3 | article_length: 3024
+2025-07-05T20:01:24+12:00 | topic: "electrical devices" | duration: 7.443128275s | depth: 3 | article_length: 6071
+2025-07-05T20:01:28+12:00 | topic: "current flow" | duration: 4.405161227s | depth: 3 | article_length: 3697
+2025-07-05T20:01:36+12:00 | topic: "network security" | duration: 7.248453603s | depth: 3 | article_length: 6675
+2025-07-05T20:01:41+12:00 | topic: "packet filtering" | duration: 5.376132154s | depth: 3 | article_length: 4961
+2025-07-05T20:01:46+12:00 | topic: "computer" | duration: 5.308230855s | depth: 3 | article_length: 4461
+2025-07-05T20:01:51+12:00 | topic: "client" | duration: 4.231951907s | depth: 3 | article_length: 3240
+2025-07-05T20:01:57+12:00 | topic: "Transmission Control Protocol" | duration: 6.658068935s | depth: 3 | article_length: 5260
+2025-07-05T20:02:03+12:00 | topic: "Hypertext Transfer Protocol" | duration: 6.283181412s | depth: 3 | article_length: 5171
+2025-07-05T20:02:10+12:00 | topic: "File Transfer Protocol" | duration: 6.472386952s | depth: 3 | article_length: 4777
+2025-07-05T20:02:17+12:00 | topic: "networks" | duration: 6.61369369s | depth: 3 | article_length: 6017
+2025-07-05T20:02:22+12:00 | topic: "Virtual Private Network" | duration: 5.708670294s | depth: 3 | article_length: 4967
+2025-07-05T20:02:28+12:00 | topic: "RDP" | duration: 6.130354835s | depth: 3 | article_length: 4794
+2025-07-05T20:02:33+12:00 | topic: "Screen Sharing" | duration: 4.458083333s | depth: 3 | article_length: 3838
+2025-07-05T20:02:38+12:00 | topic: "Virtual" | duration: 5.03064899s | depth: 3 | article_length: 4453
+2025-07-05T20:02:43+12:00 | topic: "Network Congestion" | duration: 4.762537094s | depth: 3 | article_length: 4294
+2025-07-05T20:02:47+12:00 | topic: "Signal Attenuation" | duration: 3.72261919s | depth: 3 | article_length: 2967
+2025-07-05T20:02:52+12:00 | topic: "clock drift" | duration: 5.73850828s | depth: 3 | article_length: 4754
+2025-07-05T20:02:58+12:00 | topic: "Measurement" | duration: 5.942396912s | depth: 3 | article_length: 5417
+2025-07-05T20:03:04+12:00 | topic: "Types of Measurement" | duration: 5.965276329s | depth: 3 | article_length: 4625
+2025-07-05T20:03:10+12:00 | topic: "NLP" | duration: 5.686277544s | depth: 3 | article_length: 4651
+2025-07-05T20:03:16+12:00 | topic: "Sentiment Analysis" | duration: 6.40004223s | depth: 3 | article_length: 4960
+2025-07-05T20:03:22+12:00 | topic: "Conversational Virtual Assistants" | duration: 5.726254111s | depth: 3 | article_length: 4919
+2025-07-05T20:03:28+12:00 | topic: "Task-Oriented Virtual Assistants" | duration: 6.160320903s | depth: 3 | article_length: 5106
+2025-07-05T20:03:34+12:00 | topic: "Personal Virtual Assistants" | duration: 5.820002538s | depth: 3 | article_length: 4698
+2025-07-05T20:03:42+12:00 | topic: "image" | duration: 7.464262777s | depth: 3 | article_length: 5941
+2025-07-05T20:03:47+12:00 | topic: "Narrow AIs" | duration: 5.690267277s | depth: 3 | article_length: 4072
+2025-07-05T20:03:53+12:00 | topic: "Weak AI" | duration: 5.936360318s | depth: 3 | article_length: 4868
+2025-07-05T20:03:59+12:00 | topic: "General" | duration: 6.172208821s | depth: 3 | article_length: 4744
+2025-07-05T20:04:05+12:00 | topic: "Types of Data" | duration: 5.291828185s | depth: 3 | article_length: 4309
+2025-07-05T20:04:09+12:00 | topic: "problem-solving" | duration: 4.150251896s | depth: 3 | article_length: 3632
+2025-07-05T20:04:15+12:00 | topic: "Physical Components" | duration: 5.830371006s | depth: 3 | article_length: 5113
+2025-07-05T20:04:20+12:00 | topic: "overcoming" | duration: 5.095577077s | depth: 3 | article_length: 4060
+2025-07-05T20:04:25+12:00 | topic: "Limitation" | duration: 5.394385961s | depth: 3 | article_length: 4853
+2025-07-05T20:04:32+12:00 | topic: "Developments" | duration: 6.270721571s | depth: 3 | article_length: 5296
+2025-07-05T20:04:36+12:00 | topic: "Examples" | duration: 4.468502493s | depth: 3 | article_length: 3047
+2025-07-05T20:04:41+12:00 | topic: "Extension field" | duration: 5.234240191s | depth: 3 | article_length: 3566
+2025-07-05T20:04:47+12:00 | topic: "Galois extension" | duration: 5.584814253s | depth: 3 | article_length: 3398
+2025-07-05T20:04:52+12:00 | topic: "automaton" | duration: 4.974495947s | depth: 3 | article_length: 3826
+2025-07-05T20:04:57+12:00 | topic: "study" | duration: 5.554839992s | depth: 3 | article_length: 4476
+2025-07-05T20:05:02+12:00 | topic: "model" | duration: 4.194692496s | depth: 3 | article_length: 3326
+2025-07-05T20:05:09+12:00 | topic: "Arithmetic" | duration: 7.820848122s | depth: 3 | article_length: 6392
+2025-07-05T20:05:15+12:00 | topic: "attributes" | duration: 5.203809507s | depth: 3 | article_length: 4150
+2025-07-05T20:05:21+12:00 | topic: "computer science" | duration: 6.803936362s | depth: 3 | article_length: 5778
+2025-07-05T20:05:27+12:00 | topic: "descriptive analysis" | duration: 5.977963344s | depth: 3 | article_length: 4629
+2025-07-05T20:05:38+12:00 | topic: "Linguistics" | duration: 10.223165787s | depth: 3 | article_length: 8221
+2025-07-05T20:05:43+12:00 | topic: "Formal Training" | duration: 4.861050847s | depth: 3 | article_length: 4568
+2025-07-05T20:05:48+12:00 | topic: "Informal Training" | duration: 4.971090893s | depth: 3 | article_length: 4170
+2025-07-05T20:05:53+12:00 | topic: "On-the-Job Training" | duration: 5.359756018s | depth: 3 | article_length: 4705
+2025-07-05T20:06:03+12:00 | topic: "Training Methods" | duration: 9.793263936s | depth: 3 | article_length: 9366
+2025-07-05T20:06:08+12:00 | topic: "Direct Instruction" | duration: 5.123637878s | depth: 3 | article_length: 4641
+2025-07-05T20:06:13+12:00 | topic: "Measure" | duration: 4.602040933s | depth: 3 | article_length: 3449
+2025-07-05T20:06:19+12:00 | topic: "expenses" | duration: 6.630223858s | depth: 3 | article_length: 5502
+2025-07-05T20:06:26+12:00 | topic: "complex" | duration: 6.802189537s | depth: 3 | article_length: 4768
+2025-07-05T20:06:33+12:00 | topic: "emotional" | duration: 7.173486316s | depth: 3 | article_length: 5915
+2025-07-05T20:06:38+12:00 | topic: "Mechanical flexibility" | duration: 4.331006283s | depth: 3 | article_length: 3689
+2025-07-05T20:06:43+12:00 | topic: "Types of Modifications" | duration: 5.718767837s | depth: 3 | article_length: 4465
+2025-07-05T20:06:48+12:00 | topic: "Machine Learning" | duration: 4.52800486s | depth: 3 | article_length: 4141
+2025-07-05T20:06:54+12:00 | topic: "processing" | duration: 6.000219524s | depth: 3 | article_length: 5143
+2025-07-05T20:06:59+12:00 | topic: "high-end luxury" | duration: 4.965656591s | depth: 3 | article_length: 3782
+2025-07-05T20:07:03+12:00 | topic: "activity" | duration: 4.475323923s | depth: 3 | article_length: 3449
+2025-07-05T20:07:09+12:00 | topic: "Principles" | duration: 5.899204343s | depth: 3 | article_length: 4807
+2025-07-05T20:07:16+12:00 | topic: "process" | duration: 6.429137926s | depth: 3 | article_length: 5395
+2025-07-05T20:07:25+12:00 | topic: "Biology" | duration: 9.499282968s | depth: 3 | article_length: 5402
+2025-07-05T20:07:31+12:00 | topic: "components" | duration: 5.627459906s | depth: 3 | article_length: 4579
+2025-07-05T20:07:36+12:00 | topic: "Supervised Learning" | duration: 4.775651863s | depth: 3 | article_length: 4024
+2025-07-05T20:07:44+12:00 | topic: "Unsupervised Learning" | duration: 8.370323552s | depth: 3 | article_length: 6292
+2025-07-05T20:07:49+12:00 | topic: "Reinforcement Learning" | duration: 4.450801869s | depth: 3 | article_length: 3607
+2025-07-05T20:07:56+12:00 | topic: "Linear Regression" | duration: 7.115425925s | depth: 3 | article_length: 5446
+2025-07-05T20:08:00+12:00 | topic: "Natural" | duration: 4.03165164s | depth: 3 | article_length: 3664
+2025-07-05T20:08:05+12:00 | topic: "Language" | duration: 5.443210183s | depth: 3 | article_length: 4556
+2025-07-05T20:08:12+12:00 | topic: "Speech Recognition" | duration: 6.934737425s | depth: 3 | article_length: 5157
+2025-07-05T20:08:20+12:00 | topic: "Types of Malware" | duration: 7.791764102s | depth: 3 | article_length: 6132
+2025-07-05T20:08:27+12:00 | topic: "Viruses" | duration: 7.132432493s | depth: 3 | article_length: 5311
+2025-07-05T20:08:34+12:00 | topic: "Worms" | duration: 6.466139548s | depth: 3 | article_length: 4354
+2025-07-05T20:08:38+12:00 | topic: "Physical Insider Threats" | duration: 4.494790471s | depth: 3 | article_length: 3922
+2025-07-05T20:08:44+12:00 | topic: "Electronic Insider Threats" | duration: 5.86849956s | depth: 3 | article_length: 5392
+2025-07-05T20:08:51+12:00 | topic: "Cognitive Insider Threats" | duration: 7.024652014s | depth: 3 | article_length: 6471
+2025-07-05T20:08:57+12:00 | topic: "Antivirus" | duration: 5.850360392s | depth: 3 | article_length: 4840
+2025-07-05T20:09:04+12:00 | topic: "Incident Response Plan" | duration: 7.097821713s | depth: 3 | article_length: 6122
+2025-07-05T20:09:10+12:00 | topic: "Detection" | duration: 5.811290706s | depth: 3 | article_length: 4936
+2025-07-05T20:09:18+12:00 | topic: "Cybersecurity" | duration: 7.62681552s | depth: 3 | article_length: 6735
+2025-07-05T20:09:26+12:00 | topic: "Algorithms" | duration: 8.115538652s | depth: 3 | article_length: 6117
+2025-07-05T20:09:33+12:00 | topic: "Secure Sockets Layer" | duration: 7.585118936s | depth: 3 | article_length: 5998
+2025-07-05T20:09:37+12:00 | topic: "password" | duration: 4.105149114s | depth: 3 | article_length: 3443
+2025-07-05T20:09:45+12:00 | topic: "network" | duration: 7.959469698s | depth: 3 | article_length: 7121
+2025-07-05T20:09:51+12:00 | topic: "Data Breach" | duration: 5.478304331s | depth: 3 | article_length: 4743
+2025-07-05T20:09:56+12:00 | topic: "Unauthorized Access" | duration: 5.316918604s | depth: 3 | article_length: 4759
+2025-07-05T20:10:01+12:00 | topic: "Exfiltration" | duration: 4.458581144s | depth: 3 | article_length: 3706
+2025-07-05T20:10:06+12:00 | topic: "Compromise of Personal Identifiable Information (PII)" | duration: 5.076604838s | depth: 3 | article_length: 4466
+2025-07-05T20:10:10+12:00 | topic: "Lack of Security Measures" | duration: 4.636557409s | depth: 3 | article_length: 4022
+2025-07-05T20:10:17+12:00 | topic: "Ransomware" | duration: 6.456921917s | depth: 3 | article_length: 5066
+2025-07-05T20:10:26+12:00 | topic: "Types of Identity Theft" | duration: 8.793999141s | depth: 3 | article_length: 7814
+2025-07-05T20:10:31+12:00 | topic: "phrase" | duration: 4.933119972s | depth: 3 | article_length: 3389
+2025-07-05T20:10:37+12:00 | topic: "concept" | duration: 6.007362128s | depth: 3 | article_length: 4674
+2025-07-05T20:10:43+12:00 | topic: "ancient" | duration: 5.975324839s | depth: 3 | article_length: 4608
+2025-07-05T20:10:51+12:00 | topic: "object-oriented programming" | duration: 8.410526817s | depth: 3 | article_length: 6492
+2025-07-05T20:10:57+12:00 | topic: "environments" | duration: 5.376620846s | depth: 3 | article_length: 4224
+2025-07-05T20:11:01+12:00 | topic: "ide" | duration: 4.323282072s | depth: 3 | article_length: 3279
+2025-07-05T20:11:06+12:00 | topic: "concerns" | duration: 4.915470032s | depth: 3 | article_length: 3618
+2025-07-05T20:11:11+12:00 | topic: "mitigation" | duration: 5.430649044s | depth: 3 | article_length: 4429
+2025-07-05T20:11:17+12:00 | topic: "Types of Glossaries" | duration: 5.749471349s | depth: 3 | article_length: 4335
+2025-07-05T20:11:23+12:00 | topic: "Benefits" | duration: 5.506922138s | depth: 3 | article_length: 3479
+2025-07-05T20:11:29+12:00 | topic: "Software" | duration: 6.767034135s | depth: 3 | article_length: 5202
+2025-07-05T20:11:35+12:00 | topic: "Interoperability" | duration: 5.806363765s | depth: 3 | article_length: 4753
+2025-07-05T20:11:41+12:00 | topic: "Operating Systems" | duration: 5.920391102s | depth: 3 | article_length: 4674
+2025-07-05T20:11:47+12:00 | topic: "Plan" | duration: 5.408174145s | depth: 3 | article_length: 3827
+2025-07-05T20:11:52+12:00 | topic: "Phase" | duration: 5.46073956s | depth: 3 | article_length: 3675
+2025-07-05T20:11:57+12:00 | topic: "Stage" | duration: 4.985190463s | depth: 3 | article_length: 3890
+2025-07-05T20:12:04+12:00 | topic: "Execution" | duration: 6.767428009s | depth: 3 | article_length: 5807
+2025-07-05T20:12:10+12:00 | topic: "Project" | duration: 6.097439427s | depth: 3 | article_length: 4600
+2025-07-05T20:12:16+12:00 | topic: "Program" | duration: 5.663243421s | depth: 3 | article_length: 4444
+2025-07-05T20:12:24+12:00 | topic: "Types of Testing" | duration: 7.913532081s | depth: 3 | article_length: 6616
+2025-07-05T20:12:30+12:00 | topic: "ACLs" | duration: 6.52618253s | depth: 3 | article_length: 4471
+2025-07-05T20:12:38+12:00 | topic: "Unix" | duration: 8.169649972s | depth: 3 | article_length: 5676
+2025-07-05T20:12:46+12:00 | topic: "Linux" | duration: 7.511506277s | depth: 3 | article_length: 5717
+2025-07-05T20:12:52+12:00 | topic: "Licensing Model" | duration: 6.269215795s | depth: 3 | article_length: 5057
+2025-07-05T20:12:57+12:00 | topic: "branches" | duration: 5.240119142s | depth: 3 | article_length: 4168
+2025-07-05T20:13:03+12:00 | topic: "information technology" | duration: 5.097638706s | depth: 3 | article_length: 3839
+2025-07-05T20:13:08+12:00 | topic: "applications" | duration: 4.985076902s | depth: 3 | article_length: 3866
+2025-07-05T20:13:12+12:00 | topic: "Industrial" | duration: 4.429538216s | depth: 3 | article_length: 3413
+2025-07-05T20:13:17+12:00 | topic: "cpu" | duration: 5.269469324s | depth: 3 | article_length: 3956
+2025-07-05T20:13:23+12:00 | topic: "protocols" | duration: 5.980967986s | depth: 3 | article_length: 4590
+2025-07-05T20:13:29+12:00 | topic: "mobile" | duration: 5.277858405s | depth: 3 | article_length: 3852
+2025-07-05T20:13:34+12:00 | topic: "techniques" | duration: 5.479446648s | depth: 3 | article_length: 4062
+2025-07-05T20:13:40+12:00 | topic: "tools" | duration: 5.76122108s | depth: 3 | article_length: 3438
+2025-07-05T20:13:48+12:00 | topic: "modes" | duration: 8.197687889s | depth: 3 | article_length: 4366
+2025-07-05T20:13:54+12:00 | topic: "road transport" | duration: 5.86858657s | depth: 3 | article_length: 4743
+2025-07-05T20:14:01+12:00 | topic: "maritime transport" | duration: 7.143993655s | depth: 3 | article_length: 6106
+2025-07-05T20:14:09+12:00 | topic: "Utilities" | duration: 8.301265209s | depth: 3 | article_length: 7586
+2025-07-05T20:14:15+12:00 | topic: "Gaming" | duration: 5.099209126s | depth: 3 | article_length: 4162
+2025-07-05T20:14:22+12:00 | topic: "Types of Accessibility" | duration: 7.443224523s | depth: 3 | article_length: 6274
+2025-07-05T20:14:27+12:00 | topic: "Inequality" | duration: 5.258708946s | depth: 3 | article_length: 4309
+2025-07-05T20:14:32+12:00 | topic: "Theories of Cost" | duration: 4.717910081s | depth: 3 | article_length: 4277
+2025-07-05T20:14:38+12:00 | topic: "Climate Change" | duration: 6.357032324s | depth: 3 | article_length: 4857
+2025-07-05T20:14:43+12:00 | topic: "Implications" | duration: 4.743193474s | depth: 3 | article_length: 3847
+2025-07-05T20:14:50+12:00 | topic: "vector field" | duration: 6.956757838s | depth: 3 | article_length: 4848
+2025-07-05T20:14:57+12:00 | topic: "agriculture" | duration: 7.113531209s | depth: 3 | article_length: 5542
+2025-07-05T20:15:06+12:00 | topic: "taxonomy" | duration: 8.344645283s | depth: 3 | article_length: 7206
+2025-07-05T20:15:11+12:00 | topic: "domain" | duration: 4.941736458s | depth: 3 | article_length: 4207
+2025-07-05T20:15:15+12:00 | topic: "physical properties" | duration: 3.908039433s | depth: 3 | article_length: 3114
+2025-07-05T20:15:21+12:00 | topic: "spatial relationships" | duration: 6.418037618s | depth: 3 | article_length: 5585
+2025-07-05T20:15:26+12:00 | topic: "informational" | duration: 4.50131364s | depth: 3 | article_length: 3346
+2025-07-05T20:15:30+12:00 | topic: "growth" | duration: 4.399536511s | depth: 3 | article_length: 3532
+2025-07-05T20:15:36+12:00 | topic: "perceptibility" | duration: 5.825065055s | depth: 3 | article_length: 4615
+2025-07-05T20:15:42+12:00 | topic: "ecological" | duration: 5.660188583s | depth: 3 | article_length: 4528
+2025-07-05T20:15:47+12:00 | topic: "importance" | duration: 4.991077938s | depth: 3 | article_length: 4235
+2025-07-05T20:15:53+12:00 | topic: "ecosystem" | duration: 6.027450678s | depth: 3 | article_length: 4326
+2025-07-05T20:15:58+12:00 | topic: "soil" | duration: 5.164693375s | depth: 3 | article_length: 3813
+2025-07-05T20:16:03+12:00 | topic: "methodology" | duration: 5.515357546s | depth: 3 | article_length: 4606
+2025-07-05T20:16:09+12:00 | topic: "inductivism" | duration: 5.196472648s | depth: 3 | article_length: 3727
+2025-07-05T20:16:13+12:00 | topic: "deductive" | duration: 4.218279385s | depth: 3 | article_length: 3543
+2025-07-05T20:16:18+12:00 | topic: "hypothesis" | duration: 5.632969686s | depth: 3 | article_length: 4417
+2025-07-05T20:16:23+12:00 | topic: "basic research" | duration: 5.001628137s | depth: 3 | article_length: 4703
+2025-07-05T20:16:28+12:00 | topic: "applied research" | duration: 4.572448055s | depth: 3 | article_length: 3959
+2025-07-05T20:16:34+12:00 | topic: "military" | duration: 5.747633813s | depth: 3 | article_length: 5162
+2025-07-05T20:16:37+12:00 | topic: "methodical" | duration: 3.522076389s | depth: 3 | article_length: 3089
+2025-07-05T20:16:42+12:00 | topic: "clearly defined" | duration: 4.553149122s | depth: 3 | article_length: 3642
+2025-07-05T20:16:46+12:00 | topic: "formatting" | duration: 4.33267099s | depth: 3 | article_length: 2366
+2025-07-05T20:16:51+12:00 | topic: "goal" | duration: 4.31263523s | depth: 3 | article_length: 3440
+2025-07-05T20:16:54+12:00 | topic: "specific" | duration: 3.031609162s | depth: 3 | article_length: 2350
+2025-07-05T20:16:58+12:00 | topic: "organizational" | duration: 4.384533095s | depth: 3 | article_length: 3823
+2025-07-05T20:17:04+12:00 | topic: "facts" | duration: 6.332881894s | depth: 3 | article_length: 4742
+2025-07-05T20:17:09+12:00 | topic: "experience" | duration: 5.014453462s | depth: 3 | article_length: 4049
+2025-07-05T20:17:14+12:00 | topic: "emotional self-control" | duration: 4.885050522s | depth: 3 | article_length: 3850
+2025-07-05T20:17:20+12:00 | topic: "cognitive self-control" | duration: 5.43237528s | depth: 3 | article_length: 4325
+2025-07-05T20:17:24+12:00 | topic: "act" | duration: 4.494441431s | depth: 3 | article_length: 3005
+2025-07-05T20:17:29+12:00 | topic: "loyalty" | duration: 4.468333529s | depth: 3 | article_length: 3617
+2025-07-05T20:17:35+12:00 | topic: "physical activity" | duration: 5.943750149s | depth: 3 | article_length: 4601
+2025-07-05T20:17:40+12:00 | topic: "mass" | duration: 5.617451678s | depth: 3 | article_length: 3999
+2025-07-05T20:17:46+12:00 | topic: "social rules" | duration: 5.30504034s | depth: 3 | article_length: 4022
+2025-07-05T20:17:52+12:00 | topic: "family rules" | duration: 5.779583842s | depth: 3 | article_length: 4302
+2025-07-05T20:17:57+12:00 | topic: "workplace rules" | duration: 5.445083382s | depth: 3 | article_length: 4699
+2025-07-05T20:18:02+12:00 | topic: "technical rules" | duration: 5.131941466s | depth: 3 | article_length: 4073
+2025-07-05T20:18:08+12:00 | topic: "psychological" | duration: 6.205287739s | depth: 3 | article_length: 5471
+2025-07-05T20:18:13+12:00 | topic: "professionals" | duration: 4.81477214s | depth: 3 | article_length: 4214
+2025-07-05T20:18:18+12:00 | topic: "level" | duration: 4.950435492s | depth: 3 | article_length: 4104
+2025-07-05T20:18:24+12:00 | topic: "ratio" | duration: 5.547079804s | depth: 3 | article_length: 4124
+2025-07-05T20:18:29+12:00 | topic: "output" | duration: 5.576369602s | depth: 3 | article_length: 4621
+2025-07-05T20:18:33+12:00 | topic: "behavior" | duration: 3.842728725s | depth: 3 | article_length: 2903
+2025-07-05T20:18:38+12:00 | topic: "minimize detection" | duration: 4.612529658s | depth: 3 | article_length: 4221
+2025-07-05T20:18:44+12:00 | topic: "Types of Motivation" | duration: 5.730680406s | depth: 3 | article_length: 5223
+2025-07-05T20:18:51+12:00 | topic: "Intrinsic motivation" | duration: 7.270934519s | depth: 3 | article_length: 6170
+2025-07-05T20:18:56+12:00 | topic: "Extrinsic motivation" | duration: 5.268844262s | depth: 3 | article_length: 4289
+2025-07-05T20:19:03+12:00 | topic: "Philosophy" | duration: 6.493752526s | depth: 3 | article_length: 4860
