@@ -1,5 +1,5 @@
 # Build stage
-FROM golang:1.21-alpine AS builder
+FROM golang:alpine AS builder
 
 # Install git and ca-certificates (needed for go mod download)
 RUN apk add --no-cache git ca-certificates
@@ -8,16 +8,16 @@ RUN apk add --no-cache git ca-certificates
 WORKDIR /app
 
 # Copy go mod files
-COPY go.mod go.sum ./
+COPY ./go.mod ./go.sum ./
 
 # Download dependencies
 RUN go mod download
 
 # Copy source code
-COPY . .
+COPY ./librarian ./librarian
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o librarian .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o librarian ./librarian
 
 # Final stage
 FROM alpine:latest
@@ -34,9 +34,6 @@ WORKDIR /app
 
 # Copy the binary from builder stage
 COPY --from=builder /app/librarian .
-
-# Copy articles directory (if it exists)
-COPY --from=builder /app/../articles ./articles
 
 # Change ownership to non-root user
 RUN chown -R appuser:appgroup /app

@@ -35,10 +35,11 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
-        context: ./librarian
+        context: ./
         push: ${{ github.event_name != 'pull_request' }}
         tags: |
           ghcr.io/${{ github.repository }}/librarian:latest
           ghcr.io/${{ github.repository }}/librarian:${{ github.sha }}
         cache-from: type=gha
         cache-to: type=gha,mode=max 
+        file: ./librarian/Dockerfile
