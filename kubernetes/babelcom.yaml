@@ -5,63 +5,44 @@ metadata:
   labels:
     name: internet-of-babel
 ---
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: librarian-articles-pvc
-  namespace: internet-of-babel
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: ssd-large
-  resources:
-    requests:
-      storage: 100Gi
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: librarian
+  name: babelcom
   namespace: internet-of-babel
   labels:
-    app: librarian
+    app: babelcom
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: librarian
+      app: babelcom
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: librarian
+        app: babelcom
     spec:
       containers:
-      - name: librarian
-        image: ghcr.io/johncave/internet-of-babel/librarian:latest
-        # command: ["sleep", "infinity"]
+      - name: babelcom
+        image: ghcr.io/johncave/internet-of-babel/babelcom:latest
         ports:
         - containerPort: 8080
           name: http
         env:
         - name: PORT
           value: "8080"
-        - name: ARTICLES_DIR
-          value: "/app/articles"
         resources:
           requests:
-            memory: "2Gi"
-            cpu: "2000m"
+            memory: "512Mi"
+            cpu: "500m"
           limits:
-            memory: "4Gi"
-            cpu: "4000m"
-        volumeMounts:
-        - name: articles-storage
-          mountPath: /app/articles
+            memory: "1Gi"
+            cpu: "1000m"
         livenessProbe:
           httpGet:
-            path: /
+            path: /health
             port: 8080
           initialDelaySeconds: 30
           periodSeconds: 10
@@ -69,7 +50,7 @@ spec:
           failureThreshold: 3
         readinessProbe:
           httpGet:
-            path: /
+            path: /health
             port: 8080
           initialDelaySeconds: 5
           periodSeconds: 5
@@ -80,24 +61,20 @@ spec:
           runAsUser: 1001
           runAsGroup: 1001
           allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: false
+          readOnlyRootFilesystem: true
           capabilities:
             drop:
             - ALL
-      volumes:
-      - name: articles-storage
-        persistentVolumeClaim:
-          claimName: librarian-articles-pvc
       securityContext:
         fsGroup: 1001
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: librarian-service
+  name: babelcom-service
   namespace: internet-of-babel
   labels:
-    app: librarian
+    app: babelcom
 spec:
   type: ClusterIP
   ports:
@@ -106,34 +83,38 @@ spec:
     protocol: TCP
     name: http
   selector:
-    app: librarian
+    app: babelcom
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: librarian-ingress
+  name: babelcom-ingress
   namespace: internet-of-babel
   annotations:
     kubernetes.io/ingress.class: "nginx"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    # WebSocket support
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/proxy-set-headers: "Connection upgrade, Upgrade $http_upgrade"
 spec:
   tls:
   - hosts:
-    - web4.johncave.co.nz
-    secretName: librarian-tls
+    - babelcom.johncave.co.nz
+    secretName: babelcom-tls
   rules:
-  - host: web4.johncave.co.nz
+  - host: babelcom.johncave.co.nz
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: librarian-service
+            name: babelcom-service
             port:
-              number: 80
+              number: 80 
