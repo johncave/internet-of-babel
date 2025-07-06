@@ -146,12 +146,18 @@ func searchArticles(query string, limit int) ([]SearchResult, error) {
 		title, _ := hit.Fields["title"].(string)
 		filename, _ := hit.Fields["filename"].(string)
 
-		// Extract highlights
+		// Extract highlights and strip mark tags
 		var highlights []string
 		if hit.Fragments != nil {
 			for _, fragments := range hit.Fragments {
-				highlights = append(highlights, fragments...)
+				for _, fragment := range fragments {
+					// Strip <mark> tags from the fragment
+					cleanFragment := strings.ReplaceAll(fragment, "<mark>", "")
+					cleanFragment = strings.ReplaceAll(cleanFragment, "</mark>", "")
+					highlights = append(highlights, cleanFragment)
+				}
 			}
+
 		}
 
 		results = append(results, SearchResult{
