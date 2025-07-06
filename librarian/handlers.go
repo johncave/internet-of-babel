@@ -1,12 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -45,9 +47,59 @@ func getRecentArticles(articlesDir string) []ArticleInfo {
 		return articleList[i].CreatedTime.After(articleList[j].CreatedTime)
 	})
 
-	if len(articleList) > 10 {
-		articleList = articleList[:10]
+	if len(articleList) > 7 {
+		articleList = articleList[:7]
 	}
+
+	return articleList
+}
+
+func generateRandomPage(currentPage, totalPages int) int {
+	if totalPages <= 1 {
+		return 1
+	}
+
+	// Generate a random page that's different from the current page
+	for {
+		randomPage := rand.Intn(totalPages) + 1
+		if randomPage != currentPage {
+			return randomPage
+		}
+	}
+}
+
+func getAllArticles(articlesDir string) []ArticleInfo {
+	articles, err := os.ReadDir(articlesDir)
+	if err != nil {
+		return []ArticleInfo{}
+	}
+
+	var articleList []ArticleInfo
+	for _, article := range articles {
+		if !article.IsDir() && strings.HasSuffix(article.Name(), ".md") {
+			filename := strings.TrimSuffix(article.Name(), ".md")
+			title := desanitizeTitle(filename)
+			fileInfo, err := article.Info()
+			if err != nil {
+				articleList = append(articleList, ArticleInfo{
+					Filename:    filename,
+					Title:       title,
+					CreatedTime: time.Now(),
+				})
+				continue
+			}
+			articleList = append(articleList, ArticleInfo{
+				Filename:    filename,
+				Title:       title,
+				CreatedTime: fileInfo.ModTime(),
+			})
+		}
+	}
+
+	// Sort by modification time (most recent first)
+	sort.Slice(articleList, func(i, j int) bool {
+		return articleList[i].CreatedTime.After(articleList[j].CreatedTime)
+	})
 
 	return articleList
 }
@@ -100,6 +152,89 @@ func randomArticleHandler(c *gin.Context) {
 	randomIndex := rand.Intn(len(articleList))
 	randomArticle := articleList[randomIndex]
 	c.Redirect(http.StatusSeeOther, "/"+randomArticle)
+}
+
+func allArticlesHandler(c *gin.Context) {
+	pageStr := c.Param("page")
+	page := 1 // default to page 1
+
+	// Parse page number
+	if pageStr != "" {
+		if parsedPage, err := strconv.Atoi(pageStr); err == nil && parsedPage > 0 {
+			page = parsedPage
+		}
+	}
+
+	// Get all articles for pagination
+	allArticles := getAllArticles(articlesDir)
+	totalCount := len(allArticles)
+
+	// Get recent articles for sidebar (limited to 7)
+	recentArticles := getRecentArticles(articlesDir)
+
+	// Pagination settings
+	articlesPerPage := 50
+	totalPages := (totalCount + articlesPerPage - 1) / articlesPerPage
+
+	// Calculate start and end indices
+	startIndex := (page - 1) * articlesPerPage
+	endIndex := startIndex + articlesPerPage
+	if endIndex > totalCount {
+		endIndex = totalCount
+	}
+
+	// Get articles for current page
+	var pageArticles []ArticleInfo
+	if startIndex < totalCount {
+		pageArticles = allArticles[startIndex:endIndex]
+	}
+
+	// Create pagination data
+	pagination := struct {
+		CurrentPage int
+		TotalPages  int
+		HasNext     bool
+		HasPrev     bool
+		NextPage    int
+		PrevPage    int
+		RandomPage  int
+	}{
+		CurrentPage: page,
+		TotalPages:  totalPages,
+		HasNext:     page < totalPages,
+		HasPrev:     page > 1,
+		NextPage:    page + 1,
+		PrevPage:    page - 1,
+		RandomPage:  generateRandomPage(page, totalPages), // Generate random page different from current
+	}
+
+	data := struct {
+		Title        string
+		Count        int
+		Articles     []ArticleInfo
+		PageArticles []ArticleInfo
+		Pagination   interface{}
+	}{
+		Title:        fmt.Sprintf("All Articles - Page %d", page),
+		Count:        totalCount,
+		Articles:     recentArticles, // Use recent articles for sidebar
+		PageArticles: pageArticles,   // Use paginated articles for main content
+		Pagination:   pagination,
+	}
+
+	// Parse the embedded template
+	tmpl, err := template.ParseFS(templates, "templates/base.html", "templates/all.html")
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Template error")
+		return
+	}
+
+	// Execute the template
+	err = tmpl.Execute(c.Writer, data)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Template execution error")
+		return
+	}
 }
 
 func articleHandler(c *gin.Context) {

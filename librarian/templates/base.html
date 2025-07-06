@@ -11,20 +11,20 @@
 <body>
     <div class="cyberpunk-header">
         <div class="header-content">
-            <h1 class="glitch-title" data-text="Web4: Babel">Web4: Babel</h1>
+            <a href="/"><h1 class="glitch-title" data-text="Web4: Babel">Web4: Babel</h1></a>
             <div class="header-status">
                 <div class="status-item">
                     <span class="status-label">ARTICLES</span>
-                    <span class="status-value">{{.Count}} / ∞</span>
+                    <span class="status-value">{{.Count}}</span>
                 </div>
                 <div class="status-item">
                     <span class="status-label">STATUS</span>
-                    <span class="status-value status-active">● ACTIVE</span>
+                    <span class="status-value status-active">ACTIVE</span>
                 </div>
-                <div class="status-item">
+                <!-- <div class="status-item">
                     <span class="status-label">MODE</span>
-                    <span class="status-value">GENERATING</span>
-                </div>
+                    <span class="status-value">WRITING</span>
+                </div> -->
             </div>
         </div>
     </div>
@@ -32,12 +32,13 @@
     <div class="main-layout">
         <aside class="sidebar">
             <div class="sidebar-content">
-                <a href="/random" class="btn btn-primary random-btn">🎲 Random</a>
-                <h3>Entries ({{.Count}})</h3>
+                <a href="/random" class="btn btn-primary random-btn" style="width:100%;margin:0">🎲 Random</a>
+                <a href="/all/1"><h3>Entries ({{.Count}})</h3></a>
                 <ul class="recent-articles">
                     {{range .Articles}}
                     <li><a href="/{{.Filename}}">{{.Title}}</a></li>
                     {{end}}
+                    <li><a href="/all/1">&laquo; All Entries &raquo;</a></li>
                 </ul>
                 
                 <!-- <div class="sidebar-section">

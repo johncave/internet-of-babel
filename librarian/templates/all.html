@@ -1,0 +1,54 @@
+{{define "content"}}
+<h2>All Articles</h2>
+
+<div class="pagination-controls">
+    {{if .Pagination.HasPrev}}
+        <a href="/all/{{.Pagination.PrevPage}}" class="btn btn-secondary pagination-btn">← Previous</a>
+    {{else}}
+        <span class="btn btn-secondary pagination-btn disabled">← Previous</span>
+    {{end}}
+    
+    <span class="page-info">Page {{.Pagination.CurrentPage}} of {{.Pagination.TotalPages}}</span>
+    
+    <a href="/all/{{.Pagination.RandomPage}}" class="btn btn-secondary pagination-btn">🔀 Random</a>
+
+    {{if .Pagination.HasNext}}
+        <a href="/all/{{.Pagination.NextPage}}" class="btn btn-secondary pagination-btn">Next →</a>
+    {{else}}
+        <span class="btn btn-secondary pagination-btn disabled">Next →</span>
+    {{end}}
+    
+    
+</div>
+
+<div class="all-articles-list">
+    {{range .PageArticles}}
+    <div class="article-item">
+        <a href="/{{.Filename}}" class="article-link">{{.Title}}</a>
+        <span class="article-date">{{.CreatedTime.Format "2006-01-02 15:04"}}</span>
+    </div>
+    {{end}}
+</div>
+
+<div class="pagination-controls">
+    {{if .Pagination.HasPrev}}
+        <a href="/all/{{.Pagination.PrevPage}}" class="btn btn-secondary pagination-btn">← Previous</a>
+    {{else}}
+        <span class="btn btn-secondary pagination-btn disabled">← Previous</span>
+    {{end}}
+    
+    <span class="page-info">Page {{.Pagination.CurrentPage}} of {{.Pagination.TotalPages}}</span>
+
+    <a href="/all/{{.Pagination.RandomPage}}" class="btn btn-secondary pagination-btn">🔀 Random</a>
+    
+    {{if .Pagination.HasNext}}
+        <a href="/all/{{.Pagination.NextPage}}" class="btn btn-secondary pagination-btn">Next →</a>
+    {{else}}
+        <span class="btn btn-secondary pagination-btn disabled">Next →</span>
+    {{end}}
+    
+    
+</div>
+
+
+{{end}} 

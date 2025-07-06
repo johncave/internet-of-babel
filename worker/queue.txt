@@ -1,46 +1,3 @@
-Software Testing|1
-System Administration|1
-Web Development|1
-ARPANET|1
-TCP/IP|1
-HTTP|1
-FTP|1
-ISPs|1
-Networks|1
-Servers|1
-Gateway|1
-Router|1
-Protocols|1
-Connections|1
-Data Centers|1
-Internet Service Providers|1
-Network Operators|1
-Communication|1
-Information Retrieval|1
-Business|1
-E-commerce|1
-Online Banking|1
-Remote Work|1
-Phishing Scams|1
-Malware|1
-Cyber Attacks|1
-Security Vulnerabilities|1
-Interoperability Issues|1
-Security Threats|1
-Censorship|1
-5G Networks|1
-Blockchain Technology|1
-Fundamental Laws|1
-Branches Of Physics|1
-Mechanics|1
-Thermodynamics|1
-Electromagnetism|1
-Optics|1
-Quantum Mechanics|1
-Newton's Laws|1
-Einstein's Theory|1
-Relativity|1
-Physical Phenomena|1
 Experiments|1
 Measuring Instruments|1
 Energy Sources|1
@@ -139,3 +96,400 @@ Popular Programming Languages|2
 Evolution Of Programming Languages|2
 Conclusion|2
 References|2
+software testing methodologies|2
+black box testing|2
+white box testing|2
+grey box testing|2
+test cases|2
+test suite|2
+test execution|2
+test analysis|2
+defect reporting|2
+maintenance|2
+test-driven development|2
+pair programming|2
+continuous integration|2
+test coverage|2
+automated testing|2
+agile software development|2
+clean code|2
+software product testing|2
+administraTOR|2
+server administraTOR|2
+network administraTOR|2
+desktop administraTOR|2
+database administraTOR|2
+security frameworks|2
+cloud computing platforms|2
+virtualization technologies|2
+networking protocols|2
+configuration management tools|2
+cybersecurity best practices|2
+system configuration|2
+system maintenance|2
+system security|2
+system troubleshooting|2
+History Of Web Development|2
+Types Of Web Development|2
+Front-end Development|2
+Back-end Development|2
+Full-Stack Development|2
+Frameworks For Web Development|2
+Tools For Web Development|2
+Best Practices In Web Development|2
+Web Development Tools For Beginners|2
+Web Development Technologies|2
+Web Development Languages|2
+Programming Languages Used In Web Development|2
+Database Management Systems For Web Applications|2
+Security Measures In Web Development|2
+Testing And Debugging Techniques In Web Development|2
+Code Comments And Documentation In Web Development|2
+Separation Of Concerns In Web Development|2
+ARPANET Development|2
+Arlington Advanced Research Projects Agency|2
+Computer Network Architecture|2
+Internet Protocol|2
+Transmission Control Protocol|2
+Packet Switching|2
+Node Hubs|2
+Network Interface Cards|2
+IPN|2
+Internet Standards|2
+International Network|2
+Reassembly Protocol|2
+Data Transmission|2
+Reliable Communication|2
+First Operational Packet Switching Network|2
+Advanced Research Project Agency|2
+Department of Defense|2
+Packet Switching Networks|2
+Internet Development|2
+Arlington Advanced Research Projects Agency History|2
+ARPANET Architecture Evolution|2
+Node Hubs and Connections|2
+TCP/IP Development|2
+Reassembly Protocol Development|2
+Data Transmission Protocols|2
+protocol|2
+transfer protocol|2
+web|2
+internet|2
+tim berners-lee|2
+cERN|2
+world wide web consortium|2
+w3c|2
+international organization for standardization|2
+request|2
+method|2
+uri|2
+uniform resource identifier|2
+headers|2
+body|2
+status code|2
+connection|2
+response|2
+encoding|2
+character encoding|2
+multipart/form-data|2
+post method|2
+put method|2
+delete method|2
+redirects|2
+authentication|2
+authorization|2
+credentials|2
+basic authentication|2
+digest authentication|2
+ssl/tls encryption|2
+https|2
+hypertext transfer protocol secure|2
+isp|2
+network|2
+capacity|2
+speed|2
+reliability|2
+security|2
+terms of service|2
+user registration|2
+delivery|2
+business model|2
+regulation|2
+neutrality laws|2
+advertising|2
+packet loss|2
+outages|2
+cybersecurity regulations|2
+economic growth|2
+social connectivity|2
+online learning|2
+Connections between Things|2
+Cognitive Connections to Learning|2
+Social Connections between Individuals|2
+Economic Connections for Growth|2
+Interdependence of Systems|2
+Relationships that Matter|2
+Association between Ideas|2
+Advantages of Connections|2
+Disadvantages of Connections|2
+Facilitating Collaboration and Innovation|2
+Promoting Economic Growth through Connections|2
+Fragility of Connections|2
+Influence of External Factors on Connections|2
+Context-Dependent Nature of Connections|2
+Colocation Data Centers|2
+Cloud Data Centers|2
+Edge Data Centers|2
+Networking Equipment|2
+Power and Cooling Systems|2
+Fire Suppression and Security Systems|2
+Initial Setup and Configuration|2
+Monitoring and Maintenance|2
+Applications and Benefits|2
+Notable Companies|2
+Economic Impact|2
+Job Creation|2
+Environmental Impact|2
+Access|2
+Broadband|2
+Cable|2
+Characteristics|2
+Competition|2
+Data Caps|2
+Fiber-to-the-Home|2
+Fiber-optic cables|2
+Internet Access|2
+Internet Speeds|2
+Mobile|2
+Multiplayer Services|2
+New Entrants|2
+Online Security|2
+Package Deals|2
+Satellite Internet|2
+Security Features|2
+Streaming Media|2
+Telecommunications|2
+Definition and Role Of Network Operators|2
+Types Of Network Operators|2
+Skills And Qualifications Required For Network Operators|2
+Career Paths For Network Operators|2
+Industry Organizations Supporting The Networking Community|2
+Network Architectures Designed By Network Operators|2
+Cybersecurity Experts Focused On Protecting Networks|2
+Network Maintenance And Operation Requires Expertise In Multiple Areas|2
+Cognitive Processes|2
+Mechanisms of Communication|2
+Principles of Effective Communication|2
+Applications of Communication|2
+Models of Communication|2
+Glossary|2
+History Of Information Retrieval|2
+Types Of Information Retrieval|2
+Text Based Information Retrieval|2
+Image Based Information Retrieval|2
+Speech Based Information Retrieval|2
+Multimodal Information Retrieval|2
+Term Frequency Inverse Document Frequency|2
+Document Similarity|2
+Ranking Algorithms|2
+Search Engine Technology|2
+Indexing Systems|2
+Search Operators|2
+Boolean Algebra|2
+Natural Language Processing|2
+Text Preprocessing|2
+Stop Words|2
+Stemming And Lemmatization|2
+Semantic Meaning|2
+Information Quality|2
+Adaptability To New Data Sources|2
+Computer Vision|2
+Medical Information Retrieval|2
+Biomedical Informatics|2
+Scientific Research Informatics|2
+E Commerce Search Engines|2
+E Commerce Information Retrieval|2
+Healthcare Informatics|2
+Finance Information Retrieval|2
+Education Informatics|2
+Microsoft Bing Search Technology|2
+Google Search Engine|2
+MedlinePlus Database|2
+Benefits|2
+Challenges|2
+Types|2
+Tools|2
+History|2
+Gallup Survey|2
+Amazon Remote Work|2
+Microsoft Flexible Work Policy|2
+Dell Virtual Team|2
+Remote Work Definition|2
+Telecommuting|2
+Work-Life Balance|2
+Security Concerns|2
+Cyber Threats|2
+Project Management Software|2
+Time Tracking Tools|2
+Fostering a Sense of Community|2
+Work-Life Integration|2
+Celebrating Productivity|2
+Creating Flexible Schedules|2
+Empowering Self-Care|2
+Overcoming Distractions|2
+Managing Cybersecurity|2
+Maintaining Performance|2
+Measuring Success|2
+Malware Types|2
+viruses|2
+trojans|2
+worms|2
+ranssomware|2
+adware|2
+spamware|2
+rootkits|2
+phishing emails|2
+infected software downloads|2
+exploited vulnerabilities|2
+data loss|2
+system crash|2
+identity theft|2
+economic loss|2
+anti-virus software|2
+operating system updates|2
+strong passwords|2
+cybercrime law|2
+data protection regulations|2
+intellectual property protection|2
+Cybersecurity Essentials|2
+Common Types Of Cyber Attacks|2
+Detecting And Responding To Cyber Threats|2
+Cyber Attack Prevention Measures|2
+Notable Cyber Attacks On Record|2
+Legislation Regulating Cyber Security|2
+Key Concepts In Cyber Security|2
+Protecting Online Data From Cyber Attacks|2
+Types of Security Vulnerabilities|2
+Software Bugs|2
+Weaknesses in Hardware Design|2
+Inadequate Security Measures|2
+Risks and Consequences|2
+Mitigation Strategies|2
+Code Review and Testing|2
+Penetration Testing|2
+Secure Coding Practices|2
+Types of Censorship|2
+Government Censorship|2
+Media Censorship|2
+Social Censorship|2
+Intellectual Censorship|2
+History of Censorship|2
+Global Censorship|2
+China Censorship|2
+Russia Censorship|2
+North Korea Censorship|2
+Turkey Censorship|2
+Hate Speech|2
+Cyberbullying|2
+Copyright Infringement|2
+Online Disinformation|2
+Free Speech|2
+Activism|2
+Private Sector Censorship|2
+International Cooperation|2
+Open Communication|2
+Media Literacy|2
+Diplomacy and Dialogue|2
+Digital Citizenship|2
+Cellular Architecture|2
+Millimeter Wave Bands|2
+Sub-6 GHz Band|2
+Massive Machine Type|2
+Ultra-Reliable Low-Latency Communications|2
+Smart Cities|2
+Interoperability|2
+Cost|2
+Latency|2
+Download Speeds|2
+Upload Speeds|2
+IoT Devices|2
+Autonomous Vehicles|2
+Remote Healthcare|2
+Network Function Virtualization|2
+Software-Defined Networking|2
+Massive Access Points|2
+Mission-Critical Applications|2
+kinematics|2
+dynamics|2
+classical mechanics|2
+statistical mechanics|2
+condensed matter physics|2
+phase transitions|2
+Particle Physics|2
+Gravitational Physics|2
+Cosmology|2
+Nuclear Physics|2
+Atomic Physics|2
+Geophysics|2
+Electricity|2
+Magnetism|2
+Lorentz-Heaviside Equation|2
+Maxwell's Equations|2
+Electromagnetic Field|2
+Electromagnetic Waves|2
+Radio Waves|2
+Microwaves|2
+Infrared Radiation|2
+Visible Light|2
+Computing Technology|2
+Medical Imaging|2
+Energy Generation|2
+Electromagnetic Induction|2
+Alternating Current|2
+Direct Current|2
+Faraday's Law of Induction|2
+Euler's Equation|2
+Optics Basics|2
+Lenses Defined|2
+Refraction Explained|2
+Diffraction Conceptualized|2
+Total Internal Reflection|2
+Photography Applications|2
+Magnetic Resonance Imaging|2
+Computed Tomography Scans|2
+Ultrasound Technology|2
+LED Lighting Advancements|2
+Fiber Optic Cables Usage|2
+Eye Safety Precautions|2
+Fire Hazards Considerations|2
+Physics of Optics Definitions|2
+Quantum Field Theory|2
+Many-Worlds Interpretation|2
+Transistors|2
+Laser Technology|2
+Quantum Computing|2
+Niels Bohr|2
+Werner Heisenberg|2
+Erwin Schrödinger|2
+Paul Dirac|2
+Wave Function|2
+Superposition|2
+Entanglement|2
+Uncertainty Principle|2
+Quantum Non-Locality|2
+Einstein's Theory of Relativity|2
+Heisenberg Uncertainty|2
+Schrodinger Equation|2
+Dirac Equation|2
+Fermions|2
+Quantum Entanglement|2
+Quantum Superposition|2
+Law Of Inertia|2
+Newton's Law Of Acceleration|2
+Newton's Laws Of Motion|2
+Newton's First Law Of Motion|2
+Newton's Second Law Of Motion|2
+Newton's Third Law Of Motion|2
+Inertia And Force|2
+Acceleration And Mass|2
+Action And Reaction|2

@@ -227,6 +227,7 @@ func main() {
 
 	// Main routes
 	r.GET("/", indexHandler)
+	r.GET("/all/:page", allArticlesHandler)
 	r.GET("/random", randomArticleHandler)
 	r.GET("/:article", articleHandler)
 

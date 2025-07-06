@@ -952,3 +952,46 @@
 2025-07-06T11:44:46+12:00 | topic: "Operating Systems" | duration: 7.134503438s | depth: 1 | article_length: 4646
 2025-07-06T11:44:51+12:00 | topic: "Programming Languages" | duration: 5.166783345s | depth: 1 | article_length: 4407
 2025-07-06T11:44:56+12:00 | topic: "Software Engineering" | duration: 5.087131213s | depth: 1 | article_length: 4146
+2025-07-06T13:51:32+12:00 | topic: "Software Testing" | duration: 9.279709329s | depth: 1 | article_length: 4647
+2025-07-06T13:51:38+12:00 | topic: "System Administration" | duration: 6.566513911s | depth: 1 | article_length: 5697
+2025-07-06T13:51:46+12:00 | topic: "Web Development" | duration: 7.561760069s | depth: 1 | article_length: 5809
+2025-07-06T13:51:52+12:00 | topic: "ARPANET" | duration: 5.703898801s | depth: 1 | article_length: 3818
+2025-07-06T13:51:58+12:00 | topic: "TCP/IP" | duration: 6.264655828s | depth: 1 | article_length: 4627
+2025-07-06T13:52:05+12:00 | topic: "HTTP" | duration: 7.196637663s | depth: 1 | article_length: 4601
+2025-07-06T13:52:10+12:00 | topic: "FTP" | duration: 5.399483842s | depth: 1 | article_length: 3917
+2025-07-06T13:52:15+12:00 | topic: "ISPs" | duration: 4.955008053s | depth: 1 | article_length: 3896
+2025-07-06T13:52:21+12:00 | topic: "Networks" | duration: 5.810219043s | depth: 1 | article_length: 4918
+2025-07-06T13:52:27+12:00 | topic: "Servers" | duration: 6.221425856s | depth: 1 | article_length: 4931
+2025-07-06T13:52:33+12:00 | topic: "Gateway" | duration: 5.528717568s | depth: 1 | article_length: 4529
+2025-07-06T13:52:40+12:00 | topic: "Router" | duration: 6.689079764s | depth: 1 | article_length: 5415
+2025-07-06T13:52:46+12:00 | topic: "Protocols" | duration: 6.263278126s | depth: 1 | article_length: 5168
+2025-07-06T13:52:50+12:00 | topic: "Connections" | duration: 4.456014324s | depth: 1 | article_length: 3574
+2025-07-06T13:52:57+12:00 | topic: "Data Centers" | duration: 7.014444871s | depth: 1 | article_length: 6378
+2025-07-06T13:53:03+12:00 | topic: "Internet Service Providers" | duration: 5.808599027s | depth: 1 | article_length: 4238
+2025-07-06T13:53:08+12:00 | topic: "Network Operators" | duration: 4.566479078s | depth: 1 | article_length: 4099
+2025-07-06T13:53:13+12:00 | topic: "Communication" | duration: 5.454034571s | depth: 1 | article_length: 5116
+2025-07-06T13:53:20+12:00 | topic: "Information Retrieval" | duration: 6.369037915s | depth: 1 | article_length: 4753
+2025-07-06T13:53:25+12:00 | topic: "Business" | duration: 5.216766767s | depth: 1 | article_length: 4122
+2025-07-06T13:53:31+12:00 | topic: "E-commerce" | duration: 5.933158317s | depth: 1 | article_length: 4144
+2025-07-06T13:53:45+12:00 | topic: "Online Banking" | duration: 14.223655633s | depth: 1 | article_length: 11867
+2025-07-06T13:53:51+12:00 | topic: "Remote Work" | duration: 5.623565016s | depth: 1 | article_length: 4178
+2025-07-06T13:53:56+12:00 | topic: "Phishing Scams" | duration: 5.917395755s | depth: 1 | article_length: 4743
+2025-07-06T13:54:02+12:00 | topic: "Malware" | duration: 5.28266724s | depth: 1 | article_length: 3984
+2025-07-06T13:54:08+12:00 | topic: "Cyber Attacks" | duration: 5.783508834s | depth: 1 | article_length: 4757
+2025-07-06T13:54:13+12:00 | topic: "Security Vulnerabilities" | duration: 5.739393264s | depth: 1 | article_length: 5286
+2025-07-06T13:54:20+12:00 | topic: "Interoperability Issues" | duration: 6.832947706s | depth: 1 | article_length: 6435
+2025-07-06T13:54:26+12:00 | topic: "Security Threats" | duration: 6.219653117s | depth: 1 | article_length: 5052
+2025-07-06T13:54:33+12:00 | topic: "Censorship" | duration: 6.247533132s | depth: 1 | article_length: 4673
+2025-07-06T13:54:39+12:00 | topic: "5G Networks" | duration: 5.90070505s | depth: 1 | article_length: 4255
+2025-07-06T13:54:44+12:00 | topic: "Blockchain Technology" | duration: 5.78065993s | depth: 1 | article_length: 5224
+2025-07-06T13:54:55+12:00 | topic: "Fundamental Laws" | duration: 10.267399804s | depth: 1 | article_length: 7584
+2025-07-06T13:55:03+12:00 | topic: "Branches Of Physics" | duration: 8.849750595s | depth: 1 | article_length: 7228
+2025-07-06T13:55:11+12:00 | topic: "Mechanics" | duration: 7.429725512s | depth: 1 | article_length: 5114
+2025-07-06T13:55:17+12:00 | topic: "Thermodynamics" | duration: 6.143949912s | depth: 1 | article_length: 4304
+2025-07-06T13:55:23+12:00 | topic: "Electromagnetism" | duration: 6.315942012s | depth: 1 | article_length: 4649
+2025-07-06T13:55:29+12:00 | topic: "Optics" | duration: 5.216817036s | depth: 1 | article_length: 3849
+2025-07-06T13:55:36+12:00 | topic: "Quantum Mechanics" | duration: 7.340874588s | depth: 1 | article_length: 5476
+2025-07-06T13:55:40+12:00 | topic: "Newton's Laws" | duration: 4.326265466s | depth: 1 | article_length: 3141
+2025-07-06T13:55:48+12:00 | topic: "Einstein's Theory" | duration: 7.751006917s | depth: 1 | article_length: 5661
+2025-07-06T13:55:57+12:00 | topic: "Relativity" | duration: 9.035142778s | depth: 1 | article_length: 5178
+2025-07-06T13:56:01+12:00 | topic: "Physical Phenomena" | duration: 3.84022057s | depth: 1 | article_length: 3060
