@@ -76,23 +76,23 @@ const SystemMonitorApp = {
                     <h3>📈 Overview</h3>
                     <div class="metrics-grid">
                         <div class="metric-item">
-                            <span class="metric-label">Articles Generated:</span>
+                            <span class="metric-label">Articles Generated</span>
                             <span class="metric-value" id="articles-count">--</span>
                         </div>
                         <div class="metric-item">
-                            <span class="metric-label">Progress:</span>
+                            <span class="metric-label">Progress</span>
                             <span class="metric-value" id="generation-rate">0%</span>
                         </div>
                         <div class="metric-item">
-                            <span class="metric-label">Exact Time Remaining:</span>
+                            <span class="metric-label">Exact Time Remaining</span>
                             <span class="metric-value" id="queue-size">Infinite</span>
                         </div>
                         <div class="metric-item">
-                            <span class="metric-label">Uptime:</span>
+                            <span class="metric-label">Uptime</span>
                             <span class="metric-value" id="system-uptime">--</span>
                         </div>
                         <div class="metric-item">
-                            <span class="metric-label">Heat Death of Universe:</span>
+                            <span class="metric-label">Heat Death of Universe</span>
                             <span class="metric-value" id="heat-death">Approaches</span>
                         </div>
                         <div class="metric-item">
