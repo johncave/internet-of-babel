@@ -15,6 +15,82 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// ArticleUpload represents the structure of an uploaded article
+type ArticleUpload struct {
+	Title    string `json:"title"`
+	Content  string `json:"content"`
+	Keywords string `json:"keywords"`
+}
+
+func uploadArticleHandler(c *gin.Context) {
+	// Check API key
+	providedKey := c.GetHeader("X-API-Key")
+	if providedKey == "" {
+		providedKey = c.Query("api_key") // Also check query parameter
+	}
+
+	if providedKey != apiKey {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid API key"})
+		return
+	}
+
+	// Parse the uploaded article
+	var upload ArticleUpload
+	if err := c.ShouldBindJSON(&upload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON format"})
+		return
+	}
+
+	// Validate required fields
+	if upload.Title == "" || upload.Content == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Title and content are required"})
+		return
+	}
+
+	// Sanitize the title for filename
+	filename := sanitizeFilename(upload.Title)
+
+	// Create the markdown file path
+	mdPath := filepath.Join(articlesDir, filename+".md")
+
+	// Check if file already exists
+	if _, err := os.Stat(mdPath); err == nil {
+		c.JSON(http.StatusConflict, gin.H{"error": "Article already exists"})
+		return
+	}
+
+	// Write the markdown content
+	err := os.WriteFile(mdPath, []byte(upload.Content), 0644)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save article"})
+		return
+	}
+
+	// Save keywords if provided
+	if upload.Keywords != "" {
+		// Ensure keywords directory exists
+		keywordsDir := filepath.Join(articlesDir, "keywords")
+		if err := os.MkdirAll(keywordsDir, 0755); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create keywords directory"})
+			return
+		}
+
+		// Write keywords string directly to file
+		keywordsPath := filepath.Join(keywordsDir, filename+".json")
+		err = os.WriteFile(keywordsPath, []byte(upload.Keywords), 0644)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save keywords"})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":  "Article uploaded successfully",
+		"filename": filename,
+		"title":    upload.Title,
+	})
+}
+
 func getRecentArticles(articlesDir string) []ArticleInfo {
 	articles, err := os.ReadDir(articlesDir)
 	if err != nil {

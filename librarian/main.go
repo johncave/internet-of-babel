@@ -24,6 +24,9 @@ var staticFiles embed.FS
 // UseEmbeddedStatic controls whether to serve static files from embedded FS or disk
 var UseEmbeddedStatic = true
 
+// API key for worker uploads
+var apiKey = ""
+
 func getTotalArticleCount(articlesDir string) int {
 	articles, err := os.ReadDir(articlesDir)
 	if err != nil {
@@ -179,6 +182,14 @@ func main() {
 		fmt.Println("Static files will be served from embedded filesystem")
 	}
 
+	// Initialize API key from environment variable
+	apiKey = os.Getenv("LIBRARIAN_API_KEY")
+	if apiKey == "" {
+		fmt.Println("Warning: LIBRARIAN_API_KEY not set, upload endpoint will be disabled")
+	} else {
+		fmt.Println("API key loaded for upload endpoint")
+	}
+
 	// Check if articles directory exists
 	if _, err := os.Stat(articlesDir); os.IsNotExist(err) {
 		log.Fatal("Articles directory not found. Please run the article generator first.")
@@ -224,6 +235,9 @@ func main() {
 	// Static file routes
 	r.GET("/static/*filepath", staticHandler)
 	r.GET("/favicon.ico", faviconHandler)
+
+	// API routes
+	r.POST("/api/upload", uploadArticleHandler)
 
 	// Main routes
 	r.GET("/", indexHandler)

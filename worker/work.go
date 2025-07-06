@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -17,6 +18,59 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
+
+// Librarian API configuration
+var librarianAPIURL = getEnv("LIBRARIAN_API_URL", "http://localhost:8080/api/upload")
+var librarianAPIKey = getEnv("LIBRARIAN_API_KEY", "")
+
+// getEnv gets an environment variable with a default value
+func getEnv(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
+}
+
+// uploadToLibrarian uploads an article to the librarian API
+func uploadToLibrarian(title, content, keywords string) error {
+	if librarianAPIKey == "" {
+		log.Println("Warning: LIBRARIAN_API_KEY not set, skipping upload to librarian")
+		return nil
+	}
+
+	uploadData := map[string]interface{}{
+		"title":    title,
+		"content":  content,
+		"keywords": keywords,
+	}
+
+	jsonData, err := json.Marshal(uploadData)
+	if err != nil {
+		return fmt.Errorf("failed to marshal upload data: %v", err)
+	}
+
+	req, err := http.NewRequest("POST", librarianAPIURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return fmt.Errorf("failed to create request: %v", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-API-Key", librarianAPIKey)
+
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("failed to send request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("upload failed with status: %d", resp.StatusCode)
+	}
+
+	log.Printf("Successfully uploaded article '%s' to librarian", title)
+	return nil
+}
 
 func AllUpper(s string) bool {
 	for _, r := range s {
@@ -73,10 +127,10 @@ func singularize(word string) string {
 func normalizeTitle(title string) string {
 	// Remove this - ask the LLM to write in title case
 	// // Convert to title case
-	// title = toTitleCase(title)
+	title = toTitleCase(title)
 
 	// // Singularize the title
-	// title = singularize(title)
+	title = singularize(title)
 
 	// Remove any underscores and replace with spaces
 	title = strings.ReplaceAll(title, "_", " ")
@@ -229,6 +283,13 @@ func work() {
 		}
 		if err := writeFile(keywordsPath, keywordsContent); err != nil {
 			log.Printf("Error writing keywords file for '%s': %v", topic, err)
+		}
+
+		// Upload to librarian
+		log.Println("Uploading to librarian...")
+		if err := uploadToLibrarian(normalizedTopic, articleContent, keywordsContent); err != nil {
+			log.Printf("Error uploading to librarian for '%s': %v", topic, err)
+			// Continue processing even if upload fails
 		}
 
 		// Log processing
