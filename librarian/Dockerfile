@@ -17,7 +17,7 @@ RUN go mod download
 COPY ./librarian ./librarian
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o librarian ./librarian
+RUN cd librarian && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o ../librarian .
 
 # Final stage
 FROM alpine:latest
