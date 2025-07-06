@@ -10,10 +10,7 @@ import (
 )
 
 // Global constants
-const (
-	//WebSocketURL = "wss://babelcom.johncave.co.nz/ws/llm?api_key=babelcom-secret-key"
-	WebSocketURL = "foo"
-)
+var WebSocketURL = getEnv("WEBSOCKET_URL", "ws://localhost:8080/ws/llm")
 
 var shutdownRequested bool
 var done chan (bool)

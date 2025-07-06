@@ -19,7 +19,7 @@ A Go-based WebSocket backend for the Babelcom system monitor that provides real-
 
 ### 2. LLM Endpoint (`/ws/llm`)
 - **Purpose**: For LLM systems to send status updates and generation progress
-- **Authentication**: API key required (`api_key=babelcom-secret-key`)
+- **Authentication**: API key required (configurable via `BABELCOM_API_KEY` environment variable)
 - **Usage**: Send system status, generation status, current word, and output messages
 
 ## Message Types
@@ -166,19 +166,46 @@ go build -o babelcom-backend main.go
 
 - `GET /` - Serve the frontend
 - `GET /ws/broadcast` - WebSocket for receiving updates
-- `GET /ws/llm?api_key=babelcom-secret-key` - WebSocket for LLM updates
+- `GET /ws/llm?api_key=<your-api-key>` - WebSocket for LLM updates
 - `GET /health` - Health check endpoint
 
 ## Configuration
 
 ### Environment Variables
 - `PORT` - Server port (default: 8080)
-- `API_KEY` - API key for LLM authentication (default: "babelcom-secret-key")
+- `BABELCOM_API_KEY` - API key for LLM authentication (default: "babelcom-secret-key")
 
 ### Security Notes
-- The current API key is hardcoded for development
-- In production, use environment variables and proper authentication
+- The API key is configurable via the `BABELCOM_API_KEY` environment variable
+- Default key is "babelcom-secret-key" for development
+- In production, set a strong, unique API key using environment variables
 - CORS is configured to allow all origins (restrict in production)
+
+### Setting the API Key
+
+**Local Development:**
+```bash
+export BABELCOM_API_KEY="your-secure-api-key-here"
+go run main.go
+```
+
+**Docker:**
+```bash
+docker run -e BABELCOM_API_KEY="your-secure-api-key-here" -p 8080:8080 babelcom
+```
+
+**Kubernetes:**
+The API key is configured via a Kubernetes secret. Update the secret in `kubernetes/babelcom.yaml`:
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: babelcom-secret
+  namespace: internet-of-babel
+type: Opaque
+data:
+  api-key: <base64-encoded-api-key>
+```
 
 ## Integration with LLM Systems
 
@@ -186,7 +213,7 @@ To integrate with your LLM system:
 
 1. **Connect to the LLM WebSocket:**
    ```javascript
-   const ws = new WebSocket('ws://localhost:8080/ws/llm?api_key=babelcom-secret-key');
+   const ws = new WebSocket('ws://localhost:8080/ws/llm?api_key=your-api-key-here');
    ```
 
 2. **Send system status updates:**

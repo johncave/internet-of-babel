@@ -5,6 +5,15 @@ metadata:
   labels:
     name: internet-of-babel
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: babelcom-secret
+  namespace: internet-of-babel
+type: Opaque
+data:
+  api-key: YmFiZWxjb20tc2VjcmV0LWtleQ==  # base64 encoded "babelcom-secret-key"
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -33,6 +42,11 @@ spec:
         env:
         - name: PORT
           value: "8080"
+        - name: BABELCOM_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: babelcom-secret
+              key: api-key
         resources:
           requests:
             memory: "512Mi"

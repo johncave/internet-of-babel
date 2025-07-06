@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"sync"
 
 	"github.com/gin-gonic/gin"
@@ -22,13 +24,24 @@ type Server struct {
 	llmConnections       map[*Connection]bool
 	mu                   sync.RWMutex
 	upgrader             websocket.Upgrader
+	apiKey               string
 }
 
 // NewServer creates a new server instance
 func NewServer() *Server {
+	// Get API key from environment variable, fallback to default
+	apiKey := os.Getenv("BABELCOM_API_KEY")
+	if apiKey == "" {
+		apiKey = "babelcom-secret-key" // Default fallback
+		log.Printf("No BABELCOM_API_KEY environment variable set, using default key")
+	} else {
+		log.Printf("Using API key from BABELCOM_API_KEY environment variable")
+	}
+
 	return &Server{
 		broadcastConnections: make(map[*Connection]bool),
 		llmConnections:       make(map[*Connection]bool),
+		apiKey:               apiKey,
 		upgrader: websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
 				return true // Allow all origins for development
@@ -108,7 +121,7 @@ func (s *Server) handleLLMWebSocket(c *gin.Context) {
 	apiKey := c.Query("api_key")
 	log.Printf("LLM WebSocket API key received: %s", apiKey)
 
-	if apiKey != "babelcom-secret-key" {
+	if apiKey != s.apiKey {
 		log.Printf("LLM WebSocket authentication failed: invalid API key")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid API key"})
 		return
@@ -139,7 +152,8 @@ func (s *Server) handleLLMWebSocket(c *gin.Context) {
 			break
 		}
 
-		log.Printf("LLM WebSocket received message: %s", string(message))
+		//log.Printf("LLM WebSocket received message: %s", string(message))
+		fmt.Println(string(message))
 
 		// Simply broadcast the raw message to all broadcast clients
 		s.broadcast(message)

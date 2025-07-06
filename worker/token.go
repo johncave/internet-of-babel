@@ -48,17 +48,23 @@ func tokenConnectionManager() {
 
 // isTokenConnectionHealthy checks if the token WebSocket connection is still alive
 func isTokenConnectionHealthy() bool {
-	tokenConnMutex.RLock()
-	conn := tokenConn
-	tokenConnMutex.RUnlock()
+	tokenConnMutex.Lock()
+	defer tokenConnMutex.Unlock()
 
-	if conn == nil {
+	if tokenConn == nil {
 		return false
 	}
 
-	// Try to send a ping to check if connection is alive
-	err := conn.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(5*time.Second))
-	return err == nil
+	// Check if connection is closed by trying to get a writer
+	writer, err := tokenConn.NextWriter(websocket.TextMessage)
+	if err != nil {
+		return false
+	}
+	if writer != nil {
+		writer.Close()
+	}
+
+	return true
 }
 
 // connectTokenWebSocketWithRetry attempts to connect with exponential backoff
@@ -86,12 +92,11 @@ func connectTokenWebSocketWithRetry() error {
 }
 
 func SendReset() {
-	tokenConnMutex.RLock()
-	conn := tokenConn
-	tokenConnMutex.RUnlock()
+	tokenConnMutex.Lock()
+	defer tokenConnMutex.Unlock()
 
-	if conn == nil {
-		//log.Printf("Token WebSocket not connected, requesting reconnection")
+	if tokenConn == nil {
+		log.Printf("Reset - token websocket is nil, requesting reconnection")
 		requestTokenReconnect()
 		return
 	}
@@ -106,7 +111,7 @@ func SendReset() {
 		return
 	}
 
-	err = conn.WriteMessage(websocket.TextMessage, data)
+	err = tokenConn.WriteMessage(websocket.TextMessage, data)
 	if err != nil {
 		log.Printf("Failed to send reset message: %v", err)
 		requestTokenReconnect()
@@ -120,12 +125,11 @@ func SendReset() {
 func SendToken(token string) {
 	//return // Disable token sending for now
 
-	tokenConnMutex.RLock()
-	conn := tokenConn
-	tokenConnMutex.RUnlock()
+	tokenConnMutex.Lock()
+	defer tokenConnMutex.Unlock()
 
-	if conn == nil {
-		//log.Printf("Token WebSocket not connected, requesting reconnection")
+	if tokenConn == nil {
+		//log.Printf("token - WebSocket connection is nil, requesting reconnection")
 		requestTokenReconnect()
 		return
 	}
@@ -141,9 +145,9 @@ func SendToken(token string) {
 		return
 	}
 
-	err = conn.WriteMessage(websocket.TextMessage, data)
+	err = tokenConn.WriteMessage(websocket.TextMessage, data)
 	if err != nil {
-		log.Printf("Failed to send token: %v", err)
+		log.Printf("Error writing token to websocket: %v", err)
 		requestTokenReconnect()
 		return
 	}
@@ -154,16 +158,67 @@ func SendToken(token string) {
 // ConnectTokenWebSocket connects to the token WebSocket
 func ConnectTokenWebSocket(url string) error {
 	var err error
-	conn, _, err := websocket.DefaultDialer.Dial(url, nil)
+
+	// Configure dialer with timeouts
+	dialer := websocket.Dialer{
+		HandshakeTimeout: 10 * time.Second,
+	}
+
+	conn, _, err := dialer.Dial(url, nil)
 	if err != nil {
 		return fmt.Errorf("failed to connect to token WebSocket: %v", err)
 	}
+
+	// Configure connection settings
+	conn.SetReadLimit(512)                                 // Limit message size
+	conn.SetReadDeadline(time.Now().Add(60 * time.Second)) // Read timeout
+	conn.SetPongHandler(func(string) error {
+		conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+		return nil
+	})
 
 	tokenConnMutex.Lock()
 	tokenConn = conn
 	tokenConnMutex.Unlock()
 
 	log.Printf("Connected to token WebSocket: %s", url)
+
+	// Create context for ping ticker
+	//pingTickerCtx, pingTickerCancel = context.WithCancel(context.Background())
+
+	// Start ping ticker to keep connection alive
+	// go func() {
+	// 	ticker := time.NewTicker(30 * time.Second)
+	// 	defer ticker.Stop()
+
+	// 	for {
+	// 		select {
+	// 		case <-ticker.C:
+	// 			tokenConnMutex.Lock()
+
+	// 			// Safety check: if connection is nil, stop the ticker
+	// 			if tokenConn == nil {
+	// 				log.Printf("Ping ticker: connection is nil, stopping ticker")
+	// 				tokenConnMutex.Unlock()
+	// 				return
+	// 			}
+
+	// 			if err := tokenConn.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(10*time.Second)); err != nil {
+	// 				log.Printf("Failed to send ping: %v", err)
+	// 				tokenConnMutex.Unlock()
+	// 				requestTokenReconnect()
+	// 				return
+	// 			}
+
+	// 			tokenConnMutex.Unlock()
+	// 			// case <-pingTickerCtx.Done():
+	// 			// 	// Context was cancelled, stop the ticker
+	// 			// 	log.Printf("Ping ticker: context cancelled, stopping ticker")
+	// 			// 	return
+	// 		}
+	// 	}
+	// }()
+
 	return nil
 }
 
@@ -171,10 +226,18 @@ func ConnectTokenWebSocket(url string) error {
 func disconnectTokenWebSocket() {
 	tokenConnMutex.Lock()
 	if tokenConn != nil {
+		log.Printf("Disconnecting token WebSocket")
 		tokenConn.Close()
 		tokenConn = nil
 	}
 	tokenConnMutex.Unlock()
+
+	// Cancel the ping ticker context to stop the goroutine
+	// if pingTickerCancel != nil {
+	// 	log.Printf("Cancelling ping ticker context")
+	// 	pingTickerCancel()
+	// 	pingTickerCancel = nil // Reset to prevent double-cancellation
+	// }
 }
 
 // requestTokenReconnect signals the connection manager to reconnect

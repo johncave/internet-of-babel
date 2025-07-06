@@ -71,10 +71,11 @@ func main() {
 	})
 
 	// Start server
-	port := ":8080"
+	port := ":8088"
 	log.Printf("Starting server on port %s", port)
 	log.Printf("Broadcast WebSocket: ws://localhost%s/ws/broadcast", port)
-	log.Printf("LLM WebSocket: ws://localhost%s/ws/llm?api_key=babelcom-secret-key", port)
+	log.Printf("LLM WebSocket: ws://localhost%s/ws/llm?api_key=<your-api-key>", port)
+	log.Printf("API key can be configured via BABELCOM_API_KEY environment variable")
 
 	if err := router.Run(port); err != nil {
 		log.Fatal("Failed to start server:", err)

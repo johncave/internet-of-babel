@@ -1,39 +1,3 @@
-Ethernet|2
-Wi-Fi|2
-LANs|2
-WLANs|2
-Virtual Private Networks|2
-VPN|2
-Switch|2
-Hub|2
-Server|2
-Client|2
-Network Architecture|2
-Virus|2
-Ransomware|2
-Firewall|2
-Antivirus Software|2
-Encryption|2
-Monitoring Network Performance|2
-Troubleshooting Network Issues|2
-Network Management|2
-Descriptive Statistics|2
-Inferential Statistics|2
-Regression Analysis|2
-Data Visualization|2
-Statistical Software|2
-Machine Learning Algorithms|2
-Data Manipulation Libraries|2
-Best Practices|2
-Data Validation|2
-Assumption Verification|2
-Multiple Perspectives|2
-Business Intelligence Applications|2
-Healthcare Applications|2
-Social Sciences Applications|2
-Array|2
-Linked List|2
-Stack|2
 Queue|2
 Tree|2
 Graph|2
@@ -496,3 +460,38 @@ Instrumentation|2
 Basic Components|2
 Electronic Measuring Instruments|2
 Natural Energy Sources|2
+Components Of|3
+Computer Network|3
+Data Transfer Speed|3
+Data Breach|3
+Devices Connected To|3
+Wireless Local Area Network|3
+Server Architecture|3
+Functions of Server|3
+Types of Server|3
+Components of a Server|3
+Benefits of Using Server|3
+Architecture|3
+Component|3
+Replication|3
+Configuration|3
+Types of Firewall|3
+Definition|3
+Troubleshooting|3
+Network Issue|3
+Symptom|3
+Descriptive Statistics Measures of Central Tendency|3
+MEASURE OF CENTRAL TENDENCY: MEAN, MEDIAN, MODE|3
+Types of Best Practice|3
+Business Best Practice|3
+Professional Development Best Practice|3
+Personal Productivity Best Practice|3
+Health and Wellness Best Practice|3
+Workplace Best Practice|3
+Customer Service Best Practice|3
+Data Validation Technique|3
+Reporting and Analytic|3
+Data Warehousing|3
+Data Mining and Machine Learning|3
+Artificial Intelligence Application|3
+Applications in Education|3

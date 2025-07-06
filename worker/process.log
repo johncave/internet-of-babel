@@ -1000,3 +1000,36 @@
 2025-07-06T15:20:07+12:00 | topic: "Energy Sources" | duration: 6.703221649s | depth: 1 | article_length: 5108
 2025-07-06T15:20:15+12:00 | topic: "Diseases" | duration: 8.176959854s | depth: 1 | article_length: 5068
 2025-07-06T15:20:22+12:00 | topic: "Technologies" | duration: 6.722042667s | depth: 1 | article_length: 5446
+2025-07-06T15:35:06+12:00 | topic: "Wi-Fi" | duration: 10.181998388s | depth: 2 | article_length: 4594
+2025-07-06T15:35:11+12:00 | topic: "LANs" | duration: 5.143504518s | depth: 2 | article_length: 3744
+2025-07-06T15:36:11+12:00 | topic: "WLANs" | duration: 6.275560281s | depth: 2 | article_length: 4026
+2025-07-06T15:36:18+12:00 | topic: "Virtual Private Networks" | duration: 6.443920077s | depth: 2 | article_length: 4174
+2025-07-06T15:40:46+12:00 | topic: "Switch" | duration: 6.526120729s | depth: 2 | article_length: 4299
+2025-07-06T15:46:27+12:00 | topic: "Server" | duration: 6.444714232s | depth: 2 | article_length: 4208
+2025-07-06T15:46:36+12:00 | topic: "Client" | duration: 9.037422622s | depth: 2 | article_length: 6313
+2025-07-06T15:50:17+12:00 | topic: "Network Architecture" | duration: 6.589066494s | depth: 2 | article_length: 4176
+2025-07-06T15:50:23+12:00 | topic: "Virus" | duration: 6.121247406s | depth: 2 | article_length: 3693
+2025-07-06T15:50:29+12:00 | topic: "Ransomware" | duration: 5.649537714s | depth: 2 | article_length: 3542
+2025-07-06T15:50:35+12:00 | topic: "Firewall" | duration: 6.341910222s | depth: 2 | article_length: 4405
+2025-07-06T15:50:42+12:00 | topic: "Antivirus Software" | duration: 6.783073791s | depth: 2 | article_length: 5173
+2025-07-06T15:50:49+12:00 | topic: "Encryption" | duration: 6.597613009s | depth: 2 | article_length: 4328
+2025-07-06T15:50:55+12:00 | topic: "Monitoring Network Performance" | duration: 6.742324885s | depth: 2 | article_length: 4983
+2025-07-06T15:51:02+12:00 | topic: "Troubleshooting Network Issues" | duration: 6.355723149s | depth: 2 | article_length: 4162
+2025-07-06T15:51:08+12:00 | topic: "Network Management" | duration: 6.090869626s | depth: 2 | article_length: 4479
+2025-07-06T15:51:16+12:00 | topic: "Descriptive Statistics" | duration: 8.227422162s | depth: 2 | article_length: 4609
+2025-07-06T15:51:29+12:00 | topic: "Inferential Statistics" | duration: 11.373270412s | depth: 2 | article_length: 6875
+2025-07-06T15:51:36+12:00 | topic: "Regression Analysis" | duration: 7.763285534s | depth: 2 | article_length: 5540
+2025-07-06T15:51:45+12:00 | topic: "Data Visualization" | duration: 8.45739693s | depth: 2 | article_length: 4114
+2025-07-06T15:51:52+12:00 | topic: "Statistical Software" | duration: 6.928773478s | depth: 2 | article_length: 4491
+2025-07-06T15:51:58+12:00 | topic: "Machine Learning Algorithms" | duration: 6.772830372s | depth: 2 | article_length: 4942
+2025-07-06T15:54:32+12:00 | topic: "Data Manipulation Libraries" | duration: 8.390541126s | depth: 2 | article_length: 5415
+2025-07-06T15:54:39+12:00 | topic: "Best Practices" | duration: 6.819901659s | depth: 2 | article_length: 4740
+2025-07-06T15:54:46+12:00 | topic: "Data Validation" | duration: 7.775334477s | depth: 2 | article_length: 5213
+2025-07-06T15:54:52+12:00 | topic: "Assumption Verification" | duration: 5.909215923s | depth: 2 | article_length: 4188
+2025-07-06T15:55:04+12:00 | topic: "Multiple Perspectives" | duration: 11.436529339s | depth: 2 | article_length: 5428
+2025-07-06T16:02:14+12:00 | topic: "Business Intelligence Applications" | duration: 12.043473775s | depth: 2 | article_length: 7645
+2025-07-06T16:02:19+12:00 | topic: "Healthcare Applications" | duration: 5.026035803s | depth: 2 | article_length: 4806
+2025-07-06T16:04:59+12:00 | topic: "Social Sciences Applications" | duration: 5.19447771s | depth: 2 | article_length: 4299
+2025-07-06T16:05:04+12:00 | topic: "Array" | duration: 5.08119355s | depth: 2 | article_length: 3367
+2025-07-06T16:05:11+12:00 | topic: "Linked List" | duration: 6.463451883s | depth: 2 | article_length: 4621
+2025-07-06T16:05:20+12:00 | topic: "Stack" | duration: 9.656289342s | depth: 2 | article_length: 7014
