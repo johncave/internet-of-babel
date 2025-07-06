@@ -52,7 +52,7 @@ spec:
         - name: LIBRARIAN_API_KEY
           valueFrom:
             secretKeyRef:
-              name: librarian-api-key
+              name: babelcom-api-key
               key: api-key
         resources:
           requests:

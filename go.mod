@@ -9,6 +9,7 @@ require (
 	github.com/gin-contrib/cors v1.7.2
 	github.com/gin-gonic/gin v1.10.0
 	github.com/gorilla/websocket v1.5.3
+	github.com/kaptinlin/jsonrepair v0.1.1
 	github.com/ollama/ollama v0.9.5
 	golang.org/x/text v0.23.0
 )

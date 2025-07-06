@@ -9,11 +9,13 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 	"unicode"
 
 	pluralize "github.com/gertd/go-pluralize"
+	"github.com/kaptinlin/jsonrepair"
 	"github.com/ollama/ollama/api"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -145,6 +147,75 @@ var stopwords = map[string]struct{}{
 	"the": {}, "and": {}, "a": {}, "an": {}, "of": {}, "to": {}, "in": {}, "is": {}, "it": {}, "you": {}, "that": {}, "he": {}, "was": {}, "for": {}, "on": {}, "are": {}, "as": {}, "with": {}, "his": {}, "they": {}, "I": {}, "at": {}, "be": {}, "this": {}, "have": {}, "from": {}, "or": {}, "one": {}, "had": {}, "by": {}, "word": {}, "but": {}, "not": {}, "what": {}, "all": {}, "were": {}, "we": {}, "when": {}, "your": {}, "can": {}, "said": {}, "there": {}, "use": {}, "each": {}, "which": {}, "she": {}, "do": {}, "how": {}, "their": {}, "if": {}, "will": {}, "up": {}, "other": {}, "about": {}, "out": {}, "many": {}, "then": {}, "them": {}, "these": {}, "so": {}, "some": {}, "her": {}, "would": {}, "make": {}, "like": {}, "him": {}, "into": {}, "time": {}, "has": {}, "look": {}, "two": {}, "more": {}, "write": {}, "go": {}, "see": {}, "number": {}, "no": {}, "way": {}, "could": {}, "people": {}, "my": {}, "than": {}, "first": {}, "water": {}, "been": {}, "call": {}, "who": {}, "oil": {}, "its": {}, "now": {}, "find": {}, "long": {}, "down": {}, "day": {}, "did": {}, "get": {}, "come": {}, "made": {}, "may": {}, "part": {},
 }
 
+// stripInvalidChars removes characters that aren't letters, numbers, or valid JSON symbols
+func stripInvalidChars(input string) string {
+	validJSONSymbols := regexp.MustCompile(`["{}[\]:,.\-+tfalsnue]`)
+	var result []rune
+	for _, char := range input {
+		if unicode.IsLetter(char) || unicode.IsDigit(char) || unicode.IsSpace(char) || validJSONSymbols.MatchString(string(char)) {
+			result = append(result, char)
+		}
+	}
+	return string(result)
+}
+
+// extractJSONContent extracts content between the first [ or { and the matching closing bracket
+func extractJSONContent(input string) string {
+	firstArray := strings.Index(input, "[")
+	firstObject := strings.Index(input, "{")
+	var startPos int
+	var startChar, endChar string
+	if firstArray == -1 && firstObject == -1 {
+		return input
+	} else if firstArray == -1 {
+		startPos = firstObject
+		startChar = "{"
+		endChar = "}"
+	} else if firstObject == -1 {
+		startPos = firstArray
+		startChar = "["
+		endChar = "]"
+	} else {
+		if firstArray < firstObject {
+			startPos = firstArray
+			startChar = "["
+			endChar = "]"
+		} else {
+			startPos = firstObject
+			startChar = "{"
+			endChar = "}"
+		}
+	}
+	bracketCount := 0
+	endPos := -1
+	for i := startPos; i < len(input); i++ {
+		char := string(input[i])
+		if char == startChar {
+			bracketCount++
+		} else if char == endChar {
+			bracketCount--
+			if bracketCount == 0 {
+				endPos = i
+				break
+			}
+		}
+	}
+	if endPos == -1 {
+		return input
+	}
+	return input[startPos : endPos+1]
+}
+
+func cleanJSON(input string) string {
+	cleaned := stripInvalidChars(input)
+	core := extractJSONContent(cleaned)
+	fixed, err := jsonrepair.JSONRepair(core)
+	if err != nil {
+		return core
+	}
+	return fixed
+}
+
 func work() {
 	client, err := api.ClientFromEnvironment()
 	if err != nil {
@@ -249,7 +320,7 @@ func work() {
 		})
 		messages = append(messages, api.Message{
 			Role:    "user",
-			Content: "Extract a list of the most important words or concepts from the article you just wrote. Reply only with a json array of strings, no markdown. Format the strings in correct English title case and pluralize them if necessary as the title of an article.",
+			Content: "Extract a list of the words or phrases in the article above that should be turned into links. Reply only with a json array of strings. Format the strings in correct English title case and pluralize them if necessary as the title of an article.",
 		})
 
 		generationStatus.Phase = "Analyzing"
@@ -301,7 +372,9 @@ func work() {
 		// Recursively enqueue new topics from keywords
 		if depth < maxDepth {
 			var keywords []string
-			if err := json.Unmarshal([]byte(keywordsContent), &keywords); err == nil {
+			// Clean the JSON first
+			keywordsContentClean := cleanJSON(keywordsContent)
+			if err := json.Unmarshal([]byte(keywordsContentClean), &keywords); err == nil {
 
 				//log.Println("Processing keywords for topic:", topic, keywords)
 				// Read the current queue again to avoid duplicates

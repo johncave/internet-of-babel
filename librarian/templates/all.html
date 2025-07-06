@@ -25,7 +25,7 @@
     {{range .PageArticles}}
     <div class="article-item">
         <a href="/{{.Filename}}" class="article-link">{{.Title}}</a>
-        <span class="article-date">{{.CreatedTime.Format "2006-01-02 15:04"}}</span>
+        <span class="article-date">{{.FormattedTime}}</span>
     </div>
     {{end}}
 </div>

@@ -104,17 +104,21 @@ func getRecentArticles(articlesDir string) []ArticleInfo {
 			title := desanitizeTitle(filename)
 			fileInfo, err := article.Info()
 			if err != nil {
+				now := time.Now()
 				articleList = append(articleList, ArticleInfo{
-					Filename:    filename,
-					Title:       title,
-					CreatedTime: time.Now(),
+					Filename:      filename,
+					Title:         title,
+					CreatedTime:   now,
+					FormattedTime: formatTime(now),
 				})
 				continue
 			}
+			modTime := fileInfo.ModTime()
 			articleList = append(articleList, ArticleInfo{
-				Filename:    filename,
-				Title:       title,
-				CreatedTime: fileInfo.ModTime(),
+				Filename:      filename,
+				Title:         title,
+				CreatedTime:   modTime,
+				FormattedTime: formatTime(modTime),
 			})
 		}
 	}
@@ -157,17 +161,21 @@ func getAllArticles(articlesDir string) []ArticleInfo {
 			title := desanitizeTitle(filename)
 			fileInfo, err := article.Info()
 			if err != nil {
+				now := time.Now()
 				articleList = append(articleList, ArticleInfo{
-					Filename:    filename,
-					Title:       title,
-					CreatedTime: time.Now(),
+					Filename:      filename,
+					Title:         title,
+					CreatedTime:   now,
+					FormattedTime: formatTime(now),
 				})
 				continue
 			}
+			modTime := fileInfo.ModTime()
 			articleList = append(articleList, ArticleInfo{
-				Filename:    filename,
-				Title:       title,
-				CreatedTime: fileInfo.ModTime(),
+				Filename:      filename,
+				Title:         title,
+				CreatedTime:   modTime,
+				FormattedTime: formatTime(modTime),
 			})
 		}
 	}
