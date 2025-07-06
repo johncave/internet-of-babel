@@ -186,16 +186,12 @@ func (sm *StatusMonitor) sendStatus(status SystemStatus) error {
 }
 
 func (sm *StatusMonitor) Start(websocketURL string) error {
-	if err := sm.Connect(websocketURL); err != nil {
-		return err
-	}
-
-	defer sm.Disconnect()
-
-	ticker := time.NewTicker(sm.interval)
-	defer ticker.Stop()
-
 	log.Printf("Starting status monitor with %v interval", sm.interval)
+
+	// Establish initial connection
+	if err := sm.Connect(websocketURL); err != nil {
+		return fmt.Errorf("failed to establish initial connection: %v", err)
+	}
 
 	// Send initial status
 	status := sm.generateStatus()
@@ -203,15 +199,18 @@ func (sm *StatusMonitor) Start(websocketURL string) error {
 		log.Printf("Failed to send initial status: %v", err)
 	}
 
+	ticker := time.NewTicker(sm.interval)
+	defer ticker.Stop()
+
 	for {
 		select {
 		case <-ticker.C:
 			status := sm.generateStatus()
 			if err := sm.sendStatus(status); err != nil {
 				log.Printf("Failed to send status: %v", err)
-				// Try to reconnect
-				if err := sm.Connect(websocketURL); err != nil {
-					log.Printf("Failed to reconnect: %v", err)
+				// Try to reconnect with exponential backoff
+				if err := sm.reconnectWithBackoff(websocketURL); err != nil {
+					log.Printf("Failed to reconnect after retries: %v", err)
 					return err
 				}
 			}
@@ -219,14 +218,38 @@ func (sm *StatusMonitor) Start(websocketURL string) error {
 	}
 }
 
-// StartStatusMonitor starts the status monitoring in a goroutine
+// reconnectWithBackoff attempts to reconnect with exponential backoff
+func (sm *StatusMonitor) reconnectWithBackoff(websocketURL string) error {
+	delay := 5 * time.Second
+	attempt := 0
+
+	for {
+		attempt++
+		log.Printf("Attempting to reconnect in %v (attempt %d)...", delay, attempt)
+		time.Sleep(delay)
+
+		// Close existing connection if any
+		sm.Disconnect()
+
+		// Try to connect
+		if err := sm.Connect(websocketURL); err != nil {
+			log.Printf("Reconnection attempt %d failed: %v", attempt, err)
+			continue
+		}
+
+		log.Printf("Successfully reconnected to status WebSocket after %d attempts", attempt)
+		return nil
+	}
+}
+
+// StartStatusMonitor starts the status monitoring in a goroutine with improved retry logic
 func StartStatusMonitor(interval time.Duration) {
 	go func() {
 		monitor := NewStatusMonitor(WebSocketURL, interval)
 		for {
 			if err := monitor.Start(WebSocketURL); err != nil {
 				log.Printf("Status monitor error: %v", err)
-				log.Printf("Retrying in 30 seconds...")
+				log.Printf("Restarting status monitor in 30 seconds...")
 				time.Sleep(30 * time.Second)
 			}
 		}

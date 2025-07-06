@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/gin-contrib/gzip"
@@ -19,6 +20,9 @@ var templates embed.FS
 
 //go:embed static
 var staticFiles embed.FS
+
+// UseEmbeddedStatic controls whether to serve static files from embedded FS or disk
+var UseEmbeddedStatic = true
 
 func getTotalArticleCount(articlesDir string) int {
 	articles, err := os.ReadDir(articlesDir)
@@ -35,10 +39,56 @@ func getTotalArticleCount(articlesDir string) int {
 	return count
 }
 
+// getContentType determines the appropriate content type based on file extension
+func getContentType(filePath string) string {
+	ext := strings.ToLower(filepath.Ext(filePath))
+	switch ext {
+	case ".css":
+		return "text/css"
+	case ".js":
+		return "application/javascript"
+	case ".png":
+		return "image/png"
+	case ".jpg", ".jpeg":
+		return "image/jpeg"
+	case ".gif":
+		return "image/gif"
+	case ".svg":
+		return "image/svg+xml"
+	case ".ico":
+		return "image/x-icon"
+	case ".woff":
+		return "font/woff"
+	case ".woff2":
+		return "font/woff2"
+	case ".ttf":
+		return "font/ttf"
+	case ".eot":
+		return "application/vnd.ms-fontobject"
+	default:
+		return "text/plain"
+	}
+}
+
 // faviconHandler serves the favicon from the embedded static directory
 func faviconHandler(c *gin.Context) {
-	// Try to read the favicon from the embedded filesystem
-	content, err := staticFiles.ReadFile("static/favicon.ico")
+	if UseEmbeddedStatic {
+		// Try to read the favicon from the embedded filesystem
+		content, err := staticFiles.ReadFile("static/favicon.ico")
+		if err != nil {
+			c.Status(http.StatusNotFound)
+			return
+		}
+
+		c.Header("Content-Type", "image/x-icon")
+		c.Header("Cache-Control", "public, max-age=86400") // Cache for 24 hours
+		c.Data(http.StatusOK, "image/x-icon", content)
+		return
+	}
+
+	// Serve from disk
+	filePath := "static/favicon.ico"
+	content, err := os.ReadFile(filePath)
 	if err != nil {
 		c.Status(http.StatusNotFound)
 		return
@@ -49,7 +99,7 @@ func faviconHandler(c *gin.Context) {
 	c.Data(http.StatusOK, "image/x-icon", content)
 }
 
-// staticHandler serves static files from the embedded static directory
+// staticHandler serves static files from either disk or embedded filesystem
 func staticHandler(c *gin.Context) {
 	// Get the file path from the URL
 	filePath := c.Param("filepath")
@@ -62,35 +112,52 @@ func staticHandler(c *gin.Context) {
 	// Remove leading slash if present
 	filePath = strings.TrimPrefix(filePath, "/")
 
-	// Construct the full path within the embedded filesystem
-	fullPath := "static/" + filePath
+	if UseEmbeddedStatic {
+		// Serve from embedded filesystem
+		fullPath := "static/" + filePath
 
-	// Try to read the file from the embedded filesystem
-	content, err := staticFiles.ReadFile(fullPath)
+		// Try to read the file from the embedded filesystem
+		content, err := staticFiles.ReadFile(fullPath)
+		if err != nil {
+			c.Status(http.StatusNotFound)
+			return
+		}
+
+		contentType := getContentType(filePath)
+		c.Header("Content-Type", contentType)
+		c.Data(http.StatusOK, contentType, content)
+		return
+	}
+
+	// Serve from disk
+	diskPath := filepath.Join("static", filePath)
+
+	// Security check: ensure the path is within the static directory
+	absPath, err := filepath.Abs(diskPath)
+	if err != nil {
+		c.Status(http.StatusBadRequest)
+		return
+	}
+
+	staticDir, err := filepath.Abs("static")
+	if err != nil {
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	if !strings.HasPrefix(absPath, staticDir) {
+		c.Status(http.StatusForbidden)
+		return
+	}
+
+	content, err := os.ReadFile(diskPath)
 	if err != nil {
 		c.Status(http.StatusNotFound)
 		return
 	}
 
-	// Set appropriate content type based on file extension
-	contentType := "text/plain"
-	if strings.HasSuffix(filePath, ".css") {
-		contentType = "text/css"
-	} else if strings.HasSuffix(filePath, ".js") {
-		contentType = "application/javascript"
-	} else if strings.HasSuffix(filePath, ".png") {
-		contentType = "image/png"
-	} else if strings.HasSuffix(filePath, ".jpg") || strings.HasSuffix(filePath, ".jpeg") {
-		contentType = "image/jpeg"
-	} else if strings.HasSuffix(filePath, ".gif") {
-		contentType = "image/gif"
-	} else if strings.HasSuffix(filePath, ".svg") {
-		contentType = "image/svg+xml"
-	}
-
+	contentType := getContentType(filePath)
 	c.Header("Content-Type", contentType)
-
-	c.Header("Cache-Control", "public, max-age=3600") // Cache for 1 hour
 	c.Data(http.StatusOK, contentType, content)
 }
 
@@ -99,6 +166,17 @@ func main() {
 	envArticlesDir := os.Getenv("ARTICLES_DIR")
 	if envArticlesDir != "" {
 		articlesDir = envArticlesDir
+	}
+
+	// Check if USE_EMBEDDED_STATIC environment variable exists
+	// Set to "false" to serve static files from disk instead of embedded FS
+	useEmbedded := os.Getenv("USE_EMBEDDED_STATIC")
+	if useEmbedded == "false" {
+		UseEmbeddedStatic = false
+		fmt.Println("Static files will be served from disk (USE_EMBEDDED_STATIC=false)")
+	} else {
+		UseEmbeddedStatic = true
+		fmt.Println("Static files will be served from embedded filesystem")
 	}
 
 	// Check if articles directory exists

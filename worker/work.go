@@ -71,12 +71,12 @@ func singularize(word string) string {
 
 // normalizeTitle normalizes a title for duplication checking
 func normalizeTitle(title string) string {
+	// Remove this - ask the LLM to write in title case
+	// // Convert to title case
+	// title = toTitleCase(title)
 
-	// Convert to title case
-	title = toTitleCase(title)
-
-	// Singularize the title
-	title = singularize(title)
+	// // Singularize the title
+	// title = singularize(title)
 
 	// Remove any underscores and replace with spaces
 	title = strings.ReplaceAll(title, "_", " ")
@@ -195,7 +195,7 @@ func work() {
 		})
 		messages = append(messages, api.Message{
 			Role:    "user",
-			Content: "Extract a list of the most important words or concepts from the article you just wrote. Reply only with a json array of strings, no markdown.",
+			Content: "Extract a list of the most important words or concepts from the article you just wrote. Reply only with a json array of strings, no markdown. Format the strings in correct English title case and pluralize them if necessary as the title of an article.",
 		})
 
 		generationStatus.Phase = "Analyzing"

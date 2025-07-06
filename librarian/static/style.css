@@ -31,6 +31,348 @@
             /* z-index: -1; */
         }
         
+        /* Minimalist Cyberpunk Header */
+        .cyberpunk-header {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid #00ffff;
+            padding: 20px 0;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cyberpunk-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+            animation: scan-line 3s linear infinite;
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .glitch-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5em;
+            font-weight: 900;
+            color: #00ffff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            letter-spacing: 3px;
+            position: relative;
+            margin: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .glitch-title::before,
+        .glitch-title::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .glitch-title::before {
+            animation: glitch-1 2s infinite linear alternate-reverse;
+            color: #ff0080;
+            z-index: -1;
+        }
+        
+        .glitch-title::after {
+            animation: glitch-2 3s infinite linear alternate-reverse;
+            color: #00ff00;
+            z-index: -2;
+        }
+        
+        /* Header Status Display */
+        .header-status {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-end;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .status-label {
+            color: #ff0080;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .status-value {
+            color: #00ffff;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-active {
+            color: #00ff00;
+            animation: blink 2s infinite;
+        }
+        
+        .header-stats {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+        
+        .progress-indicator {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .progress-bar {
+            width: 120px;
+            height: 6px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #00ffff;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ffff, #ff0080);
+            width: 0%;
+            animation: progress-glow 2s ease-in-out infinite;
+            border-radius: 2px;
+        }
+        
+        .progress-text {
+            color: #e0e0e0;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff00;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.6);
+        }
+        
+        .status-text {
+            color: #00ff00;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        
+        @keyframes scan-line {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        @keyframes glitch-1 {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+        
+        @keyframes glitch-2 {
+            0% { transform: translate(0); }
+            20% { transform: translate(2px, -2px); }
+            40% { transform: translate(2px, 2px); }
+            60% { transform: translate(-2px, -2px); }
+            80% { transform: translate(-2px, 2px); }
+            100% { transform: translate(0); }
+        }
+        
+        @keyframes progress-glow {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+        
+        /* Responsive design for header */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .glitch-title {
+                font-size: 2em;
+            }
+            
+            .header-status {
+                align-items: center;
+                flex-direction: row;
+                gap: 20px;
+            }
+            
+            .header-stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+        
+        /* Main Layout */
+        .main-layout {
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+            gap: 20px;
+            padding: 20px;
+            min-height: calc(100vh - 200px);
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            flex-shrink: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid #00ffff;
+            border-radius: 15px;
+            box-shadow: 
+                0 0 20px rgba(0, 255, 255, 0.3),
+                inset 0 0 20px rgba(0, 255, 255, 0.1);
+            padding: 20px;
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+        
+        .sidebar-content h3 {
+            color: #ff0080;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+            border-bottom: 2px solid #ff0080;
+            padding-bottom: 8px;
+        }
+        
+        .sidebar-content h4 {
+            color: #ff6b9d;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .recent-articles {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+        
+        .recent-articles li {
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .recent-articles li:hover {
+            background: rgba(0, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .recent-articles a {
+            color: #00ffff;
+            text-decoration: none;
+            font-size: 0.9em;
+            display: block;
+        }
+        
+        .recent-articles a:hover {
+            color: #ff0080;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: rgba(255, 0, 128, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 0, 128, 0.2);
+        }
+        
+        .sidebar-section p {
+            margin: 5px 0;
+            font-size: 0.9em;
+            color: #e0e0e0;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .content-container {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid #00ffff;
+            border-radius: 15px;
+            box-shadow: 
+                0 0 20px rgba(0, 255, 255, 0.3),
+                inset 0 0 20px rgba(0, 255, 255, 0.1);
+            padding: 30px;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-layout {
+                flex-direction: column;
+                padding: 10px;
+            }
+            
+            .sidebar {
+                width: 100%;
+                position: static;
+                max-height: none;
+            }
+            
+            .content-container {
+                padding: 20px;
+            }
+        }
+        
+        /* Legacy container class for backward compatibility */
         .container {
             max-width: 900px;
             margin: 0 auto;
@@ -46,32 +388,7 @@
             margin-bottom: 20px;
         }
         
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding: 20px;
-            background: linear-gradient(45deg, #ff0080, #00ffff);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            border-bottom: 2px solid #00ffff;
-            position: relative;
-        }
-        
-        .header a {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 2.5em;
-            font-weight: 900;
-            text-decoration: none;
-            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
-            letter-spacing: 3px;
-            transition: all 0.3s ease;
-        }
-        
-        .header a:hover {
-            text-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
-            transform: scale(1.05);
-        }
+
         
         .footer {
             text-align: center;
@@ -184,13 +501,13 @@
             font-family: 'Orbitron', sans-serif;
         }
         
-        .article {
+        /* .article {
             background: rgba(0, 0, 0, 0.5);
             padding: 30px;
             border-radius: 15px;
             border: 1px solid rgba(0, 255, 255, 0.3);
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
-        }
+        } */
         
         .queue-status {
             text-align: center;
@@ -336,102 +653,35 @@
             }
         }
         
-        /* Glitch effect for header */
-        .header a::before {
-            content: attr(data-text);
-            position: absolute;
-            /* left: 0; */
-            text-shadow: 0px 0 #ff0080;
-            
-            color: #00ffff;
-            background: none;
-            /* clip: rect(440px, 40px, 56px, 0); */
-            animation: glitch 20s infinite linear;
+
+        
+        /* Project Stats Section */
+        .project-stats {
+            margin-top: 40px;
+            padding: 25px;
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
         }
         
-        @keyframes glitch {
-            0% {
-                clip: rect(42px, 9999px, 44px, 0);
-                transform: skew(0.85deg);
-            }
-            5% {
-                clip: rect(12px, 9999px, 59px, 0);
-                transform: skew(0.85deg);
-            }
-            10% {
-                clip: rect(48px, 9999px, 29px, 0);
-                transform: skew(0.85deg);
-            }
-            15% {
-                clip: rect(42px, 9999px, 73px, 0);
-                transform: skew(0.85deg);
-            }
-            20% {
-                clip: rect(63px, 9999px, 27px, 0);
-                transform: skew(0.85deg);
-            }
-            25% {
-                clip: rect(34px, 9999px, 55px, 0);
-                transform: skew(0.85deg);
-            }
-            30% {
-                clip: rect(86px, 9999px, 73px, 0);
-                transform: skew(0.85deg);
-            }
-            35% {
-                clip: rect(20px, 9999px, 20px, 0);
-                transform: skew(0.85deg);
-            }
-            40% {
-                clip: rect(26px, 9999px, 60px, 0);
-                transform: skew(0.85deg);
-            }
-            45% {
-                clip: rect(25px, 9999px, 66px, 0);
-                transform: skew(0.85deg);
-            }
-            50% {
-                clip: rect(57px, 9999px, 98px, 0);
-                transform: skew(0.85deg);
-            }
-            55% {
-                clip: rect(5px, 9999px, 46px, 0);
-                transform: skew(0.85deg);
-            }
-            60% {
-                clip: rect(82px, 9999px, 31px, 0);
-                transform: skew(0.85deg);
-            }
-            65% {
-                clip: rect(54px, 9999px, 27px, 0);
-                transform: skew(0.85deg);
-            }
-            70% {
-                clip: rect(28px, 9999px, 99px, 0);
-                transform: skew(0.85deg);
-            }
-            75% {
-                clip: rect(45px, 9999px, 69px, 0);
-                transform: skew(0.85deg);
-            }
-            80% {
-                clip: rect(23px, 9999px, 85px, 0);
-                transform: skew(0.85deg);
-            }
-            85% {
-                clip: rect(54px, 9999px, 84px, 0);
-                transform: skew(0.85deg);
-            }
-            90% {
-                clip: rect(45px, 9999px, 47px, 0);
-                transform: skew(0.85deg);
-            }
-            95% {
-                clip: rect(37px, 9999px, 20px, 0);
-                transform: skew(0.85deg);
-            }
-            100% {
-                clip: rect(4px, 9999px, 91px, 0);
-                transform: skew(0.85deg);
-            }
+        .project-stats h3 {
+            color: #00ffff;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.6em;
+            border-bottom: 2px solid #00ffff;
+            padding-bottom: 10px;
+        }
+        
+        .project-stats p {
+            margin: 10px 0;
+            font-size: 1.1em;
+            color: #e0e0e0;
+        }
+        
+        .project-stats p:last-child {
+            color: #ff0080;
+            font-weight: bold;
+            font-style: italic;
         }

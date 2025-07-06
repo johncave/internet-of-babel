@@ -58,7 +58,7 @@ const SystemMonitorApp = {
                     <div class="generation-status">
                         <div class="current-task">
                             <span class="task-label" id="task-label">Writing</span>
-                            <span class="task-value" id="current-task">Connecting to backend...</span>
+                            <span class="task-value" id="current-task">Waiting for babelcom...</span>
                         </div>
                         
                     </div>
@@ -66,7 +66,7 @@ const SystemMonitorApp = {
                     <div class="real-time-output">
                         <h4>📝 Output</h4>
                         <div class="llm-output-container" id="llm-output-container">
-                            <div class="output-line info">Waiting for LLM output...</div>
+                            <div class="output-line info">Waiting for babelcom...</div>
                         </div>
                     </div>
                 </div>
@@ -92,12 +92,12 @@ const SystemMonitorApp = {
                             <span class="metric-value" id="system-uptime">--</span>
                         </div>
                         <div class="metric-item">
-                            <span class="metric-label">Time Until Heat Death of Universe:</span>
-                            <span class="metric-value" id="heat-death">Unknown</span>
+                            <span class="metric-label">Heat Death of Universe:</span>
+                            <span class="metric-value" id="heat-death">Approaches</span>
                         </div>
                         <div class="metric-item">
                             <span class="metric-label">Power Consumption</span>
-                            <span class="metric-value" id="power-consumption">5w</span>
+                            <span class="metric-value" id="power-consumption">Moderate</span>
                         </div>
                     </div>
                 </div>

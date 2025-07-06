@@ -16,9 +16,10 @@ import (
 )
 
 type PageData struct {
-	Title   string
-	Content template.HTML
-	Count   int
+	Title    string
+	Content  template.HTML
+	Count    int
+	Articles []ArticleInfo
 }
 
 type IndexData struct {

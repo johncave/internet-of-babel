@@ -1,498 +1,141 @@
-Electron|1
-Atp Synthesis|1
-Nadph Synthesis|1
-Calvin Cycle (light-independent Reactions)|1
-Stroma|1
-Molecular Energy|1
-Software|2
-Operating System|2
-Application|2
-Gaming|2
-Productivity|2
-Education|2
-Security|2
-Hacking|2
-Virus|2
-Malware|2
-Enzyme|2
-Systematic Study|2
-Observation|2
-Experimentation|2
-Evidence-based Reasoning|2
-Scientific Method|2
-Uncertainty Principle|2
-Relativity Vs Certainty|2
-Funding and Access to Resource|2
-Global Challenge|2
-Improving Our Understanding of the World|2
-Addressing Global Challenge|2
-Technological Advancement|2
-Pandemic|2
-Poverty|2
-Climat Change|2
-Engineering|2
-Principle|2
-Technique|2
-Efficacy|2
-Requirement|2
-Design|2
-Implementation|2
-Testing|2
-Validation|2
-Maintenance|2
-Methodology|2
-Agile|2
-Waterfall|2
-Devop|2
-Ide|2
-Version control|2
-Programming language|2
-Testing framework|2
-Integration|2
-Development|2
-Code review|2
-Test driven development|2
-Continuous integration and delivery|2
-Best practice|2
-Complexity|2
-Time to market|2
-Requirements gathering|2
-Interface design|2
-Componentization|2
-Modularity|2
-Scalability|2
-Usability|2
-Test Automation|2
-Machine Learning|2
-Deep Learning|2
-Neural Network|2
-Ai Application|2
-Computer Vision|2
-Natural Language Processing|2
-Robotic|2
-Bias and Fairness|2
-Autonomy and Job Displacement|2
-Privacy and Security|2
-Alan Turing|2
-Marvin Minsky|2
-John Mccarthy|2
-Logical Theorist|2
-Rule-based System|2
-Expert System|2
-Machine Intelligence|2
-Superintelligence|2
-General or Strong Ai|2
-Supervised Learning|2
-Unsupervised Learning|2
-Reinforcement Learning|2
-Neural Networks With Multiple Layer|2
-Feedforward Network|2
-Recurrent Network|2
-Computer Vision Application|2
-Natural Language Processing Application|2
-Robotics Application|2
-Bias and Fairness in Ai|2
-Autonomy and Job Displacement in Ai|2
-Data Mining|2
-Data Visualization|2
-Statistical Inference|2
-Framework|2
-Data Science Framework|2
-Data Science Library|2
-Applications of Data Science|2
-Career Paths in Data Science|2
-Database|2
-Management|2
-System|2
-DBM|2
-Relational|2
-Nosql|2
-Object-oriented|2
-Object|2
-Orientation|2
-Class|2
-Inheritance|2
-Polymorphism|2
-Encapsulation|2
-Query|2
-Language|2
-Definition|2
-Create|2
-Modify|2
-Delete|2
-Storage|2
-Organization|2
-Structured|2
-Approach|2
-Datum|2
-Authentication|2
-Authorization|2
-Permission|2
-Role|2
-User|2
-Account|2
-Access|2
-Control|2
-Feature|2
-Encryption|2
-Benefit|2
-Throughput|2
-Indexing|2
-Caching|2
-Optimization|2
-Retrieval|2
-Manipulation|2
-Operation|2
-Modern|2
-Component|2
-Designer|2
-Performance|2
-Cost|2
-Technology|2
-HCI|2
-User Experience|2
-UX|2
-Interaction Design|2
-User Interface|2
-User Research|2
-Usability Engineering|2
-Cognitive Load Theory|2
-Heuristic Evaluation|2
-Conducting Usability Testing|2
-Virtual Assistant|2
-Wearable Device|2
-Virtual Reality|2
-Augmented Reality|2
-Human Factor|2
-Design Thinking|2
-Empathy|2
-User-centered Design|2
-Alan|2
-British|2
-Mathematician|2
-Computer Scientist|2
-Logician|2
-Philosopher|2
-Molecular Biologist|2
-Computing|2
-Machine|2
-Codebreaking|2
-Turing Test|2
-Programming|2
-Computer Architecture|2
-Automated Computing Engine|2
-ACE|2
-Bletchley Park|2
-World War Ii|2
-Bravery|2
-Genius|2
-Institution|2
-University of Manchester|2
-King's College|2
-Government Code and Cypher School|2
-GC&C|2
-Order of the Bath|2
-CBE|2
-World Wide Web|2
-Url|2
-HTTP|2
-HTML|2
-Java Platform|2
-Open-source Software|2
-Nobel Prize in Physic|2
-CERN|2
-Internet Regulation|2
-Digital Economy|2
-Global Connectivity|2
-Innovation and Creativity|2
-Information Management|2
-Tim|2
-Web Browser|2
-Netscape Navigator|2
-Internet Information System|2
-SARA|2
-Simple Access to Remote Archive|2
-Email|2
-CP/M|2
-Dial-up Modem|2
-WWW|2
-Launched in April 1991|2
-Inventions and Legacy|2
-National Medal of Technology|2
-Order of the British Empire|2
-Knight Bachelor|2
-Fellow of the Royal Society|2
-Award|2
-Dispute With W3c|2
-Google Search Engine|2
-Apple|2
-Divorced|2
-Married Katharine Collin|2
-Patricia Mckenna|2
-Net Worth|2
-Cyberspace|2
-Hypertext|2
-Css|2
-Javascript|2
-Protocol|2
-Architecture|2
-Client-server|2
+Software Testing|1
+System Administration|1
+Web Development|1
+ARPANET|1
+TCP/IP|1
+HTTP|1
+FTP|1
+ISPs|1
+Networks|1
+Servers|1
+Gateway|1
+Router|1
+Protocols|1
+Connections|1
+Data Centers|1
+Internet Service Providers|1
+Network Operators|1
+Communication|1
+Information Retrieval|1
+Business|1
+E-commerce|1
+Online Banking|1
+Remote Work|1
+Phishing Scams|1
+Malware|1
+Cyber Attacks|1
+Security Vulnerabilities|1
+Interoperability Issues|1
+Security Threats|1
+Censorship|1
+5G Networks|1
+Blockchain Technology|1
+Fundamental Laws|1
+Branches Of Physics|1
+Mechanics|1
+Thermodynamics|1
+Electromagnetism|1
+Optics|1
+Quantum Mechanics|1
+Newton's Laws|1
+Einstein's Theory|1
+Relativity|1
+Physical Phenomena|1
+Experiments|1
+Measuring Instruments|1
+Energy Sources|1
+Diseases|1
+Technologies|1
+Ethernet|2
+Wi-Fi|2
+LANs|2
+WLANs|2
+Virtual Private Networks|2
+VPN|2
+Switch|2
+Hub|2
 Server|2
 Client|2
-Hyperlink|2
-Static|2
-Dynamic|2
-Webpage|2
-Phishing|2
-Sql Injection|2
-Blogging|2
-E-commerce|2
-Social Media|2
-Online Education|2
-Domain Name|2
-Ip Address|2
-Dn|2
-Server-side|2
-Client-server Architecture|2
-Infrastructure|2
-GDP|2
-Institutional Framework|2
-Investment|2
-Trade|2
-Education and Skill|2
-Infrastructure Development|2
-Contractionary Growth|2
-Expansive Growth|2
-Stagnant Growth|2
-Output|2
-Inflation|2
-Employment|2
-Innovation|2
-Poverty Reduction|2
-Living Standard|2
-Competition|2
-Inequality|2
-Environmental Degradation|2
-Job Displacement|2
-Financial Crisis|2
-Medical History|2
-Antibiotic|2
-Vaccine|2
-Organ Transplantation|2
-Surgery|2
-Minimally Invasive Surgery|2
-Robotic Surgery|2
-Genetic Engineering|2
-Stem Cell Therapy|2
-Gene Therapy|2
-Crispr-cas9|2
-Personalized Medicine|2
-Synthetic Biology|2
-Biotechnology|2
-Regenerative Medicine|2
-Pharmaceutical|2
-Radiosensitive|2
-Robotic-assisted Surgery|2
-Genetic Defect|2
-Cancer Treatment|2
-Radiation Therapy|2
-Medicinal Plant|2
-Herbalism|2
-Traditional Medicine|2
-Hospital Care|2
-Vaccination|2
-Penicillin|2
-Alexander Fleming|2
-Dna Structure|2
-Antibiotic Resistance|2
-Precision Medicine|2
-Pharmacology|2
-Radiation Oncology|2
-Medical Research|2
-Science Revolution|2
-Advancement|2
-Improvement|2
-Treatment Option|2
-Patient Outcome|2
-Disease Prevention|2
-Genetic Disease|2
-Multifaceted|2
-Powerful Tool|2
-Social Interaction|2
-Emotional Regulation|2
-Well-being|2
-Relationship|2
-Verbal|2
-Nonverbal|2
-Visual|2
-Sarcasm|2
-Exaggeration|2
-Distortion|2
-Convention|2
-Structure|2
-Cognitive Process|2
-Interpretation|2
-Behavior|2
-Someone Else's Expense|2
-Absurdity|2
-Criticism|2
-Commentary|2
-Therapy|2
-Psychology|2
-Societal Norm|2
-Value|2
-Social Bonding|2
-Coping Mechanism|2
-Stress|2
-Adversity|2
-Perception|2
-Appreciation|2
-Figure|2
-Speech|2
-Congruity|2
-Contradiction|2
-Situational|2
-Dramatic|2
-Cultural|2
-Cosmic|2
-Understatement|2
-Incongruence|2
-Emotion|2
-Tone|2
-Literary|2
-Device|2
-Critical|2
-Impact|2
-Depth|2
-Resonance|2
-Audience|2
-Expression|2
-Meaning|2
-Argument|2
-Idea|2
-Diction|2
-Stylistic|2
-Formality|2
-Informalization|2
-Dramatic Irony|2
-Cosmic Irony|2
-Cultural Irony|2
-History|2
-Type|2
-Autonomous|2
-Artificially|2
-Construted|2
-Quantum|2
-Replication|2
-DNA|2
-Artificial|2
-Material|2
-Stability|2
-Research|2
-Discovery|2
-Phenomenon|2
-Consequence|2
-Influence|2
-External|2
-Environmental|2
-Adaptation|2
-Flexibility|2
-Strategy|2
-Politic|2
-Demographic|2
-Age-group|2
-Learning-style|2
-Teaching-method|2
-Customer-behavior|2
-Preference|2
-Marketing-strategy|2
-Internet Meme|2
-Current Event|2
-Community Building|2
-Online Forum|2
-Humorous Comment|2
-Insight|2
-Trend|2
-Attitude|2
-Identity|2
-Cultural Relevance|2
-Meme Fatigue|2
-Creativity|2
-Misinterpretation|2
-Dank|2
-Internet Slang|2
-Writing|2
-Art|2
-Comedy|2
-Sarah Silverman|2
-Dank Meme|2
-All Your Base Are Belong to Us|2
-Matt Furie|2
-Ryan Ingell|2
-Online Community|2
-Sub-genre|2
-Reference|2
-Popular Culture|2
-Marketing Campaign|2
-Comedian|2
-Dank Writing|2
-Dank Artist|2
-Ipr|2
-Copyright|2
-Patent|2
-Trademark|2
-Fair Use|2
-Infringement|2
-Per Se|2
-WIPO|2
-Wto Agreement|2
-TRIP|2
-Economic Impact|2
-Creative Freedom|2
-Social Impact|2
-Copyright Culture|2
-Digital Divide|2
-Legal Framework|2
-Copyright Law|2
-Patent Law|2
-Trademark Law|2
-Distinctiveness|2
-Non-functional Use|2
-Prior Art|2
-Novelty|2
-Functionality|2
-Prejudice|2
-Bia|2
-Hate|2
-Discrimination|2
-Systemic Racism|2
-Cultural Difference|2
-Historical Trauma|2
-Power Dynamic|2
-Image Generation|2
-Short-form Video|2
-Music Integration|2
-Social Community|2
-Dark Reaction|2
-Chlorophyll|2
-Color|2
-Adenosine Triphosphate|2
-Triphosphate|2
-Rubisco|2
-Ribulose-1,5-bisphosphate Carboxylase/oxygenase|2
-Crassulacean Acid Metabolism (cam) Pathway|2
-Essential|2
-Atmosphere|2
-Simple Carbohydrate|2
-Greenhouse Gas|2
-Electron Transfer Chain|2
-Chemical Energy|2
-Stoma|2
-Transport|2
-Cell|2
-Organelle|2
-Climate|2
-Atmospheric Circulation|2
-Solar Radiation|2
-Plant|2
-Microscopic|2
+Network Architecture|2
+Virus|2
+Ransomware|2
+Firewall|2
+Antivirus Software|2
+Encryption|2
+Monitoring Network Performance|2
+Troubleshooting Network Issues|2
+Network Management|2
+Descriptive Statistics|2
+Inferential Statistics|2
+Regression Analysis|2
+Data Visualization|2
+Statistical Software|2
+Machine Learning Algorithms|2
+Data Manipulation Libraries|2
+Best Practices|2
+Data Validation|2
+Assumption Verification|2
+Multiple Perspectives|2
+Business Intelligence Applications|2
+Healthcare Applications|2
+Social Sciences Applications|2
+Array|2
+Linked List|2
+Stack|2
+Queue|2
+Tree|2
+Graph|2
+Hash Table|2
+Procedures|2
+Advantages|2
+Disadvantages|2
+Database Management Systems|2
+File System Management|2
+Functions|2
+Exercises|2
+Introduction to Algorithms|2
+The Art of Computer Programming, Volume 1: Functions and Algorithms|2
+Introduction to Data Structures and Algorithms|2
+Data Structures Tutorial on Coursera|2
+Data Structures Tutorial on edX|2
+Data Structures Tutorial by Microsoft Virtual Academy|2
+Embedded Systems Tutorial|2
+Microcontrollers|2
+FPGAs|2
+ASICs|2
+SoC Platforms|2
+Industrial Automation|2
+Medical Devices|2
+Consumer Electronics|2
+Transportation|2
+Cost-Effective|2
+Simplified Design|2
+Improved Performance|2
+Increased Reliability|2
+Power Consumption|2
+Maintenance Challenges|2
+Artificial Intelligence Applications|2
+Internet of Things Advancements|2
+Quantum Computing Development|2
+Types Of Mobile App Development|2
+Native App Development|2
+Hybrid App Development|2
+Cross-Platform App Development|2
+Development Process|2
+Requirements Gathering|2
+Design|2
+Testing|2
+Deployment|2
+Tools And Platforms|2
+Best Practices In Mobile App Development|2
+Challenges In Mobile App Development|2
+Mobile App Development Challenges|2
+Mobile App Development Tips|2
+Mobile App Development Best Practices|2
+History Of Programming Languages|2
+Types Of Programming Languages|2
+Characteristics Of Programming Languages|2
+Popular Programming Languages|2
+Evolution Of Programming Languages|2
+Conclusion|2
+References|2

@@ -11,7 +11,8 @@ import (
 
 // Global constants
 const (
-	WebSocketURL = "wss://babelcom.johncave.co.nz/ws/llm?api_key=babelcom-secret-key"
+	//WebSocketURL = "wss://babelcom.johncave.co.nz/ws/llm?api_key=babelcom-secret-key"
+	WebSocketURL = "foo"
 )
 
 var shutdownRequested bool
@@ -24,10 +25,7 @@ func init() {
 	interval := 10 * time.Second // Send status every 10 seconds
 	StartStatusMonitor(interval)
 
-	// Connect to token WebSocket
-	if err := ConnectTokenWebSocket(WebSocketURL); err != nil {
-		log.Printf("Failed to connect to token WebSocket: %v", err)
-	}
+	// Token WebSocket connection is now managed automatically by tokenConnectionManager
 }
 
 func main() {

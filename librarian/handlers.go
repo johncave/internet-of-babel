@@ -13,11 +13,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func indexHandler(c *gin.Context) {
+func getRecentArticles(articlesDir string) []ArticleInfo {
 	articles, err := os.ReadDir(articlesDir)
 	if err != nil {
-		c.String(http.StatusInternalServerError, "Could not read articles directory")
-		return
+		return []ArticleInfo{}
 	}
 
 	var articleList []ArticleInfo
@@ -45,12 +44,19 @@ func indexHandler(c *gin.Context) {
 	sort.Slice(articleList, func(i, j int) bool {
 		return articleList[i].CreatedTime.After(articleList[j].CreatedTime)
 	})
-	totalCount := len(articleList)
+
 	if len(articleList) > 10 {
 		articleList = articleList[:10]
 	}
+
+	return articleList
+}
+
+func indexHandler(c *gin.Context) {
+	articleList := getRecentArticles(articlesDir)
+	totalCount := getTotalArticleCount(articlesDir)
 	data := IndexData{
-		Title:    "Articles",
+		Title:    "Home",
 		Count:    totalCount,
 		Articles: articleList,
 	}
@@ -110,10 +116,12 @@ func articleHandler(c *gin.Context) {
 	mdContent, err := os.ReadFile(mdPath)
 	if err != nil {
 		// Article not found - serve 404 page
+		recentArticles := getRecentArticles(articlesDir)
 		data := PageData{
-			Title:   desanitizeTitle(articleName),
-			Content: template.HTML(""),
-			Count:   getTotalArticleCount(articlesDir),
+			Title:    desanitizeTitle(articleName),
+			Content:  template.HTML(""),
+			Count:    getTotalArticleCount(articlesDir),
+			Articles: recentArticles,
 		}
 
 		// Parse the embedded template
@@ -135,10 +143,12 @@ func articleHandler(c *gin.Context) {
 	keywordsPath := filepath.Join(articlesDir, "keywords", articleName+".json")
 	mdContentWithLinks := addKeywordLinks(string(mdContent), keywordsPath, articlesDir)
 	htmlContent := mdToHTML([]byte(mdContentWithLinks))
+	recentArticles := getRecentArticles(articlesDir)
 	data := PageData{
-		Title:   desanitizeTitle(articleName),
-		Content: template.HTML(htmlContent),
-		Count:   getTotalArticleCount(articlesDir),
+		Title:    desanitizeTitle(articleName),
+		Content:  template.HTML(htmlContent),
+		Count:    getTotalArticleCount(articlesDir),
+		Articles: recentArticles,
 	}
 
 	// Parse the embedded template

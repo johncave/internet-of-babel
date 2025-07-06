@@ -902,3 +902,53 @@
 2025-07-05T22:15:31+12:00 | topic: "Aquatic Ecosystem" | duration: 7.922580785s | depth: 1 | article_length: 5855
 2025-07-05T22:16:12+12:00 | topic: "Phytoplankton" | duration: 8.591363279s | depth: 1 | article_length: 4787
 2025-07-05T22:16:19+12:00 | topic: "Carbon Cycle" | duration: 6.584478029s | depth: 1 | article_length: 3943
+2025-07-06T11:20:38+12:00 | topic: "Electron" | duration: 10.506429348s | depth: 1 | article_length: 3610
+2025-07-06T11:20:46+12:00 | topic: "Atp Synthesis" | duration: 7.329400503s | depth: 1 | article_length: 3965
+2025-07-06T11:20:53+12:00 | topic: "Nadph Synthesis" | duration: 7.273450915s | depth: 1 | article_length: 3748
+2025-07-06T11:20:59+12:00 | topic: "Calvin Cycle (light-independent Reactions)" | duration: 6.612399909s | depth: 1 | article_length: 3825
+2025-07-06T11:21:06+12:00 | topic: "Stroma" | duration: 6.058801858s | depth: 1 | article_length: 3569
+2025-07-06T11:21:17+12:00 | topic: "Molecular Energy" | duration: 11.295326818s | depth: 1 | article_length: 8023
+2025-07-06T11:21:52+12:00 | topic: "Operating System" | duration: 7.373682115s | depth: 2 | article_length: 5445
+2025-07-06T11:21:58+12:00 | topic: "Application" | duration: 6.007511305s | depth: 2 | article_length: 3911
+2025-07-06T11:23:56+12:00 | topic: "Gaming" | duration: 6.373599421s | depth: 2 | article_length: 4079
+2025-07-06T11:24:03+12:00 | topic: "Productivity" | duration: 6.176240911s | depth: 2 | article_length: 4088
+2025-07-06T11:24:13+12:00 | topic: "Education" | duration: 9.891126941s | depth: 2 | article_length: 6805
+2025-07-06T11:24:20+12:00 | topic: "Security" | duration: 7.754299127s | depth: 2 | article_length: 5279
+2025-07-06T11:24:30+12:00 | topic: "Hacking" | duration: 9.814924407s | depth: 2 | article_length: 5383
+2025-07-06T11:24:38+12:00 | topic: "Virus" | duration: 7.773915789s | depth: 2 | article_length: 4452
+2025-07-06T11:24:46+12:00 | topic: "Malware" | duration: 8.082615286s | depth: 2 | article_length: 4838
+2025-07-06T11:24:54+12:00 | topic: "Enzyme" | duration: 7.822709301s | depth: 2 | article_length: 4122
+2025-07-06T11:25:01+12:00 | topic: "Systematic Study" | duration: 7.368148672s | depth: 2 | article_length: 4953
+2025-07-06T11:25:07+12:00 | topic: "Observation" | duration: 6.170603733s | depth: 2 | article_length: 4177
+2025-07-06T11:25:15+12:00 | topic: "Experimentation" | duration: 6.801194703s | depth: 2 | article_length: 4878
+2025-07-06T11:25:57+12:00 | topic: "Scientific Method" | duration: 8.864219587s | depth: 2 | article_length: 6202
+2025-07-06T11:27:20+12:00 | topic: "Uncertainty Principle" | duration: 6.549926097s | depth: 2 | article_length: 3783
+2025-07-06T11:27:27+12:00 | topic: "Relativity Vs Certainty" | duration: 7.205288764s | depth: 2 | article_length: 4747
+2025-07-06T11:27:33+12:00 | topic: "Funding and Access to Resource" | duration: 5.836978091s | depth: 2 | article_length: 3853
+2025-07-06T11:27:40+12:00 | topic: "Global Challenge" | duration: 6.869455379s | depth: 2 | article_length: 4564
+2025-07-06T11:41:34+12:00 | topic: "Computer Science" | duration: 8.536111017s | depth: 0 | article_length: 4456
+2025-07-06T11:41:39+12:00 | topic: "Meme Culture" | duration: 5.185473086s | depth: 0 | article_length: 4140
+2025-07-06T11:41:46+12:00 | topic: "The Internet" | duration: 7.102964706s | depth: 0 | article_length: 5567
+2025-07-06T11:41:51+12:00 | topic: "Photosynthesis" | duration: 4.546006637s | depth: 0 | article_length: 3354
+2025-07-06T11:41:57+12:00 | topic: "Physics" | duration: 5.961697144s | depth: 0 | article_length: 3751
+2025-07-06T11:42:46+12:00 | topic: "Computer Science" | duration: 6.844020405s | depth: 0 | article_length: 5791
+2025-07-06T11:42:52+12:00 | topic: "Meme Culture" | duration: 6.023179917s | depth: 0 | article_length: 3801
+2025-07-06T11:42:59+12:00 | topic: "The Internet" | duration: 6.716955113s | depth: 0 | article_length: 5184
+2025-07-06T11:43:07+12:00 | topic: "Photosynthesis" | duration: 7.639627506s | depth: 0 | article_length: 5655
+2025-07-06T11:43:12+12:00 | topic: "Physics" | duration: 5.119714873s | depth: 0 | article_length: 3817
+2025-07-06T11:43:18+12:00 | topic: "Algorithms" | duration: 5.807190197s | depth: 1 | article_length: 4527
+2025-07-06T11:43:25+12:00 | topic: "Artificial Intelligence" | duration: 7.788908206s | depth: 1 | article_length: 5780
+2025-07-06T11:43:33+12:00 | topic: "Cognitive Science" | duration: 7.986021693s | depth: 1 | article_length: 6556
+2025-07-06T11:43:41+12:00 | topic: "Computer Networks" | duration: 7.280344139s | depth: 1 | article_length: 5924
+2025-07-06T11:43:47+12:00 | topic: "Computer Systems" | duration: 6.37166578s | depth: 1 | article_length: 4941
+2025-07-06T11:43:54+12:00 | topic: "Cybersecurity" | duration: 6.739460905s | depth: 1 | article_length: 5235
+2025-07-06T11:43:58+12:00 | topic: "Data Analysis" | duration: 4.343254085s | depth: 1 | article_length: 3503
+2025-07-06T11:44:05+12:00 | topic: "Data Structures" | duration: 7.259244609s | depth: 1 | article_length: 5692
+2025-07-06T11:44:12+12:00 | topic: "Desktop Computers" | duration: 6.261820083s | depth: 1 | article_length: 4543
+2025-07-06T11:44:18+12:00 | topic: "Embedded Systems" | duration: 6.772395925s | depth: 1 | article_length: 5230
+2025-07-06T11:44:24+12:00 | topic: "Human-Computer Interaction" | duration: 5.425864766s | depth: 1 | article_length: 4392
+2025-07-06T11:44:32+12:00 | topic: "Machine Learning" | duration: 7.986911165s | depth: 1 | article_length: 6043
+2025-07-06T11:44:39+12:00 | topic: "Mobile App Development" | duration: 6.701089988s | depth: 1 | article_length: 5413
+2025-07-06T11:44:46+12:00 | topic: "Operating Systems" | duration: 7.134503438s | depth: 1 | article_length: 4646
+2025-07-06T11:44:51+12:00 | topic: "Programming Languages" | duration: 5.166783345s | depth: 1 | article_length: 4407
+2025-07-06T11:44:56+12:00 | topic: "Software Engineering" | duration: 5.087131213s | depth: 1 | article_length: 4146

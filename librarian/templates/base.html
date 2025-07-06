@@ -3,17 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{.Title}} - Internet of Babel</title>
+    <title>{{.Title}} - Web4: The Web of Babel</title>
     <link rel="stylesheet" href="/static/style.css">
+    <meta name="title" property="og:title" content="{{.Title}} - Web4: The Web of Babel">
+    <meta name="description" property="og:description" content="{{.Title}} on Web4: Babel - an AI-generated encyclopedia. Explore the infinite web of knowledge.">
 </head>
 <body>
-    <div class="header">
-        <a href="/" data-text="Web4: Babel">Web4: Babel</a>
-        <div class="total-count">Total Articles: {{.Count}}</div>
+    <div class="cyberpunk-header">
+        <div class="header-content">
+            <h1 class="glitch-title" data-text="Web4: Babel">Web4: Babel</h1>
+            <div class="header-status">
+                <div class="status-item">
+                    <span class="status-label">ARTICLES</span>
+                    <span class="status-value">{{.Count}} / ∞</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">STATUS</span>
+                    <span class="status-value status-active">● ACTIVE</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">MODE</span>
+                    <span class="status-value">GENERATING</span>
+                </div>
+            </div>
+        </div>
     </div>
     
-    <div class="container">
-        {{template "content" .}}
+    <div class="main-layout">
+        <aside class="sidebar">
+            <div class="sidebar-content">
+                <a href="/random" class="btn btn-primary random-btn">🎲 Random</a>
+                <h3>Entries ({{.Count}})</h3>
+                <ul class="recent-articles">
+                    {{range .Articles}}
+                    <li><a href="/{{.Filename}}">{{.Title}}</a></li>
+                    {{end}}
+                </ul>
+                
+                <!-- <div class="sidebar-section">
+                    <h4>Quick Actions</h4>
+                    
+                </div> -->
+                
+                <!-- <div class="sidebar-section">
+                    <h4>Project Info</h4>
+                    <p>Total Articles: {{.Count}}</p>
+                    <p>Status: Active</p>
+                </div> -->
+            </div>
+        </aside>
+        
+        <main class="main-content">
+            <div class="content-container">
+                {{template "content" .}}
+            </div>
+        </main>
     </div>
     
     <div class="footer">

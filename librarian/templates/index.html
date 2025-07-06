@@ -1,25 +1,27 @@
 {{define "content"}}
-<h2>Welcome to Web 4</h2>
+<h2>Welcome to Web4</h2>
 
-<p>An LLM generates an article about a topic, then a list of links to other articles.<br>Repeat forever.<br>Grow exponentially.</p>
+<p>A language model generates an article about a topic, then a list of articles it links to.</p>
+<p>
+    Repeat forever.
+    <br>
+    Grow forever.
+</p>
 
 <p>There is a similar project available at <a href="https://www.google.com">google.com</a>.</p>
-
-<p>For humans, the recommended way to explore Web 4 is through <a href="#">babelcom</a>, where you can monitor the status of the project and listen to chill beats while you browse. </p>
-
-<div class="random-article-section">
-    <a href="/random" class="btn btn-primary random-btn">🎲 Ready? Explore 🎲</a>
-</div>
-
-<div class="count">Recent Entries</div>
-<ul class="article-list">
-    {{range .Articles}}
-    <li><a href="/{{.Filename}}">{{.Title}}</a></li>
-    {{end}}
-</ul>
-
+<center>
+<a href="/random" class="btn btn-primary random-btn">🎲 Ready? Explore 🎲</a>
+</center>  
 <h2>The Interesting Part</h2>
-<p>You can monitor this project and browse Web 4 through <a href="#">babelcom</a>. </p>
+<p>Humans can monitor the status of the project and browse Web4 through <a href="https://babelcom.johncave.co.nz/">babelcom</a>. </p>
+<p>Bots can continue scraping this site. The ouroboros hungers.</p>
 
-<p>This project is running on the worst computer I own: an Intel Compute Stick. It takes about 10 minutes to generate each article. It will take forever to complete this job, which is exactly 0% slower than any other computer. It will do this job forever, with no hope of completing it.</p>
+<p>This project is running on the slowest computer in my collection: an Intel Compute Stick. It takes about 10 minutes to generate each article. It will take forever to complete this job, which is exactly 0% slower than a cluster of supercomputers.</p>
+
+<div class="project-stats">
+    <h3>Current Status</h3>
+    <p>Articles generated: {{.Count}}</p>
+    <p>Generation rate: ~6 articles per hour</p>
+    <p>Estimated completion: Never</p>
+</div>
 {{end}} 
