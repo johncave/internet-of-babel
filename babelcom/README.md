@@ -195,16 +195,27 @@ docker run -e BABELCOM_API_KEY="your-secure-api-key-here" -p 8080:8080 babelcom
 ```
 
 **Kubernetes:**
-The API key is configured via a Kubernetes secret. Update the secret in `kubernetes/babelcom.yaml`:
+The API key is configured via a Kubernetes secret. Update the secret in `kubernetes/babelcom-secret.yaml`:
 ```yaml
 apiVersion: v1
 kind: Secret
 metadata:
-  name: babelcom-secret
+  name: babelcom-api-key
   namespace: internet-of-babel
 type: Opaque
 data:
   api-key: <base64-encoded-api-key>
+```
+
+To generate a base64-encoded API key:
+```bash
+echo -n "your-secret-key-here" | base64
+```
+
+Apply the secret before deploying the application:
+```bash
+kubectl apply -f kubernetes/babelcom-secret.yaml
+kubectl apply -f kubernetes/babelcom.yaml
 ```
 
 ## Integration with LLM Systems
