@@ -557,9 +557,39 @@ func articleHandler(c *gin.Context) {
 
 func searchHandler(c *gin.Context) {
 	query := c.Query("q")
+
+	// If no query, show empty search page
 	if query == "" {
-		// Redirect to home if no query
-		c.Redirect(http.StatusSeeOther, "/")
+		recentArticles := getRecentArticles(articlesDir)
+		data := struct {
+			Title      string
+			Count      int
+			Articles   []ArticleInfo
+			Query      string
+			Results    []SearchResult
+			HasResults bool
+		}{
+			Title:      "Search",
+			Count:      getTotalArticleCount(articlesDir),
+			Articles:   recentArticles,
+			Query:      "",
+			Results:    []SearchResult{},
+			HasResults: false,
+		}
+
+		// Parse the embedded template
+		tmpl, err := template.ParseFS(templates, "templates/base.html", "templates/search.html")
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Template error")
+			return
+		}
+
+		// Execute the template
+		err = tmpl.Execute(c.Writer, data)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Template execution error")
+			return
+		}
 		return
 	}
 
