@@ -12,8 +12,158 @@ import (
 	"strings"
 	"time"
 
+	"log"
+
+	"github.com/blevesearch/bleve/v2"
 	"github.com/gin-gonic/gin"
 )
+
+// Global search index
+var searchIndex bleve.Index
+
+// SearchResult represents a search result
+type SearchResult struct {
+	Title      string
+	Filename   string
+	Score      float64
+	Highlights []string
+}
+
+// initializeSearchIndex creates or opens the search index
+func initializeSearchIndex() error {
+	indexPath := filepath.Join(articlesDir, "search.bleve")
+
+	// Try to open existing index
+	index, err := bleve.Open(indexPath)
+	if err != nil {
+		// Create new index if it doesn't exist
+		log.Printf("Creating new search index at %s", indexPath)
+
+		// Create a simple index mapping
+		indexMapping := bleve.NewIndexMapping()
+
+		// Create document mapping for articles
+		articleMapping := bleve.NewDocumentMapping()
+
+		// Title field
+		titleFieldMapping := bleve.NewTextFieldMapping()
+		titleFieldMapping.Analyzer = "standard"
+		articleMapping.AddFieldMappingsAt("title", titleFieldMapping)
+
+		// Content field
+		contentFieldMapping := bleve.NewTextFieldMapping()
+		contentFieldMapping.Analyzer = "standard"
+		articleMapping.AddFieldMappingsAt("content", contentFieldMapping)
+
+		// Filename field
+		filenameFieldMapping := bleve.NewTextFieldMapping()
+		filenameFieldMapping.Analyzer = "keyword"
+		articleMapping.AddFieldMappingsAt("filename", filenameFieldMapping)
+
+		indexMapping.AddDocumentMapping("article", articleMapping)
+
+		index, err = bleve.New(indexPath, indexMapping)
+		if err != nil {
+			return fmt.Errorf("failed to create search index: %v", err)
+		}
+
+		// Index all existing articles
+		if err := indexAllArticles(index); err != nil {
+			return fmt.Errorf("failed to index articles: %v", err)
+		}
+	} else {
+		log.Printf("Opened existing search index at %s", indexPath)
+	}
+
+	searchIndex = index
+	return nil
+}
+
+// indexAllArticles indexes all markdown files in the articles directory
+func indexAllArticles(index bleve.Index) error {
+	articles, err := os.ReadDir(articlesDir)
+	if err != nil {
+		return err
+	}
+
+	count := 0
+	for _, article := range articles {
+		if !article.IsDir() && strings.HasSuffix(article.Name(), ".md") {
+			filename := strings.TrimSuffix(article.Name(), ".md")
+			title := desanitizeTitle(filename)
+
+			// Read article content
+			articlePath := filepath.Join(articlesDir, article.Name())
+			content, err := os.ReadFile(articlePath)
+			if err != nil {
+				log.Printf("Warning: failed to read article %s: %v", article.Name(), err)
+				continue
+			}
+
+			// Create document for indexing
+			doc := map[string]interface{}{
+				"title":    title,
+				"content":  string(content),
+				"filename": filename,
+			}
+
+			// Index the document
+			if err := index.Index(filename, doc); err != nil {
+				log.Printf("Warning: failed to index article %s: %v", filename, err)
+				continue
+			}
+
+			count++
+		}
+	}
+
+	log.Printf("Indexed %d articles", count)
+	return nil
+}
+
+// searchArticles performs a search and returns results
+func searchArticles(query string, limit int) ([]SearchResult, error) {
+	if searchIndex == nil {
+		return nil, fmt.Errorf("search index not initialized")
+	}
+
+	// Create search query
+	searchQuery := bleve.NewQueryStringQuery(query)
+	searchRequest := bleve.NewSearchRequest(searchQuery)
+	searchRequest.Size = limit
+	searchRequest.Fields = []string{"title", "filename"}
+	searchRequest.Highlight = bleve.NewHighlight()
+
+	// Perform search
+	searchResult, err := searchIndex.Search(searchRequest)
+	if err != nil {
+		return nil, fmt.Errorf("search failed: %v", err)
+	}
+
+	// Convert results
+	var results []SearchResult
+	for _, hit := range searchResult.Hits {
+		title, _ := hit.Fields["title"].(string)
+		filename, _ := hit.Fields["filename"].(string)
+
+		// Extract highlights
+		var highlights []string
+		if hit.Fragments != nil {
+			for _, fragments := range hit.Fragments {
+				highlights = append(highlights, fragments...)
+			}
+		}
+
+		results = append(results, SearchResult{
+			Title:      title,
+			Filename:   filename,
+			Score:      hit.Score,
+			Highlights: highlights,
+		})
+	}
+
+	return results, nil
+}
 
 // ArticleUpload represents the structure of an uploaded article
 type ArticleUpload struct {
@@ -81,6 +231,20 @@ func uploadArticleHandler(c *gin.Context) {
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save keywords"})
 			return
+		}
+	}
+
+	// Index the new article for search
+	if searchIndex != nil {
+		doc := map[string]interface{}{
+			"title":    upload.Title,
+			"content":  upload.Content,
+			"filename": filename,
+		}
+		if err := searchIndex.Index(filename, doc); err != nil {
+			log.Printf("Warning: failed to index article %s for search: %v", filename, err)
+		} else {
+			log.Printf("Indexed article %s for search", filename)
 		}
 	}
 
@@ -372,6 +536,57 @@ func articleHandler(c *gin.Context) {
 
 	// Parse the embedded template
 	tmpl, err := template.ParseFS(templates, "templates/base.html", "templates/article.html")
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Template error")
+		return
+	}
+
+	// Execute the template
+	err = tmpl.Execute(c.Writer, data)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Template execution error")
+		return
+	}
+}
+
+func searchHandler(c *gin.Context) {
+	query := c.Query("q")
+	if query == "" {
+		// Redirect to home if no query
+		c.Redirect(http.StatusSeeOther, "/")
+		return
+	}
+
+	// Perform search
+	results, err := searchArticles(query, 20)
+	if err != nil {
+		log.Printf("Search error: %v", err)
+		c.String(http.StatusInternalServerError, "Search failed")
+		return
+	}
+
+	// Get recent articles for sidebar
+	recentArticles := getRecentArticles(articlesDir)
+
+	// Create search data
+	data := struct {
+		Title      string
+		Count      int
+		Articles   []ArticleInfo
+		Query      string
+		Results    []SearchResult
+		HasResults bool
+	}{
+		Title:      fmt.Sprintf("Search: %s", query),
+		Count:      getTotalArticleCount(articlesDir),
+		Articles:   recentArticles,
+		Query:      query,
+		Results:    results,
+		HasResults: len(results) > 0,
+	}
+
+	// Parse the embedded template
+	tmpl, err := template.ParseFS(templates, "templates/base.html", "templates/search.html")
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Template error")
 		return

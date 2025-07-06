@@ -33,6 +33,12 @@
         <aside class="sidebar">
             <div class="sidebar-content">
                 <a href="/random" class="btn btn-primary random-btn" style="width:100%;margin:0">🎲 Random</a>
+                
+                <form action="/search" method="GET" class="search-form">
+                    <input type="text" name="q" placeholder="Search articles..." class="search-input">
+                    <button type="submit" class="btn btn-secondary">🔍</button>
+                </form>
+                
                 <a href="/all/1"><h3>Entries ({{.Count}})</h3></a>
                 <ul class="recent-articles">
                     {{range .Articles}}

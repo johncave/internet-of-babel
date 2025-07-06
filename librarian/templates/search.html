@@ -1,0 +1,44 @@
+{{define "content"}}
+<div class="search-page">
+    <div class="search-header">
+        <h2>Search Results</h2>
+        <form action="/search" method="GET" class="search-form">
+            <input type="text" name="q" value="{{.Query}}" placeholder="Search articles..." class="search-input">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+    </div>
+
+    {{if .HasResults}}
+        <div class="search-results">
+            <p class="results-count">Found {{len .Results}} result{{if ne (len .Results) 1}}s{{end}} for "{{.Query}}"</p>
+            
+            {{range .Results}}
+            <div class="search-result">
+                <h3><a href="/{{.Filename}}" class="result-title">{{.Title}}</a></h3>
+                {{if .Highlights}}
+                    <div class="result-highlights">
+                        {{range .Highlights}}
+                            <p class="highlight">{{.}}</p>
+                        {{end}}
+                    </div>
+                {{end}}
+                <div class="result-meta">
+                    <span class="result-score">Relevance: {{printf "%.2f" .Score}}</span>
+                </div>
+            </div>
+            {{end}}
+        </div>
+    {{else}}
+        <div class="no-results">
+            <h3>No results found</h3>
+            <p>No articles match your search for "{{.Query}}".</p>
+            <p>Try:</p>
+            <ul>
+                <li>Using different keywords</li>
+                <li>Checking your spelling</li>
+                <li>Using more general terms</li>
+            </ul>
+        </div>
+    {{end}}
+</div>
+{{end}} 

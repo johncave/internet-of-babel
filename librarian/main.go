@@ -195,6 +195,14 @@ func main() {
 		log.Fatal("Articles directory not found. Please run the article generator first.")
 	}
 
+	// Initialize search index
+	if err := initializeSearchIndex(); err != nil {
+		log.Printf("Warning: Failed to initialize search index: %v", err)
+		log.Println("Search functionality will be disabled")
+	} else {
+		log.Println("Search index initialized successfully")
+	}
+
 	// Set Gin to release mode for production
 	gin.SetMode(gin.ReleaseMode)
 
@@ -241,6 +249,7 @@ func main() {
 
 	// Main routes
 	r.GET("/", indexHandler)
+	r.GET("/search", searchHandler)
 	r.GET("/all/:page", allArticlesHandler)
 	r.GET("/random", randomArticleHandler)
 	r.GET("/:article", articleHandler)
