@@ -16,9 +16,89 @@ var tokenReconnectChan chan bool
 var lastReconnectRequest time.Time
 var reconnectCooldown = 10 * time.Second
 
+// Token batching system
+var tokenChannel chan string
+var tokenWorkerStop chan bool
+var tokenWorkerWg sync.WaitGroup
+
 func init() {
 	tokenReconnectChan = make(chan bool, 1)
+	tokenChannel = make(chan string, 1000) // Buffer for tokens
+	tokenWorkerStop = make(chan bool, 1)
+
 	go tokenConnectionManager()
+	go tokenWorker() // Start the token batching worker
+}
+
+// tokenWorker batches tokens and sends them efficiently
+func tokenWorker() {
+	tokenWorkerWg.Add(1)
+	defer tokenWorkerWg.Done()
+
+	ticker := time.NewTicker(100 * time.Millisecond) // Send batch every 100ms
+	defer ticker.Stop()
+
+	var tokens []string
+	maxBatchSize := 50 // Maximum tokens per batch
+
+	for {
+		select {
+		case token := <-tokenChannel:
+			tokens = append(tokens, token)
+
+			// Send immediately if we have a full batch
+			if len(tokens) >= maxBatchSize {
+				sendTokenBatch(tokens)
+				tokens = tokens[:0] // Clear slice but keep capacity
+			}
+
+		case <-ticker.C:
+			// Send any remaining tokens
+			if len(tokens) > 0 {
+				sendTokenBatch(tokens)
+				tokens = tokens[:0]
+			}
+
+		case <-tokenWorkerStop:
+			// Send any remaining tokens before stopping
+			if len(tokens) > 0 {
+				sendTokenBatch(tokens)
+			}
+			return
+		}
+	}
+}
+
+// sendTokenBatch sends multiple tokens as individual WebSocket messages (compatibility mode)
+func sendTokenBatch(tokens []string) {
+	if len(tokens) == 0 {
+		return
+	}
+
+	tokenConnMutex.Lock()
+	defer tokenConnMutex.Unlock()
+
+	if tokenConn == nil {
+		requestTokenReconnect()
+		return
+	}
+
+	for _, token := range tokens {
+		message := map[string]interface{}{
+			"type":  "token",
+			"token": token,
+		}
+		data, err := json.Marshal(message)
+		if err != nil {
+			log.Printf("Failed to marshal token: %v", err)
+			continue
+		}
+		if err := tokenConn.WriteMessage(websocket.TextMessage, data); err != nil {
+			log.Printf("Error writing token to websocket: %v", err)
+			requestTokenReconnect()
+			return
+		}
+	}
 }
 
 // tokenConnectionManager manages the token WebSocket connection with automatic retry
@@ -121,38 +201,18 @@ func SendReset() {
 	//log.Println("Sent reset message to WebSocket")
 }
 
-// SendToken sends a single token to the WebSocket
+// SendToken sends a single token to the batching channel
 func SendToken(token string) {
 	//return // Disable token sending for now
+	//fmt.Print(token)
 
-	tokenConnMutex.Lock()
-	defer tokenConnMutex.Unlock()
-
-	if tokenConn == nil {
-		//log.Printf("token - WebSocket connection is nil, requesting reconnection")
-		requestTokenReconnect()
-		return
+	select {
+	case tokenChannel <- token:
+		// Token sent to channel successfully
+	default:
+		// Channel is full, log warning but don't block
+		log.Printf("Warning: token channel is full, dropping token")
 	}
-
-	message := map[string]interface{}{
-		"type":  "token",
-		"token": token,
-	}
-
-	data, err := json.Marshal(message)
-	if err != nil {
-		log.Printf("Failed to marshal token: %v", err)
-		return
-	}
-
-	err = tokenConn.WriteMessage(websocket.TextMessage, data)
-	if err != nil {
-		log.Printf("Error writing token to websocket: %v", err)
-		requestTokenReconnect()
-		return
-	}
-
-	//log.Printf("Sent token: %s", token)
 }
 
 // ConnectTokenWebSocket connects to the token WebSocket
@@ -257,4 +317,13 @@ func requestTokenReconnect() {
 	default:
 		// Channel is full, ignore
 	}
+}
+
+// StopTokenWorker stops the token batching worker
+func StopTokenWorker() {
+	select {
+	case tokenWorkerStop <- true:
+	default:
+	}
+	tokenWorkerWg.Wait()
 }

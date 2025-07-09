@@ -232,7 +232,7 @@ func uploadArticleHandler(c *gin.Context) {
 		}
 
 		// Write keywords string directly to file
-		keywordsPath := filepath.Join(keywordsDir, filename+".json")
+		keywordsPath := filepath.Join(keywordsDir, filename+".md")
 		err = os.WriteFile(keywordsPath, []byte(upload.Keywords), 0644)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save keywords"})

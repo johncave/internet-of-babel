@@ -37,6 +37,11 @@ func main() {
 		log.Print("Signal: ", sig)
 		log.Println("Worker will now finish remaining work and exit")
 		shutdownRequested = true
+
+		// Stop the token worker gracefully
+		log.Println("Stopping token worker...")
+		StopTokenWorker()
+
 		//done <- true
 	}()
 

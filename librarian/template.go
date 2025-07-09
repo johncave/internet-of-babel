@@ -75,25 +75,60 @@ func mdToHTML(md []byte) []byte {
 	return markdown.Render(doc, renderer)
 }
 
+// parseMarkdownList parses a markdown unordered list and returns the items
+func parseMarkdownList(input string) []string {
+	var items []string
+	lines := strings.Split(input, "\n")
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		// Match markdown list items: * item, - item, + item
+		if strings.HasPrefix(line, "* ") || strings.HasPrefix(line, "- ") || strings.HasPrefix(line, "+ ") {
+			item := strings.TrimSpace(line[2:]) // Remove the list marker and space
+			if item != "" {
+				items = append(items, item)
+			}
+		}
+	}
+
+	return items
+}
+
 func addKeywordLinks(mdContent string, keywordsPath string, articlesDir string) string {
-	// Read keywords from JSON file
+	// Try to read keywords from JSON file first
 	keywordsData, err := os.ReadFile(keywordsPath)
 	if err != nil {
-		// If keywords file doesn't exist, return original content
-		return mdContent
+		// If JSON file doesn't exist, try markdown file
+		mdKeywordsPath := strings.TrimSuffix(keywordsPath, ".json") + ".md"
+		keywordsData, err = os.ReadFile(mdKeywordsPath)
+		if err != nil {
+			// If neither file exists, return original content
+			return mdContent
+		}
 	}
 
-	// Try to fix malformed JSON before unmarshaling
 	keywordsStr := string(keywordsData)
-	fixedJSON, err := jsonrepair.JSONRepair(keywordsStr)
-	if err != nil {
-		// If JSON repair fails, try original data
-		fixedJSON = keywordsStr
+	var keywords []string
+
+	// Try to parse as JSON first (for backward compatibility)
+	if strings.TrimSpace(keywordsStr) != "" {
+		// Try to fix malformed JSON before unmarshaling
+		fixedJSON, err := jsonrepair.JSONRepair(keywordsStr)
+		if err != nil {
+			// If JSON repair fails, try original data
+			fixedJSON = keywordsStr
+		}
+
+		if err := json.Unmarshal([]byte(fixedJSON), &keywords); err == nil && len(keywords) > 0 {
+			// Successfully parsed as JSON
+		} else {
+			// Try to parse as markdown list
+			keywords = parseMarkdownList(keywordsStr)
+		}
 	}
 
-	var keywords []string
-	if err := json.Unmarshal([]byte(fixedJSON), &keywords); err != nil {
-		// If JSON parsing fails, return original content
+	if len(keywords) == 0 {
+		// If no keywords found, return original content
 		return mdContent
 	}
 

@@ -1086,3 +1086,108 @@
 2025-07-06T18:33:06+12:00 | topic: "John Von Neumann and the Church-turing Thesis" | duration: 6.43290906s | depth: 2 | article_length: 4730
 2025-07-06T18:33:10+12:00 | topic: "Von Neumanns Store-and-load Operation" | duration: 4.428304709s | depth: 2 | article_length: 3471
 2025-07-06T18:33:15+12:00 | topic: "The Köln Prize Awarded to John Von Neumann" | duration: 4.729996456s | depth: 2 | article_length: 3394
+2025-07-09T13:07:05+12:00 | topic: "National Medal of Science Recipient" | duration: 7.716566761s | depth: 2 | article_length: 3364
+2025-07-09T13:07:12+12:00 | topic: "Von Neumann: the Father of Modern Computer Science" | duration: 7.686561854s | depth: 2 | article_length: 5432
+2025-07-09T13:07:22+12:00 | topic: "The Art of Computer Programming" | duration: 9.192252915s | depth: 2 | article_length: 7217
+2025-07-09T13:07:30+12:00 | topic: "Volume I: Algorithm" | duration: 7.812319042s | depth: 2 | article_length: 5799
+2025-07-09T13:08:17+12:00 | topic: "Computer Science" | duration: 5.529492559s | depth: 0 | article_length: 4770
+2025-07-09T13:08:23+12:00 | topic: "Meme Culture" | duration: 5.928259084s | depth: 0 | article_length: 3911
+2025-07-09T13:08:29+12:00 | topic: "The Internet" | duration: 6.260621568s | depth: 0 | article_length: 5080
+2025-07-09T13:12:12+12:00 | topic: "Computer Science" | duration: 5.586524899s | depth: 0 | article_length: 4652
+2025-07-09T13:12:17+12:00 | topic: "Meme Culture" | duration: 5.261103069s | depth: 0 | article_length: 4133
+2025-07-09T13:12:23+12:00 | topic: "The Internet" | duration: 5.680108094s | depth: 0 | article_length: 4827
+2025-07-09T13:12:28+12:00 | topic: "Photosynthesis" | duration: 4.874332702s | depth: 0 | article_length: 3665
+2025-07-09T13:12:35+12:00 | topic: "Physics" | duration: 7.274590241s | depth: 0 | article_length: 5315
+2025-07-09T13:12:42+12:00 | topic: "Algorithm Documentation" | duration: 6.811288373s | depth: 1 | article_length: 5684
+2025-07-09T13:14:09+12:00 | topic: "Computer Science" | duration: 6.289571966s | depth: 0 | article_length: 4575
+2025-07-09T13:14:15+12:00 | topic: "Meme Culture" | duration: 5.976480916s | depth: 0 | article_length: 3734
+2025-07-09T13:14:24+12:00 | topic: "The Internet" | duration: 8.178648464s | depth: 0 | article_length: 5093
+2025-07-09T13:14:31+12:00 | topic: "Photosynthesis" | duration: 7.613190876s | depth: 0 | article_length: 4176
+2025-07-09T13:14:38+12:00 | topic: "Physics" | duration: 6.323723651s | depth: 0 | article_length: 4693
+2025-07-09T13:14:52+12:00 | topic: "**artificial Intelligence**" | duration: 6.353339272s | depth: 1 | article_length: 5775
+2025-07-09T13:15:18+12:00 | topic: "Computer Science" | duration: 6.136062957s | depth: 0 | article_length: 5487
+2025-07-09T13:15:24+12:00 | topic: "Meme Culture" | duration: 6.302849424s | depth: 0 | article_length: 4693
+2025-07-09T13:15:30+12:00 | topic: "The Internet" | duration: 6.032379213s | depth: 0 | article_length: 4880
+2025-07-09T13:15:35+12:00 | topic: "Photosynthesis" | duration: 5.093410293s | depth: 0 | article_length: 3618
+2025-07-09T13:15:44+12:00 | topic: "Physics" | duration: 9.311329684s | depth: 0 | article_length: 7330
+2025-07-09T13:17:00+12:00 | topic: "Computer Science" | duration: 7.25120517s | depth: 0 | article_length: 6300
+2025-07-09T13:17:05+12:00 | topic: "Meme Culture" | duration: 5.177735762s | depth: 0 | article_length: 4015
+2025-07-09T13:17:11+12:00 | topic: "The Internet" | duration: 5.990914346s | depth: 0 | article_length: 5175
+2025-07-09T13:17:16+12:00 | topic: "Photosynthesis" | duration: 4.50870424s | depth: 0 | article_length: 3119
+2025-07-09T13:17:21+12:00 | topic: "Physics" | duration: 5.339015911s | depth: 0 | article_length: 3957
+2025-07-09T13:17:58+12:00 | topic: "Computer Science" | duration: 6.235243807s | depth: 0 | article_length: 5156
+2025-07-09T13:18:04+12:00 | topic: "Meme Culture" | duration: 6.552289095s | depth: 0 | article_length: 4557
+2025-07-09T13:18:09+12:00 | topic: "The Internet" | duration: 4.926694293s | depth: 0 | article_length: 3977
+2025-07-09T13:18:16+12:00 | topic: "Photosynthesis" | duration: 6.60598102s | depth: 0 | article_length: 4275
+2025-07-09T13:20:07+12:00 | topic: "Computer Science" | duration: 8.212565742s | depth: 0 | article_length: 6099
+2025-07-09T13:20:13+12:00 | topic: "Meme Culture" | duration: 6.206812922s | depth: 0 | article_length: 4540
+2025-07-09T13:21:41+12:00 | topic: "Computer Science" | duration: 5.531286414s | depth: 0 | article_length: 4818
+2025-07-09T13:21:47+12:00 | topic: "Meme Culture" | duration: 5.475863615s | depth: 0 | article_length: 3956
+2025-07-09T13:21:53+12:00 | topic: "The Internet" | duration: 6.809206232s | depth: 0 | article_length: 5594
+2025-07-09T13:21:58+12:00 | topic: "Photosynthesis" | duration: 5.028697811s | depth: 0 | article_length: 3828
+2025-07-09T13:22:06+12:00 | topic: "Physics" | duration: 7.247027924s | depth: 0 | article_length: 5776
+2025-07-09T13:24:36+12:00 | topic: "Computer Science" | duration: 5.920258241s | depth: 0 | article_length: 4603
+2025-07-09T13:24:41+12:00 | topic: "Meme Culture" | duration: 5.191063892s | depth: 0 | article_length: 3940
+2025-07-09T13:24:47+12:00 | topic: "The Internet" | duration: 5.206318507s | depth: 0 | article_length: 4279
+2025-07-09T13:24:54+12:00 | topic: "Photosynthesis" | duration: 6.826832298s | depth: 0 | article_length: 4780
+2025-07-09T13:24:59+12:00 | topic: "Physics" | duration: 5.660424671s | depth: 0 | article_length: 4106
+2025-07-09T13:25:04+12:00 | topic: "Algorithm Analysis" | duration: 4.966416722s | depth: 1 | article_length: 4014
+2025-07-09T13:27:14+12:00 | topic: "Computer Science" | duration: 6.026861911s | depth: 0 | article_length: 5254
+2025-07-09T13:27:19+12:00 | topic: "Meme Culture" | duration: 5.134635766s | depth: 0 | article_length: 4009
+2025-07-09T13:27:25+12:00 | topic: "The Internet" | duration: 5.775437599s | depth: 0 | article_length: 4569
+2025-07-09T13:27:30+12:00 | topic: "Photosynthesis" | duration: 5.289755958s | depth: 0 | article_length: 4025
+2025-07-09T13:27:40+12:00 | topic: "Physics" | duration: 9.335498513s | depth: 0 | article_length: 6493
+2025-07-09T13:27:47+12:00 | topic: "Algorithm Analysis" | duration: 7.195717742s | depth: 1 | article_length: 5187
+2025-07-09T13:27:53+12:00 | topic: "Artificial Intelligence Applications" | duration: 6.27085069s | depth: 1 | article_length: 4958
+2025-07-09T13:27:58+12:00 | topic: "Computer Architecture Design" | duration: 4.825972411s | depth: 1 | article_length: 3972
+2025-07-09T13:30:31+12:00 | topic: "Computer Science" | duration: 5.233497215s | depth: 0 | article_length: 3974
+2025-07-09T13:30:36+12:00 | topic: "Meme Culture" | duration: 5.376052527s | depth: 0 | article_length: 4041
+2025-07-09T13:30:43+12:00 | topic: "The Internet" | duration: 6.831432469s | depth: 0 | article_length: 5633
+2025-07-09T13:31:43+12:00 | topic: "Photosynthesis" | duration: 5.416961001s | depth: 0 | article_length: 4113
+2025-07-09T13:31:50+12:00 | topic: "Physics" | duration: 6.58769621s | depth: 0 | article_length: 4531
+2025-07-09T13:31:56+12:00 | topic: "Algorithms" | duration: 6.040424823s | depth: 1 | article_length: 4195
+2025-07-09T13:32:02+12:00 | topic: "Computer Networks" | duration: 6.005875716s | depth: 1 | article_length: 4999
+2025-07-09T13:32:12+12:00 | topic: "Data Structures" | duration: 10.163595594s | depth: 1 | article_length: 7004
+2025-07-09T13:32:59+12:00 | topic: "Computer Science" | duration: 5.975344743s | depth: 0 | article_length: 5001
+2025-07-09T13:33:04+12:00 | topic: "Meme Culture" | duration: 4.479140787s | depth: 0 | article_length: 3267
+2025-07-09T13:33:10+12:00 | topic: "The Internet" | duration: 6.079570836s | depth: 0 | article_length: 5159
+2025-07-09T13:33:17+12:00 | topic: "Photosynthesis" | duration: 7.145036785s | depth: 0 | article_length: 5093
+2025-07-09T13:33:25+12:00 | topic: "Physics" | duration: 7.704892426s | depth: 0 | article_length: 5804
+2025-07-09T13:33:32+12:00 | topic: "Artificial Intelligence" | duration: 6.848358446s | depth: 1 | article_length: 5646
+2025-07-09T13:33:37+12:00 | topic: "Data Science" | duration: 5.319518057s | depth: 1 | article_length: 4017
+2025-07-09T13:33:42+12:00 | topic: "Database Management Systems" | duration: 5.144793623s | depth: 1 | article_length: 4142
+2025-07-09T13:33:50+12:00 | topic: "Human-Computer Interaction" | duration: 7.680965898s | depth: 1 | article_length: 5840
+2025-07-09T13:33:56+12:00 | topic: "Machine Learning" | duration: 6.64123713s | depth: 1 | article_length: 5434
+2025-07-09T13:34:02+12:00 | topic: "Computer Architecture" | duration: 5.61874962s | depth: 1 | article_length: 4555
+2025-07-09T13:34:47+12:00 | topic: "Computer Science" | duration: 4.901614229s | depth: 0 | article_length: 4071
+2025-07-09T13:34:53+12:00 | topic: "Meme Culture" | duration: 6.415896087s | depth: 0 | article_length: 4101
+2025-07-09T13:35:00+12:00 | topic: "The Internet" | duration: 6.179407946s | depth: 0 | article_length: 4255
+2025-07-09T13:35:04+12:00 | topic: "Photosynthesis" | duration: 4.366822581s | depth: 0 | article_length: 3196
+2025-07-09T13:35:12+12:00 | topic: "Physics" | duration: 7.575760016s | depth: 0 | article_length: 5405
+2025-07-09T13:39:04+12:00 | topic: "Artificial Intelligence" | duration: 6.515742696s | depth: 1 | article_length: 5312
+2025-07-09T13:39:17+12:00 | topic: "Data Structures" | duration: 13.18338936s | depth: 1 | article_length: 9050
+2025-07-09T13:39:30+12:00 | topic: "Databases" | duration: 12.525771636s | depth: 1 | article_length: 6153
+2025-07-09T13:39:37+12:00 | topic: "Computer Networks" | duration: 7.229658526s | depth: 1 | article_length: 5386
+2025-07-09T13:39:42+12:00 | topic: "Internet of Things" | duration: 4.929790314s | depth: 1 | article_length: 3798
+2025-07-09T13:39:48+12:00 | topic: "Cybersecurity" | duration: 5.929840202s | depth: 1 | article_length: 4825
+2025-07-09T13:39:54+12:00 | topic: "Artificial General Intelligence" | duration: 5.731776729s | depth: 1 | article_length: 4296
+2025-07-09T13:40:06+12:00 | topic: "Quantum Computing" | duration: 12.19229231s | depth: 1 | article_length: 5347
+2025-07-09T13:40:14+12:00 | topic: "Computational Complexity" | duration: 8.65596573s | depth: 1 | article_length: 6475
+2025-07-09T13:40:21+12:00 | topic: "Algorithm Design" | duration: 6.295205094s | depth: 1 | article_length: 5078
+2025-07-09T13:40:27+12:00 | topic: "Software Engineering" | duration: 6.550288951s | depth: 1 | article_length: 5564
+2025-07-09T13:40:34+12:00 | topic: "Cognitive Computing" | duration: 6.344243298s | depth: 1 | article_length: 5566
+2025-07-09T13:41:11+12:00 | topic: "Computer Science" | duration: 6.446581495s | depth: 0 | article_length: 5515
+2025-07-09T13:41:18+12:00 | topic: "Meme Culture" | duration: 6.318029797s | depth: 0 | article_length: 4818
+2025-07-09T13:41:24+12:00 | topic: "The Internet" | duration: 6.233325221s | depth: 0 | article_length: 5022
+2025-07-09T13:41:30+12:00 | topic: "Photosynthesis" | duration: 6.732346435s | depth: 0 | article_length: 3961
+2025-07-09T13:41:41+12:00 | topic: "Physics" | duration: 10.592573476s | depth: 0 | article_length: 6109
+2025-07-09T13:41:47+12:00 | topic: "Artificial Intelligence" | duration: 6.019615822s | depth: 1 | article_length: 4522
+2025-07-09T13:41:52+12:00 | topic: "Algorithmic Complexity" | duration: 5.193736441s | depth: 1 | article_length: 3804
+2025-07-09T13:42:02+12:00 | topic: "Data Structures" | duration: 10.171422588s | depth: 1 | article_length: 5649
+2025-07-09T13:42:09+12:00 | topic: "Database Management Systems" | duration: 6.712931529s | depth: 1 | article_length: 4147
+2025-07-09T14:03:57+12:00 | topic: "Operating System" | duration: 12.319543202s | depth: 1 | article_length: 4221
+2025-07-09T14:06:05+12:00 | topic: "Network Architecture" | duration: 7.899931652s | depth: 1 | article_length: 5163
+2025-07-09T14:06:11+12:00 | topic: "Natural Language Processing" | duration: 5.740816221s | depth: 1 | article_length: 4408
+2025-07-09T14:06:58+12:00 | topic: "Machine Learning" | duration: 5.170997661s | depth: 1 | article_length: 4353
+2025-07-09T14:07:04+12:00 | topic: "Cryptography" | duration: 5.711447421s | depth: 1 | article_length: 4703
+2025-07-09T14:07:11+12:00 | topic: "Computer Networks" | duration: 7.497570177s | depth: 1 | article_length: 6390

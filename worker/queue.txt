@@ -1,171 +1,403 @@
-National Medal of Science Recipient|2
-Von Neumann: the Father of Modern Computer Science|2
-The Art of Computer Programming|2
-Volume I: Algorithm|2
-Volume Ii: the Natural Language|2
-Volume Iii: Sorting and Searching|2
-Volume Iv: Algorithms, Volume I|2
-Volume V: Algorithms, Volume Ii|2
-A Glossary of Basic Notation|2
-Knuths Algebraic Data Type|2
-The Turing Award|2
-Ieee Computer Society Wall of Fame|2
-Lifetime Achievement Award|2
-Computer Science and Software Engineering|2
-The Web|2
-Development of Http|2
-Invention of Html|2
-World Wide Web Consortium|2
-Semantic Web|2
-Impact on Technology|2
-Personal Life|2
-History of Internet Access|2
-Types of Internet Access|2
-Internet Service Provider|2
-Internet Access Technology|2
-Cybersecurity Concern|2
-Implement Strong Password Policy|2
-Use Anti-virus Software|2
-Implement Firewall|2
-Conduct Regular Security Audit|2
-Data Privacy Concerns: Key Concepts and Consequence|2
-Key Phrases for Businesses: Implementing Data Protection Best Practice|2
-Data Protection by Design: a Guide to Incorporating Privacy Into Software Development|2
-Gdpr: General Data Protection Regulation for Individuals and Organization|2
-Ccpa: California Consumer Privacy Act for Companies and Data User|2
-Hipaa: Health Insurance Portability and Accountability Act for Healthcare Provider|2
-Data Breaches: Causes, Consequences, and Prevention Strategy|2
-Informational Digital Divide|2
-Computational Digital Divide|2
-Social Digital Divide|2
-Digital Literacy Program|2
-Inclusive Design|2
-Community Engagement|2
-Government Initiative|2
-The Concept of 5g Has Been Around for Several Years, With the First Prototype Being Demonstrated in 2010 by Japans Ntt Docomo.|2
-However the Modern 5g Standard Was Officially Announced at the Mobile World Congress in 2019.|2
-Since Then Various Companies Have Been Rolling Out 5g Networks in Different Region|2
-The Rollout of 5g Networks Requires Significant Investments in Infrastructure and Equipment.|2
-Interoperability Issues Different Network Operators May Have Different 5g Standards Which Can Lead to Interoperability Issue|2
-Machine Learning|2
-Natural Language Processing Nlp|2
+Programming Languages|1
+Computational Complexity|1
+Image Macro|1
+Evolutionary Biology|1
+Richard Dawkins|1
+Subculture|1
+Internet|1
+Social Media|1
+Digital Communication|1
+Cultural Exchange|1
+Accessible|1
+Widening of the digital divide|1
+Broadband|1
+Email|1
+Newsgroups|1
+Blogs|1
+Internet use|1
+Communication|1
+Information sharing|1
+E-commerce|1
+Hacking|1
+Malware|1
+Phishing|1
+Cybersecurity|1
+Digital divide|1
+Blockchain|1
+5G networks|1
+Adenosine Triphosphate|1
+Accessory Pigments|1
+ATP|1
+Biochemistry|1
+Biotechnology|1
+Carbon Cycle|1
+Calcin Cycle|1
+Chlorophyll|1
+Chloroplasts|1
+Chloroplast Membrane|1
+CO2|1
+Cellulose|1
+Calvin Cycle|1
+Cell Wall|1
+Chloroplast Organelles|1
+C3 Photosynthesis|1
+C4 Photosynthesis|1
+C4CAM|1
+Crassulacean Acid Metabolism|1
+Cyanobacteria|1
+Electrons|1
+Enzyme Complexes|1
+Energy Conversion|1
+Enzymes|1
+Eukaryotes|1
+Fossil Fuel|1
+Glucose|1
+Green Plants|1
+Hypoxia|1
+Light Energy|1
+Lipids|1
+Lysosomes|1
+Malondialdehyde|1
+Mitochondria|1
+Monocots|1
+Mutations|1
+NADPH|1
+Oxygenation|1
+Photosynthesis II|1
+Photosystem II|1
+Plastid Membrane|1
+Photosynthetic Pigments|1
+Plant Cells|1
+Plant Hormones|1
+Plant Leaves|1
+Absorption|1
+Acceleration|1
+Action|1
+Actuality|1
+Acoustic|1
+Analysis|1
+Angular Momentum|1
+Atomic Energy|1
+Atoms|1
+Ballistic|1
+Basic|1
+Battery|1
+Boltzmann|1
+Boundary|1
+Brane|1
+Calculus|1
+Capacitor|1
+Centrifugal|1
+Change|1
+Classical Mechanics|1
+Classification|1
+Coherence|1
+Complementary|1
+Conservation|1
+Constant|1
+Cosmology|1
+Counterintuitive|1
+Coupling|1
+Crystallization|1
+Curvature|1
+Damping|1
+Density|1
+Determinism|1
+Diffraction|1
+Dimensional|1
+Direct|1
+Dynamics|1
+Electromagnetic|1
+Electrostatic|1
+Energy|1
+Equilibrium|1
+Euclidean|1
+Epsilon|1
+Enantiomeric|1
+Ergosphere|1
+Euler's|1
+Euclid|1
+Entropy|1
+Equivalence|1
+Exotic Matter|1
+Experimental|1
+Exchange|1
+Fermionic|1
+Ferromagnetism|1
+Field|1
+Force|1
+Fourier|1
+Friction|1
+Function|1
+Fundamental|1
+Fusion|1
+Galilean|1
+Gamma Ray|1
+Geometrical|1
+Geophysics|1
+Gravity|1
+Green's|1
+Harmonic|1
+Heat Transfer|1
+Helmholtz|1
+Higher Dimensional|1
+Hydrogen|1
+Ideal Gas|1
+Illusion|1
+Impedance|1
+Induced Current|1
+Integrated|1
+Insulator|1
+Inertial Mass|1
+Interactions|1
+Internal Energy|1
+Ionization|1
+Ionosphere|1
+Isotropy|1
+Kinetic Energy|1
+Laplace|1
+Laws of Thermodynamics|1
+Lagrangian Mechanics|1
+Lattice Gas Model|1
+Lorentz Invariance|1
+Lorentz Transform|1
+Maxwell's|1
+Microchip|1
+Microscope|1
+Momentum Transfer|1
+Nuclear Energy|1
+Nutation|1
+Poynting Vector|1
+Rayleigh|1
+Relativity|1
+Resistance|1
+Rotation|1
+Statistics|1
+Thermodynamics|1
+Turing Test|2
+Supervised Learning|2
+Unsupervised Learning|2
+Reinforcement Learning|2
+Virtual Assistants|2
 Computer Vision|2
-Robotic|2
-Decision Tree|2
-Neural Network|2
-Support Vector Machines Svm|2
-Virtual Assistant|2
-Recommendation System|2
 Image Recognition|2
-Job Displacement|2
+Healthcare|2
+Finance|2
 Bias and Discrimination|2
-Autonomy and Control|2
-Deep Learning|2
+Job Displacement|2
+Data Privacy|2
 Edge Computing|2
-Explainable Ai Xai|2
-Current Trend|2
-Isaac Newtons Life Work: a Timeline|2
-Newtons Laws of Motion: Understanding the Basic|2
-The Universal Gravitation Concept: a Deep Dive|2
-Calculus for Dummies: a Beginners Guide to the Math|2
-Newtons Optics: Understanding Light and Shadow|2
-Isaac Newtons Scientific Contributions: a Comprehensive Overview|2
-Newtons Legacy: From Science to Culture to Politic|2
-Learn About Marie Curie|2
-Marie Curie: a Trailblazing Physicist|2
-Discover the Life and Work of Marie Curie|2
-The History of Marie Curie|2
-Explore Marie Curies Achievements in Physics and Chemistry|2
-Read About Marie Curies Awards and Recognition|2
-Get to Know Marie Curies Family Background|2
-Einsteins Theory of Relativity|2
-Relativity and Cosmology|2
-Particle Physics Implications of General Relativity|2
-The Lorentz Transformation Controversy|2
-Equivalence Principle Debate|2
-Gravitational Waves Detection and Prediction|2
-Black Hole|2
-Information Paradox|2
-Cosmology|2
-Theoretical Physic|2
-Stephen Hawkings Website|2
-Book Summary|2
-Hawking Radiation|2
-Wormhole|2
-Einstein|2
-Singularity|2
-Expansion|2
-Galaxy|2
-Supernovae|2
-Pop Culture Reference|2
-Feynman Lectures on Computation|2
-Feynman Lecture|2
-Lectures on Computation|2
-Computer Science and Its Limitation|2
-The Life and Times of Ada Lovelace|3
-Computing in Theory and Practice|3
-Women in Computer Science History|3
-Ada Lovelace Algorithmic Notation|3
-Charles Babbages Analytical Engine|3
-Bernoulli Numbers and Computing|3
-Ada Lovelaces Notes on the Analytical Engine|3
-The Importance of Ada Lovelace in History|3
-The Library of Congress, Officially Known as the National Library of America|3
-Libraries of Congress: Digital Collection|3
-National Archive|3
-Smithsonian Institution|3
-Congressional Committee|3
-Departmental Event|3
-Research Impact|3
-Alumni Network|3
-Career Support Service|3
-Annual Meeting|3
-Research Grant|3
-Writing Competition|3
-Museum Exhibition|3
-Measure Theory Basic|3
-Measurable Set|3
-Integral Calculus|3
-Lusins Theorem|3
-Measure Space|3
-Sigma-algebra|3
-Countable Additivity|3
-Additivity|3
-Indefinite Integral|3
-Definite Integral|3
-Area Between Curve|3
-Volume of a Solid|3
-Measurable Space|3
-Lusins Theorem Application|3
-Measure Theory Application|3
-The Mathematical Foundations of Quantum Mechanics by Von Neumann|3
-J. Von Neumann Proposes the No-boundary Proposal|3
-Von Neumanns Legacy in Information Theory and Related Field|3
-Church-turing Thesis|3
-Alan Turings on Computable Number|3
-Alfred J. Coddwin and Robert Fanos Development of a Formal System for Describing Algorithm|3
-The Algebraic Syntax of Church|3
-Turing Machine|3
-John Von Neumanns Contributions to Computer Science|3
-Von Neumann Architecture|3
-Modern Computing|3
-Algorithm Design|3
-Computer Science Theory|3
-Model Checking|3
-Program Verification|3
-Formal Method|3
-Store-and-load|3
-Store Operation|3
-Load Phase|3
-Access Time|3
-Processing Capacity|3
-John Von Neumann|3
-Programming Language|3
-Data Structure|3
-Python Implementation Example|3
-The Köln Prize Awarded to John Von Neumann: a Review|3
-John Von Neumanns Legacy: the Impact on Theoretical Physic|3
-Von Neumann, J. 1956: Mathematical Foundations of Quantum Mechanic|3
-Von Neumann, J. 1949: the Mathematical Theory of the Elementary Particle|3
-The Köln Prize: Recognizing Outstanding Contributions to Theoretical Physic|3
-John Von Neumann and Computer Science: a Pioneers Legacy|3
+Deterministic Turing machine|2
+NP-Complexity|2
+P-Complexity|2
+Time complexity|2
+Space complexity|2
+Problem|2
+Propositional formula|2
+Truth tables|2
+Verifying|2
+General-purpose algorithm|2
+Reducing|2
+Reduction|2
+Efficient general-purpose algorithm|2
+Arrays|2
+Graphs|2
+Hash Tables|2
+Linked Lists|2
+Trees|2
+C Implementation|2
+Java Implementation|2
+Efficiency|2
+Performance Optimization|2
+Robust Error Handling|2
+Exceptions|2
+Array Operations|2
+**Arrays**|2
+[Arrays](https://en.wikipedia.org/wiki/Arrays)|2
+[Data Structures](https://en.wikipedia.org/wiki/Data structures)|2
+**Graphs**|2
+[Graphs](https://en.wikipedia.org/wiki/Graph (graph theory))|2
+**Hash Tables**|2
+[Hash Tables](https://en.wikipedia.org/wiki/Hash table)|2
+**Linked Lists**|2
+[Linked Lists](https://en.wikipedia.org/wiki/Linked list)|2
+**Trees**|2
+[Trees](https://en.wikipedia.org/wiki/Trees (data structure))|2
+Implementations|2
+**C Implementation**|2
+[C Implementation](https://en.wikipedia.org/wiki/Cprogramming language#Implementation details)|2
+**Java Implementation**|2
+[Java Implementation](https://en.wikipedia.org/wiki/Java programming language#Data structures and algorithms)|2
+Programming Concepts|2
+**Efficiency**|2
+[Efficiency](https://en.wikipedia.org/wiki/Efficiency (computer science))|2
+**Performance Optimization**|2
+[Performance Optimization](https://en.wikipedia.org/wiki/Algorithm optimization)|2
+**Robust Error Handling**|2
+[Robust Error Handling](https://en.wikipedia.org/wiki/Error handling)|2
+**Exceptions**|2
+[Exceptions](https://en.wikipedia.org/wiki/Exception (computer science))|2
+**Array Operations**|2
+[Array Operations](https://en.wikipedia.org/wiki/Array operation)|2
+**Advanced Database Management Systems**|2
+[A Brief History of Databases](https://en.wikipedia.org/wiki/Brief history of databases)|2
+[Relational Database Management Systems](https://en.wikipedia.org/wiki/Relational database management systems)|2
+[Database Management Systems: A Comprehensive Guide](https://en.wikipedia.org/wiki/Database management systems)|2
+[Advantages and Disadvantages of DBMS](https://en.wikipedia.org/wiki/Disadvantages of DBMS)|2
+**Types of Database Management Systems**|2
+[NoSQL Databases](https://en.wikipedia.org/wiki/NoSQL database)|2
+[Object-Oriented Databases](https://en.wikipedia.org/wiki/Object-oriented database)|2
+**Database Management System Features**|2
+[Schema Design](https://en.wikipedia.org/wiki/Schema design)|2
+[Data Storage and Retrieval](https://en.wikipedia.org/wiki/Data storage and retrieval)|2
+**Database Management Systems Software**|2
+[MySQL](https://en.wikipedia.org/wiki/MySQL)|2
+[PostgreSQL](https://en.wikipedia.org/wiki/PostgreSQL)|2
+[Microsoft SQL Server](https://en.wikipedia.org/wiki/Microsoft SQL Server)|2
+**Use Cases and Applications**|2
+[Data Integration](https://en.wikipedia.org/wiki/Data integration)|2
+[Data Analysis and Reporting](https://en.wikipedia.org/wiki/Data analysis and reporting)|2
+**Security and Compliance**|2
+[Data Security](https://en.wikipedia.org/wiki/Data security)|2
+[Compliance with Regulations](https://en.wikipedia.org/wiki/Regulations and compliance)|2
+**Access Control**|2
+Access control refers to the mechanisms used by an operating system to determine what actions can be performed on computer resources.|2
+**Application Programming Interface**|2
+An Application Programming Interface (API) is a set of rules and protocols that allows different software components to communicate with each other.|2
+**Application**: An application is a program that runs on a computer, performing specific tasks or functions.|2
+**Architectural Style** - The architecture style refers to the design and organization of a computer system's hardware and software components.|2
+**Binary**|2
+Binary refers to a numerical representation of data using only two binary digits (0s and 1s).|2
+**Computer System**: A computer system is a collection of hardware and software components that work together to perform tasks.|2
+**Device Driver** - A device driver is a piece of software that controls interaction between the operating system and hardware devices.|2
+**Desktop Environment**|2
+A desktop environment refers to the user interface and applications used on a computer system.|2
+**Disk Operating System (DOS)** - Disk operating systems are programs that manage files and directories on a hard disk.|2
+**File System** - A file system is a hierarchical storage organization of data on a computer's storage devices.|2
+**Freezing**|2
+Freezing refers to the act of making a computer system completely unresponsive, often by closing unnecessary applications or processes.|2
+**Hardware** - Hardware refers to the physical components of a computer system, such as processors, memory, and input/output devices.|2
+**Input/Output (I/O)** - I/O refers to the flow of data between a computer system and external devices, such as printers or monitors.|2
+**Kernel**|2
+The kernel is the core component of an operating system that manages hardware resources and provides services to applications.|2
+**Microkernel** - A microkernel is a basic kernel that provides a limited set of services, with additional components provided by user-level software.|2
+**Mobile Device Operating System (MDO)** - Mobile device operating systems are specialized OSes designed for use on mobile devices such as smartphones and tablets.|2
+**Operating System Kernel** - The operating system kernel is the core component of an OS that manages hardware resources and provides services to applications.|2
+**Process**|2
+A process is a flow of execution of instructions by a program or application.|2
+**Process Management** - Process management refers to the mechanisms used by an operating system to create, execute, and terminate processes.|2
+**Security**|2
+Security refers to the protection of computer systems and data from unauthorized access, use, disclosure, disruption, modification, or destruction.|2
+**Software Development Kit (SDK)** - A software development kit is a set of tools and libraries provided by a vendor for developing software applications.|2
+**System Administrator** - A system administrator is an individual responsible for managing and maintaining computer systems.|2
+Access Control|2
+Authentication Protocol|2
+Authentication Services|2
+Authorization|2
+Bandwidth Management|2
+Caching|2
+Catalyst Devices|2
+Cluster Architecture|2
+Cloud Computing|2
+Connection Establishment|2
+Data Encryption|2
+Data Transfer|2
+Data Storage|2
+Data Security|2
+Debugging Tools|2
+Denial of Service (DoS)|2
+Domain Name System (DNS)|2
+Distributed Network|2
+Dynamic Host Configuration Protocol (DHCP)|2
+Error Detection and Correction|2
+Firewall Protection|2
+Forwarding Protocols|2
+Gateway Protocol|2
+HTTP Protocol|2
+Hypertext Transfer Protocol (HTTP)|2
+ICMP Protocol|2
+Interface Management|2
+IP Addressing|2
+Internet Engineering Task Force (IETF)|2
+Internet Protocol Suite (TCP/IP)|2
+IPv6|2
+Layer 2 Switching|2
+Layer 3 Switching|2
+Load Balancing|2
+Logical Network Architecture|2
+Mail Transfer Agent (MTA)|2
+Media Access Control (MAC)|2
+Message Queueing|2
+Middleware Layers|2
+Network Address Translation (NAT)|2
+Network Security|2
+Network Topology|2
+Networking Fundamentals|2
+Obfuscation Techniques|2
+Optimized Network Design|2
+Packet Handling|2
+Protocol Buffers|2
+Quality of Service (QoS)|2
+Radio Frequency (RF) Communication|2
+Router Protocol|2
+Secure Sockets Layer/Transport Layer Security (SSL/TLS)|2
+Server Load Balancing|2
+Service Provider Network|2
+Session Establishment|2
+Socket Programming|2
+Software Development Kit (SDK)|2
+Standard Network Interoperability Protocol (SNIP)|2
+TCP/IP Stack|2
+Telecommunications Network|2
+Topology Layers|2
+Troubleshooting Tools|2
+Ubiquitous Networking|2
+Association for Computational Linguistics|2
+Customer Service Chatbots|2
+Hidden Markov Models|2
+Information Retrieval|2
+Language Translation Systems|2
+Machine Learning Algorithms|2
+Part-of-Speech Tagging|2
+Probabilistic Graphical Models|2
+Rule-Based Systems|2
+Sentiment Analysis|2
+Stanford Natural Language Processing Group|2
+- [Machine Learning](https://en.wikipedia.org/wiki/Machine learning)|2
+- [Computer Vision](https://en.wikipedia.org/wiki/Computer vision)|2
+- [Natural Language Processing](https://en.wikipedia.org/wiki/Natural language processing)|2
+- [Predictive Maintenance](https://en.wikipedia.org/wiki/Predictive maintenance)|2
+Authentication Protocols|2
+Block Ciphers|2
+Certified Cryptographic Software|2
+Certificate Authorities|2
+Code Signing|2
+Data Integrity|2
+Digital Signatures|2
+Encryption Algorithm|2
+Hash Functions|2
+Interoperability|2
+Key Exchange|2
+Public-Key Cryptography|2
+Secure Sockets Layer|2
+SSL/TLS Certificates|2
+Symmetric-Key Cryptography|2
+TLS (Transport Layer Security)|2
+Web Application Firewall|2
+ARPANET|2
+Ethernet|2
+Wi-Fi|2
+Network Interface Card|2
+Network Operating System|2
+Protocol|2
+Technology|2
+DNS|2
+DHCP|2
+Firewall|2
+Antivirus Software|2
+Remote Access|2
+File Sharing|2
+Email and Collaboration|2
+Security Measures|2
+Management Practices|2
+Firewalls|2

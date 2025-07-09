@@ -9,13 +9,11 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 	"unicode"
 
 	pluralize "github.com/gertd/go-pluralize"
-	"github.com/kaptinlin/jsonrepair"
 	"github.com/ollama/ollama/api"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -129,10 +127,10 @@ func singularize(word string) string {
 func normalizeTitle(title string) string {
 	// Remove this - ask the LLM to write in title case
 	// // Convert to title case
-	title = toTitleCase(title)
+	//title = toTitleCase(title)
 
 	// // Singularize the title
-	title = singularize(title)
+	//title = singularize(title)
 
 	// Remove any underscores and replace with spaces
 	title = strings.ReplaceAll(title, "_", " ")
@@ -148,72 +146,24 @@ var stopwords = map[string]struct{}{
 }
 
 // stripInvalidChars removes characters that aren't letters, numbers, or valid JSON symbols
-func stripInvalidChars(input string) string {
-	validJSONSymbols := regexp.MustCompile(`["{}[\]:,.\-+tfalsnue]`)
-	var result []rune
-	for _, char := range input {
-		if unicode.IsLetter(char) || unicode.IsDigit(char) || unicode.IsSpace(char) || validJSONSymbols.MatchString(string(char)) {
-			result = append(result, char)
-		}
-	}
-	return string(result)
-}
 
-// extractJSONContent extracts content between the first [ or { and the matching closing bracket
-func extractJSONContent(input string) string {
-	firstArray := strings.Index(input, "[")
-	firstObject := strings.Index(input, "{")
-	var startPos int
-	var startChar, endChar string
-	if firstArray == -1 && firstObject == -1 {
-		return input
-	} else if firstArray == -1 {
-		startPos = firstObject
-		startChar = "{"
-		endChar = "}"
-	} else if firstObject == -1 {
-		startPos = firstArray
-		startChar = "["
-		endChar = "]"
-	} else {
-		if firstArray < firstObject {
-			startPos = firstArray
-			startChar = "["
-			endChar = "]"
-		} else {
-			startPos = firstObject
-			startChar = "{"
-			endChar = "}"
-		}
-	}
-	bracketCount := 0
-	endPos := -1
-	for i := startPos; i < len(input); i++ {
-		char := string(input[i])
-		if char == startChar {
-			bracketCount++
-		} else if char == endChar {
-			bracketCount--
-			if bracketCount == 0 {
-				endPos = i
-				break
+// parseMarkdownList parses a markdown unordered list and returns the items
+func parseMarkdownList(input string) []string {
+	var items []string
+	lines := strings.Split(input, "\n")
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		// Match markdown list items: * item, - item, + item
+		if strings.HasPrefix(line, "* ") || strings.HasPrefix(line, "- ") || strings.HasPrefix(line, "+ ") {
+			item := strings.TrimSpace(line[2:]) // Remove the list marker and space
+			if item != "" {
+				items = append(items, item)
 			}
 		}
 	}
-	if endPos == -1 {
-		return input
-	}
-	return input[startPos : endPos+1]
-}
 
-func cleanJSON(input string) string {
-	cleaned := stripInvalidChars(input)
-	core := extractJSONContent(cleaned)
-	fixed, err := jsonrepair.JSONRepair(core)
-	if err != nil {
-		return core
-	}
-	return fixed
+	return items
 }
 
 func work() {
@@ -320,7 +270,7 @@ func work() {
 		})
 		messages = append(messages, api.Message{
 			Role:    "user",
-			Content: "Extract a list of the words or phrases in the article above that should be turned into links. Reply only with a json array of strings. Format the strings in correct English title case and pluralize them if necessary as the title of an article.",
+			Content: "Extract a list of important words, THAT ARE MENTIONED in the article above, that should be turned into links. The list must be of acceptable, properly formatted, and title case titles of a Wikipedia article. Reply only with a flat markdown unordered list (using * or -), no formatting.",
 		})
 
 		generationStatus.Phase = "Analyzing"
@@ -328,7 +278,7 @@ func work() {
 
 		keywordsContent := ""
 		keywordsRespFunc := func(resp api.ChatResponse) error {
-			go SendToken(resp.Message.Content) // Send each token to the WebSocket
+			SendToken(resp.Message.Content) // Send each token to the WebSocket
 			//fmt.Print(resp.Message.Content)
 			keywordsContent += resp.Message.Content
 			return nil
@@ -345,13 +295,9 @@ func work() {
 		}
 		//fmt.Println("\nExtracted Words:\n", keywordsContent)
 
-		// Save keywords as JSON
-		keywordsFilename := sanitizeFilename(topic) + ".json"
+		// Save keywords as markdown
+		keywordsFilename := sanitizeFilename(topic) + ".md"
 		keywordsPath := filepath.Join(keywordsDir, keywordsFilename)
-		var prettyJSON bytes.Buffer
-		if err := json.Indent(&prettyJSON, []byte(keywordsContent), "", "  "); err == nil {
-			keywordsContent = prettyJSON.String()
-		}
 		if err := writeFile(keywordsPath, keywordsContent); err != nil {
 			log.Printf("Error writing keywords file for '%s': %v", topic, err)
 		}
@@ -371,42 +317,38 @@ func work() {
 
 		// Recursively enqueue new topics from keywords
 		if depth < maxDepth {
-			var keywords []string
-			// Clean the JSON first
-			keywordsContentClean := cleanJSON(keywordsContent)
-			if err := json.Unmarshal([]byte(keywordsContentClean), &keywords); err == nil {
+			keywords := parseMarkdownList(keywordsContent)
 
-				//log.Println("Processing keywords for topic:", topic, keywords)
-				// Read the current queue again to avoid duplicates
-				currentQueue, _ := readQueue(queuePath)
-				for _, kw := range keywords {
-					kw = strings.TrimSpace(kw)
-					if kw == "" {
-						continue
-					}
-					if _, isStopword := stopwords[strings.ToLower(kw)]; isStopword {
-						continue
-					}
+			//log.Println("Processing keywords for topic:", topic, keywords)
+			// Read the current queue again to avoid duplicates
+			currentQueue, _ := readQueue(queuePath)
+			for _, kw := range keywords {
+				kw = strings.TrimSpace(kw)
+				if kw == "" {
+					continue
+				}
+				if _, isStopword := stopwords[strings.ToLower(kw)]; isStopword {
+					continue
+				}
 
-					// Normalize the keyword for better duplication checking
-					normalizedKw := normalizeTitle(kw)
+				// Normalize the keyword for better duplication checking
+				normalizedKw := normalizeTitle(kw)
 
-					// Make file existence check case-insensitive by checking all files in the directory
-					alreadyProcessed := false
-					files, _ := os.ReadDir(articlesDir)
-					for _, f := range files {
-						if strings.EqualFold(f.Name(), sanitizeFilename(normalizedKw)+".md") {
-							alreadyProcessed = true
-							break
-						}
+				// Make file existence check case-insensitive by checking all files in the directory
+				alreadyProcessed := false
+				files, _ := os.ReadDir(articlesDir)
+				for _, f := range files {
+					if strings.EqualFold(f.Name(), sanitizeFilename(normalizedKw)+".md") {
+						alreadyProcessed = true
+						break
 					}
-					if alreadyProcessed {
-						continue // Already processed
-					}
-					// Only add to queue if queue length is below the limit
-					if len(queueItems) < maxQueueLen && !isInQueue(currentQueue, normalizedKw) && !isInQueue(queueItems, normalizedKw) {
-						queueItems = append(queueItems, [2]string{normalizedKw, fmt.Sprintf("%d", depth+1)})
-					}
+				}
+				if alreadyProcessed {
+					continue // Already processed
+				}
+				// Only add to queue if queue length is below the limit
+				if len(queueItems) < maxQueueLen && !isInQueue(currentQueue, normalizedKw) && !isInQueue(queueItems, normalizedKw) {
+					queueItems = append(queueItems, [2]string{normalizedKw, fmt.Sprintf("%d", depth+1)})
 				}
 			}
 		}
