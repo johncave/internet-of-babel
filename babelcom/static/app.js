@@ -9,6 +9,11 @@ document.addEventListener('DOMContentLoaded', function() {
     setInterval(updateClock, 1000);
     updateSystemStatus();
     setInterval(updateSystemStatus, 5000);
+    // Open library browser in fullscreen on load
+    setTimeout(() => {
+        let win = openApp('library-browser');
+        win.maximize()
+    }, 100);
 });
 
 // Desktop initialization
@@ -61,7 +66,7 @@ function openApp(appId) {
             window.minimize(false)
         }
         window.focus();
-        return;
+        return window; // Return the window instance if already running
     }
     
     const appConfig = appRegistry.get(appId);
@@ -121,6 +126,7 @@ function openApp(appId) {
     updateTaskbar();
     
     console.log(`✅ ${appConfig.name} opened successfully`);
+    return window; // Return the window instance when newly created
 }
 
 // Update taskbar with running apps

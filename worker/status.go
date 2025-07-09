@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -147,6 +150,42 @@ func (sm *StatusMonitor) getArticlesCount() int {
 		return 0
 	}
 	return len(entries)
+}
+
+func (sm *StatusMonitor) getCpuTemperature() float64 {
+	// Run 'sensors' and parse for coretemp-isa-0000 section, Core N: temperature
+	cmdOutput, err := exec.Command("sensors").Output()
+	if err != nil {
+		log.Printf("Failed to run sensors: %v", err)
+		return 0.0
+	}
+	lines := strings.Split(string(cmdOutput), "\n")
+	inCoretemp := false
+	coreTempRe := regexp.MustCompile(`^Core \\d+:\\s+\\+([0-9]+\\.[0-9])\\xB0C`)
+	for _, line := range lines {
+		if strings.HasPrefix(line, "coretemp-isa-0000") {
+			inCoretemp = true
+			continue
+		}
+		if inCoretemp {
+			if strings.TrimSpace(line) == "" || (!strings.HasPrefix(line, "Core ")) {
+				// End of section or not a core line
+				if strings.TrimSpace(line) == "" {
+					break
+				}
+				continue
+			}
+			matches := coreTempRe.FindStringSubmatch(line)
+			if len(matches) == 2 {
+				temp, err := strconv.ParseFloat(matches[1], 64)
+				if err == nil {
+					return temp
+				}
+			}
+		}
+	}
+	// Not found
+	return 0.0
 }
 
 func (sm *StatusMonitor) generateStatus() SystemStatus {

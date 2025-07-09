@@ -26,10 +26,12 @@ const SystemMonitorApp = {
                 <!-- Compact System Status -->
                 <div class="compact-status">
                     <div class="status-card">
-                        <div class="status-icon">🖥️</div>
+                        <div class="status-icon">
+                            <img src="/static/babelcom.webp" alt="Babelcom" style="width: 1.8em; height: 1.8em; vertical-align: middle;" />
+                        </div>
                         <div class="status-info">
-                            <div class="status-label">System</div>
-                            <div class="status-value" id="system-status">Connecting...</div>
+                            <div class="status-label">babelcom</div>
+                            <div class="status-value" id="system-status">Loading...</div>
                         </div>
                     </div>
                     
@@ -60,15 +62,15 @@ const SystemMonitorApp = {
                             <span class="task-label" id="task-label">Writing</span>
                             <span class="task-value" id="current-task">Waiting for babelcom...</span>
                         </div>
-                        
-                    </div>
-                    
-                    <div class="real-time-output">
-                        <h4>📝 Output</h4>
                         <div class="llm-output-container" id="llm-output-container">
                             <div class="output-line info">Waiting for babelcom...</div>
                         </div>
                     </div>
+                    
+                    <!--<div class="real-time-output">
+                        
+                        
+                    </div> -->
                 </div>
                 
                 <!-- Performance Metrics (Bottom) -->
@@ -337,17 +339,17 @@ const SystemMonitorApp = {
             
             .generation-status {
                 margin-bottom: 25px;
+                border-radius: 10px;
+                border: 1px solid rgba(255, 0, 128, 0.3);
             }
             
             .current-task {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                margin-bottom: 15px;
                 padding: 12px;
                 background: rgba(0, 0, 0, 0.5);
-                border-radius: 8px;
-                border: 1px solid rgba(255, 0, 128, 0.3);
+                
             }
             
             .task-label {
@@ -386,9 +388,8 @@ const SystemMonitorApp = {
             
             .llm-output-container {
                 background: rgba(0, 0, 0, 0.9);
-                border: 1px solid rgba(255, 107, 157, 0.3);
-                border-radius: 10px;
                 padding: 15px;
+                padding-top: 0px;
                 height: 300px;
                 overflow-y: auto;
                 font-family: 'Share Tech Mono', monospace;
