@@ -5,21 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.Title}} - Web4: The Web of Babel</title>
     <link rel="stylesheet" href="/static/style.css">
-    <meta name="title" property="og:title" content="{{.Title}} - Web4: The Web of Babel">
-    <meta name="description" property="og:description" content="{{.Title}} on Web4: Babel - an AI-generated encyclopedia. Explore the infinite web of knowledge.">
+    <meta name="title" property="og:title" content="{{.Title}} - The Web of Babel">
+    <meta name="description" property="og:description" content="{{.Title}} on The Web of Babel - an AI-generated encyclopedia. Explore the infinite web of knowledge.">
 </head>
 <body>
     <div class="cyberpunk-header">
         <div class="header-content">
-            <a href="/"><h1 class="glitch-title" data-text="Web4: Babel">Web4: Babel</h1></a>
+            <a href="/"><h1 class="glitch-title" data-text="Web of Babel">Web of Babel</h1></a>
             <div class="header-status">
                 <div class="status-item">
                     <span class="status-label">ARTICLES</span>
                     <span class="status-value">{{.Count}}</span>
                 </div>
                 <div class="status-item">
+                    <a href="https://babelcom.johncave.co.nz" target="_blank" rel="noopener noreferrer" class="status-link">
                     <span class="status-label">STATUS</span>
                     <span class="status-value status-active">ACTIVE</span>
+                    </a>
                 </div>
                 <!-- <div class="status-item">
                     <span class="status-label">MODE</span>
@@ -32,19 +34,25 @@
     <div class="main-layout">
         <aside class="sidebar">
             <div class="sidebar-content">
-                <a href="/random" class="btn btn-primary random-btn" style="width:100%;margin:0">🎲 Random</a>
+                <div class="mobile-buttons">
+                    <a href="/random" class="btn btn-primary random-btn">🎲 Random</a>
+                    <a href="/all/1" class="btn btn-secondary all-btn">📚 Recent</a>
+                </div>
                 
                 <form action="/search" method="GET" class="search-form">
                     <input type="text" name="q" placeholder="Search articles..." class="search-input">
                     <button type="submit" class="btn btn-secondary">🔍</button>
                 </form>
                 
-                <a href="/all/1"><h3>Entries ({{.Count}})</h3></a>
+                <h3 class="entries-header">
+                    <a href="/all/1"><span>{{.Count}} Entries</span></a>
+                    <a href="/all/1" class="all-link">All</a>
+                </h3>
                 <ul class="recent-articles">
                     {{range .Articles}}
                     <li><a href="/{{.Filename}}">{{.Title}}</a></li>
                     {{end}}
-                    <li><a href="/all/1">&laquo; All Entries &raquo;</a></li>
+                    <!-- <li><a href="/all/1">&laquo; All Entries &raquo;</a></li> -->
                 </ul>
                 
                 <!-- <div class="sidebar-section">
@@ -68,8 +76,9 @@
     </div>
     
     <div class="footer">
-        <p>INTERNET OF BABEL - AI-GENERATED ENCYCLOPEDIA<br>{{.Count}} / ｉｎｆｉｎｉｔｙ articles</p>
+        <p>INTERNET OF BABEL - AI-GENERATED ENCYCLOPEDIA<br>{{.Count}} / ｉｎｆｉｎｉｔｅ articles</p>
         <p>POWERED BY OLLAMA & GO</p>
     </div>
 </body>
+<script async defer src="https://tianji.johncave.co.nz/tracker.js" data-website-id="cmcwly5qw000368v58zyf1nd8"></script>
 </html> 
