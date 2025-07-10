@@ -24,13 +24,23 @@ function initializeDesktop() {
     registerApp('system-monitor', {
         name: 'System Monitor',
         icon: '📊',
-        component: SystemMonitorApp
+        component: SystemMonitorApp,
+        defaultWidth: 600,
+        defaultHeight: 800
     });
     
     registerApp('library-browser', {
         name: 'Library Browser',
         icon: '📚',
         component: LibraryBrowserApp
+    });
+    
+    registerApp('radio', {
+        name: 'Radio',
+        icon: '📻',
+        component: RadioApp,
+        defaultWidth: 300,
+        defaultHeight: 350
     });
     
 
@@ -75,8 +85,8 @@ function openApp(appId) {
     // Create window using WinBox
     const window = new WinBox({
         title: appConfig.name,
-        width: 800,
-        height: 600,
+        width: appConfig.defaultWidth || 800,
+        height: appConfig.defaultHeight || 600,
         x: 100 + (runningApps.size * 50),
         y: 100 + (runningApps.size * 50),
         resizable: true,

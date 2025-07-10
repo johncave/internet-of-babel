@@ -27,7 +27,7 @@ const LibraryBrowserApp = {
                     </button>
                     
                 </div>
-                <div class="iframe-container">
+                <div class="library-iframe-container">
                     <iframe 
                         src="https://web4.johncave.co.nz/" 
                         id="library-iframe"
@@ -50,7 +50,7 @@ const LibraryBrowserApp = {
         const style = document.createElement('style');
         style.id = styleId;
         style.textContent = `
-            .iframe-container {
+            .library-iframe-container {
                 width: 100%;
                 height: 100%;
                 min-height: 500px;
@@ -60,11 +60,21 @@ const LibraryBrowserApp = {
                 background: rgba(0, 0, 0, 0.5);
             }
             
-            .iframe-container iframe {
-                width: 100%;
-                height: 100%;
-                border: none;
-                background: white;
+            .library-iframe-container iframe {
+                width: 100% !important;
+                height: 100% !important;
+                border: none !important;
+                background: white !important;
+                min-height: 500px !important;
+            }
+            
+            /* Override any global iframe styles for library browser */
+            .winbox .library-iframe-container iframe {
+                width: 100% !important;
+                height: 100% !important;
+                border: none !important;
+                background: white !important;
+                min-height: 500px !important;
             }
             
             .iframe-controls {

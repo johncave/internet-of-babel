@@ -427,6 +427,90 @@ body {
     transform: translateY(-2px);
 }
 
+/* Radio Styles */
+.radio-container {
+    padding: 20px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 8px;
+}
+
+
+
+.player-description {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.player-description p {
+    color: #e0e0e0;
+    font-size: 0.9em;
+    margin: 0;
+}
+
+.radio-iframe-container {
+    /* flex: 1;
+    display: flex; */
+    align-items: stretch;
+    justify-content: center;
+    margin: 20px 0;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    /* border: 1px solid rgba(0, 255, 255, 0.3); */
+    overflow: hidden;
+}
+
+.radio-iframe {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 250px !important;
+    border-radius: 8px !important;
+    background: #000 !important;
+    border: none !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 0 !important;
+}
+
+/* Override any global iframe styles for radio */
+.winbox .radio-iframe-container .radio-iframe {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 250px !important;
+    border-radius: 8px !important;
+    background: #000 !important;
+    border: none !important;
+    position: relative !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 0 !important;
+}
+
+/* Override WinBox's .winbox iframe rule specifically for radio */
+.winbox iframe.radio-iframe {
+    position: relative !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 0 !important;
+}
+
+.player-info {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.player-info p {
+    color: #888;
+    font-size: 0.8em;
+    font-style: italic;
+    margin: 0;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .desktop-icons {
