@@ -1,0 +1,193 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: azuracast
+---
+# AzuraCast StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: azuracast
+  namespace: azuracast
+  labels:
+    app: azuracast
+spec:
+  serviceName: azuracast-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: azuracast
+  template:
+    metadata:
+      labels:
+        app: azuracast
+    spec:
+      containers:
+      - name: azuracast
+        image: ghcr.io/azuracast/azuracast:latest
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 443
+          name: https
+        - containerPort: 2022
+          name: sftp
+        env:
+        # Database Configuration - Using localhost since MySQL is internal
+        # - name: MYSQL_HOST
+        #   value: "localhost"
+        # - name: MYSQL_PORT
+        #   value: "3306"
+        # - name: MYSQL_DATABASE
+        #   value: "azuracast"
+        # - name: MYSQL_USERNAME
+        #   value: "azuracast"
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: azuracast-mariadb-secret
+              key: user-password
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: azuracast-mariadb-secret
+              key: root-password
+        
+        # AzuraCast Configuration
+        - name: AZURACAST_HTTP_PORT
+          value: "8080"
+        # - name: AZURACAST_HTTPS_PORT
+        #   value: "443"
+        - name: AZURACAST_SFTP_PORT
+          value: "2022"
+        - name: APPLICATION_ENV
+          value: "production"
+        
+        # Additional environment variables from azuracast.env and .env files
+        # - name: AZURACAST_APP_ENV
+        #   value: "production"
+        # - name: AZURACAST_DEBUG
+        #   value: "false"
+        # - name: AZURACAST_LOG_LEVEL
+        #   value: "info"
+        
+        volumeMounts:
+        - name: azuracast-stations
+          mountPath: /var/azuracast/stations
+        - name: azuracast-uploads
+          mountPath: /var/azuracast/storage/uploads
+        - name: azuracast-backups
+          mountPath: /var/azuracast/backups
+        - name: mariadb-data
+          mountPath: /var/lib/mysql
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "3Gi"
+            cpu: "1500m"
+        # livenessProbe:
+        #   httpGet:
+        #     path: /
+        #     port: 80
+        #   initialDelaySeconds: 120  # Increased for MySQL startup
+        #   periodSeconds: 10
+        # readinessProbe:
+        #   httpGet:
+        #     path: /
+        #     port: 80
+        #   initialDelaySeconds: 60  # Increased for MySQL startup
+        #   periodSeconds: 5
+  volumeClaimTemplates:
+  - metadata:
+      name: azuracast-stations
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: ssd
+      resources:
+        requests:
+          storage: 20Gi
+  - metadata:
+      name: azuracast-uploads
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: ssd
+      resources:
+        requests:
+          storage: 20Gi
+  - metadata:
+      name: azuracast-backups
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: sata
+      resources:
+        requests:
+          storage: 20Gi
+  - metadata:
+      name: mariadb-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: ssd
+      resources:
+        requests:
+          storage: 5Gi
+---
+# AzuraCast Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: azuracast-service
+  namespace: azuracast
+  labels:
+    app: azuracast
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: http
+    protocol: TCP
+    name: http
+  - port: 443
+    targetPort: https
+    protocol: TCP
+    name: https
+  - port: 2022
+    targetPort: 2022
+    protocol: TCP
+    name: sftp
+  selector:
+    app: azuracast
+---
+# AzuraCast Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: azuracast-ingress
+  namespace: azuracast
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+spec:
+  tls:
+  - hosts:
+    - radio.johncave.co.nz
+    secretName: azuracast-tls-secret  # Ensure you have a TLS secret created
+  rules:
+  - host: radio.johncave.co.nz  # Replace with your actual domain
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: azuracast-service
+            port:
+              number: 80
+ 
