@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Babelcom - Internet of Babel Control Panel</title>
     <link rel="stylesheet" href="/static/styles.css">
-    <script src="https://rawcdn.githack.com/nextapps-de/winbox/0.2.82/dist/winbox.bundle.min.js"></script>
+    <script src="/static/winbox.bundle.js"></script>
 </head>
 <body>
     <div class="desktop">
@@ -15,7 +15,7 @@
         <!-- Taskbar -->
         <div class="taskbar">
             <div class="taskbar-left">
-                <div class="start-button" onclick="toggleStartMenu()">
+                <div class="start-button" data-tianji-event="click-start-button" onclick="toggleStartMenu()">
                     <span class="start-icon">🚀</span>
                     <span class="start-text">BABELCOM</span>
                 </div>
@@ -42,11 +42,11 @@
                 <h3>Applications</h3>
             </div>
             <div class="start-menu-apps">
-                <div class="app-item" onclick="openApp('system-monitor')">
+                <div class="app-item" data-tianji-event="open-system-monitor-from-start-menu" onclick="openApp('system-monitor')">
                     <div class="app-icon">📊</div>
                     <div class="app-name">System Monitor</div>
                 </div>
-                <div class="app-item" onclick="openApp('library-browser')">
+                <div class="app-item" data-tianji-event="open-library-browser-from-start-menu" onclick="openApp('library-browser')">
                     <div class="app-icon">📚</div>
                     <div class="app-name">Library Browser</div>
                 </div>
@@ -56,11 +56,11 @@
 
         <!-- Desktop Icons -->
         <div class="desktop-icons">
-            <div class="desktop-icon" onclick="openApp('system-monitor')">
+            <div class="desktop-icon" data-tianji-event="open-system-monitor-from-desktop" onclick="openApp('system-monitor')">
                 <div class="icon">📊</div>
                 <div class="icon-label">System Monitor</div>
             </div>
-            <div class="desktop-icon" onclick="openApp('library-browser')">
+            <div class="desktop-icon" data-tianji-event="open-library-browser-from-desktop" onclick="openApp('library-browser')">
                 <div class="icon">📚</div>
                 <div class="icon-label">Library Browser</div>
             </div>

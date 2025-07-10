@@ -18,7 +18,7 @@
                     <span class="status-value">{{.Count}}</span>
                 </div>
                 <div class="status-item">
-                    <a href="https://babelcom.johncave.co.nz" target="_blank" rel="noopener noreferrer" class="status-link">
+                    <a href="https://babelcom.johncave.co.nz" data-tianji-event="click-status-link" target="_blank" rel="noopener noreferrer" class="status-link">
                     <span class="status-label">STATUS</span>
                     <span class="status-value status-active">ACTIVE</span>
                     </a>
@@ -35,13 +35,13 @@
         <aside class="sidebar">
             <div class="sidebar-content">
                 <div class="mobile-buttons">
-                    <a href="/random" class="btn btn-primary random-btn">🎲 Random</a>
-                    <a href="/all/1" class="btn btn-secondary all-btn">📚 Recent</a>
+                    <a href="/random" data-tianji-event="click-random-sidebar" class="btn btn-primary random-btn">🎲 Random</a>
+                    <a href="/all/1" data-tianji-event="click-recent-sidebar" class="btn btn-secondary all-btn">📚 Recent</a>
                 </div>
                 
                 <form action="/search" method="GET" class="search-form">
                     <input type="text" name="q" placeholder="Search articles..." class="search-input">
-                    <button type="submit" class="btn btn-secondary">🔍</button>
+                    <button data-tianji-event="click-search-button" type="submit" class="btn btn-secondary">🔍</button>
                 </form>
                 
                 <h3 class="entries-header">
@@ -50,7 +50,7 @@
                 </h3>
                 <ul class="recent-articles">
                     {{range .Articles}}
-                    <li><a href="/{{.Filename}}">{{.Title}}</a></li>
+                    <li><a href="/{{.Filename}}" data-tianji-event="click-sidebar-article">{{.Title}}</a></li>
                     {{end}}
                     <!-- <li><a href="/all/1">&laquo; All Entries &raquo;</a></li> -->
                 </ul>
