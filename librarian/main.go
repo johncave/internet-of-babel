@@ -128,7 +128,7 @@ func staticHandler(c *gin.Context) {
 
 		contentType := getContentType(filePath)
 		c.Header("Content-Type", contentType)
-		c.Header("Cache-Control", "public, max-age=86400") // Cache for 24 hours
+		c.Header("Cache-Control", "public, max-age=3600") // Cache for 1 hour
 		c.Data(http.StatusOK, contentType, content)
 		return
 	}
