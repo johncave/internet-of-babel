@@ -129,11 +129,12 @@ const SystemMonitorApp = {
             this.websocket = new WebSocket(wsUrl);
             
             this.websocket.onopen = () => {
-                this.addOutputLine('Connected to backend', 'success');
+                this.addOutputLine('Connected', 'success');
                 this.reconnectAttempts = 0;
             };
             
             this.websocket.onmessage = (event) => {
+                console.log('WebSocket message received:', event);
                 this.handleWebSocketMessage(event.data);
             };
             
@@ -168,8 +169,9 @@ const SystemMonitorApp = {
     },
     
     handleWebSocketMessage: function(data) {
+        const message = JSON.parse(data);
         try {
-            const message = JSON.parse(data);
+            
             
             switch (message.type) {
                 case 'initial_data':
@@ -193,7 +195,7 @@ const SystemMonitorApp = {
                     console.log('Unknown message type:', message.type);
             }
         } catch (error) {
-            console.error('Error parsing WebSocket message:', error);
+            console.error('Error parsing WebSocket message:', message, error);
         }
     },
     
@@ -219,6 +221,7 @@ const SystemMonitorApp = {
     },
     
     updateSystemStatus: function(status) {
+        console.log(status);
         //console.log(status);
         document.getElementById('system-status').textContent = status.status;
         document.getElementById('memory-usage').textContent = status.memory_usage.toFixed(1) + '%';
@@ -231,6 +234,24 @@ const SystemMonitorApp = {
         // Update colors based on usage
         this.updateStatusColor('memory-usage', status.memory_usage);
         this.updateStatusColor('cpu-usage', status.cpu_usage);
+
+
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusText = statusIndicator.querySelector('.status-text');
+        const statusDot = statusIndicator.querySelector('.status-dot');
+        
+        // Simulate system status (in real implementation, this would check actual system health)
+        // const isOnline = Math.random() > 0.1; // 90% chance of being online
+        
+        // if (isOnline) {
+        //     statusText.textContent = 'ONLINE';
+        //     statusDot.style.background = '#00ff00';
+        // } else {
+        //     statusText.textContent = 'OFFLINE';
+        //     statusDot.style.background = '#ff0000';
+        // }
+        statusText.textContent = status.status || 'UNKNOWN';
+        statusDot.style.background = '#00ff00'; //
     },
     
     updateGenerationStatus: function(generation) {
@@ -263,7 +284,7 @@ const SystemMonitorApp = {
     },
     
     addOutputLine: function(message, type = 'info', scroll = true) {
-        const container = document.getElementById('output-container');
+        const container = document.getElementById('llm-output-container');
         const timestamp = new Date().toLocaleTimeString();
         
         const line = document.createElement('div');

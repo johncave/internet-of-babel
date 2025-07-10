@@ -1191,3 +1191,53 @@
 2025-07-09T14:06:58+12:00 | topic: "Machine Learning" | duration: 5.170997661s | depth: 1 | article_length: 4353
 2025-07-09T14:07:04+12:00 | topic: "Cryptography" | duration: 5.711447421s | depth: 1 | article_length: 4703
 2025-07-09T14:07:11+12:00 | topic: "Computer Networks" | duration: 7.497570177s | depth: 1 | article_length: 6390
+2025-07-10T22:05:40+12:00 | topic: "Programming Languages" | duration: 10.668923686s | depth: 1 | article_length: 4787
+2025-07-10T22:05:47+12:00 | topic: "Computational Complexity" | duration: 7.686688476s | depth: 1 | article_length: 6470
+2025-07-10T22:05:52+12:00 | topic: "Image Macro" | duration: 4.936274104s | depth: 1 | article_length: 3524
+2025-07-10T22:06:00+12:00 | topic: "Evolutionary Biology" | duration: 7.717099165s | depth: 1 | article_length: 6334
+2025-07-10T22:06:05+12:00 | topic: "Richard Dawkins" | duration: 5.402952091s | depth: 1 | article_length: 3445
+2025-07-10T22:06:10+12:00 | topic: "Subculture" | duration: 4.868157953s | depth: 1 | article_length: 3729
+2025-07-10T22:06:17+12:00 | topic: "Internet" | duration: 6.442014824s | depth: 1 | article_length: 4899
+2025-07-10T22:06:23+12:00 | topic: "Social Media" | duration: 5.747214479s | depth: 1 | article_length: 4664
+2025-07-10T22:06:29+12:00 | topic: "Digital Communication" | duration: 6.814542837s | depth: 1 | article_length: 4251
+2025-07-10T22:06:35+12:00 | topic: "Cultural Exchange" | duration: 6.011617098s | depth: 1 | article_length: 5301
+2025-07-10T22:06:40+12:00 | topic: "Accessible" | duration: 4.402618896s | depth: 1 | article_length: 3724
+2025-07-10T22:06:45+12:00 | topic: "Widening of the digital divide" | duration: 5.455086682s | depth: 1 | article_length: 4500
+2025-07-10T22:06:51+12:00 | topic: "Broadband" | duration: 5.995822194s | depth: 1 | article_length: 4770
+2025-07-10T22:06:57+12:00 | topic: "Email" | duration: 5.272285801s | depth: 1 | article_length: 4054
+2025-07-10T22:07:01+12:00 | topic: "Newsgroups" | duration: 4.79190974s | depth: 1 | article_length: 3623
+2025-07-10T22:07:07+12:00 | topic: "Blogs" | duration: 5.791897869s | depth: 1 | article_length: 4462
+2025-07-10T22:07:12+12:00 | topic: "Internet use" | duration: 5.314575304s | depth: 1 | article_length: 4219
+2025-07-10T22:07:20+12:00 | topic: "Communication" | duration: 7.629119946s | depth: 1 | article_length: 4313
+2025-07-10T22:07:26+12:00 | topic: "Information sharing" | duration: 5.559625638s | depth: 1 | article_length: 4755
+2025-07-10T22:07:32+12:00 | topic: "E-commerce" | duration: 6.361559462s | depth: 1 | article_length: 5336
+2025-07-10T22:07:37+12:00 | topic: "Hacking" | duration: 5.23838267s | depth: 1 | article_length: 3981
+2025-07-10T22:07:45+12:00 | topic: "Malware" | duration: 7.536720163s | depth: 1 | article_length: 6171
+2025-07-10T22:07:50+12:00 | topic: "Phishing" | duration: 5.53031758s | depth: 1 | article_length: 4586
+2025-07-10T22:08:00+12:00 | topic: "Cybersecurity" | duration: 9.980280223s | depth: 1 | article_length: 8301
+2025-07-10T22:08:06+12:00 | topic: "Digital divide" | duration: 5.200346144s | depth: 1 | article_length: 4198
+2025-07-10T22:08:14+12:00 | topic: "Blockchain" | duration: 8.619494449s | depth: 1 | article_length: 7092
+2025-07-10T22:08:21+12:00 | topic: "5G networks" | duration: 6.972568955s | depth: 1 | article_length: 4888
+2025-07-10T22:08:28+12:00 | topic: "Adenosine Triphosphate" | duration: 6.456120347s | depth: 1 | article_length: 4396
+2025-07-10T22:08:33+12:00 | topic: "Accessory Pigments" | duration: 4.896690152s | depth: 1 | article_length: 3369
+2025-07-10T22:08:38+12:00 | topic: "ATP" | duration: 5.85068545s | depth: 1 | article_length: 4328
+2025-07-10T22:08:44+12:00 | topic: "Biochemistry" | duration: 5.993222482s | depth: 1 | article_length: 4543
+2025-07-10T22:08:50+12:00 | topic: "Biotechnology" | duration: 5.81393286s | depth: 1 | article_length: 4430
+2025-07-10T22:08:58+12:00 | topic: "Carbon Cycle" | duration: 7.424811228s | depth: 1 | article_length: 5892
+2025-07-10T22:09:03+12:00 | topic: "Calcin Cycle" | duration: 5.022422273s | depth: 1 | article_length: 3242
+2025-07-10T22:09:10+12:00 | topic: "Chlorophyll" | duration: 7.117669766s | depth: 1 | article_length: 4540
+2025-07-10T22:09:16+12:00 | topic: "Chloroplasts" | duration: 5.993842328s | depth: 1 | article_length: 4566
+2025-07-10T22:09:20+12:00 | topic: "Chloroplast Membrane" | duration: 4.637307665s | depth: 1 | article_length: 3485
+2025-07-10T22:09:25+12:00 | topic: "CO2" | duration: 4.697436264s | depth: 1 | article_length: 3452
+2025-07-10T22:09:31+12:00 | topic: "Cellulose" | duration: 6.342680282s | depth: 1 | article_length: 4363
+2025-07-10T22:09:38+12:00 | topic: "Calvin Cycle" | duration: 6.847503698s | depth: 1 | article_length: 4592
+2025-07-10T22:09:43+12:00 | topic: "Cell Wall" | duration: 4.853776532s | depth: 1 | article_length: 3492
+2025-07-10T22:09:48+12:00 | topic: "Chloroplast Organelles" | duration: 4.728930499s | depth: 1 | article_length: 3475
+2025-07-10T22:09:55+12:00 | topic: "C3 Photosynthesis" | duration: 7.403763509s | depth: 1 | article_length: 4890
+2025-07-10T22:10:04+12:00 | topic: "C4 Photosynthesis" | duration: 8.197035418s | depth: 1 | article_length: 4326
+2025-07-10T22:10:09+12:00 | topic: "C4CAM" | duration: 5.802453704s | depth: 1 | article_length: 4823
+2025-07-10T22:10:17+12:00 | topic: "Crassulacean Acid Metabolism" | duration: 7.779896193s | depth: 1 | article_length: 3995
+2025-07-10T22:10:23+12:00 | topic: "Cyanobacteria" | duration: 5.545896899s | depth: 1 | article_length: 3921
+2025-07-10T22:10:29+12:00 | topic: "Electrons" | duration: 6.442054421s | depth: 1 | article_length: 3633
+2025-07-10T22:10:38+12:00 | topic: "Enzyme Complexes" | duration: 9.091391524s | depth: 1 | article_length: 4120
+2025-07-10T22:10:45+12:00 | topic: "Energy Conversion" | duration: 6.337241887s | depth: 1 | article_length: 4944

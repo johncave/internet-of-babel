@@ -7,6 +7,8 @@ import (
 	"os"
 	"sync"
 
+	"encoding/json"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
@@ -25,6 +27,7 @@ type Server struct {
 	mu                   sync.RWMutex
 	upgrader             websocket.Upgrader
 	apiKey               string
+	latestSystemStatus   []byte
 }
 
 // NewServer creates a new server instance
@@ -82,6 +85,17 @@ func (s *Server) handleBroadcastWebSocket(c *gin.Context) {
 	s.mu.Lock()
 	s.broadcastConnections[connection] = true
 	s.mu.Unlock()
+
+	s.mu.RLock()
+	if s.latestSystemStatus != nil {
+		connection.mu.Lock()
+		err := connection.conn.WriteMessage(websocket.TextMessage, s.latestSystemStatus)
+		connection.mu.Unlock()
+		if err != nil {
+			log.Printf("Error sending latest system status: %v", err)
+		}
+	}
+	s.mu.RUnlock()
 
 	log.Printf("Broadcast client connected. Total connections: %d", len(s.broadcastConnections))
 
@@ -157,6 +171,16 @@ func (s *Server) handleLLMWebSocket(c *gin.Context) {
 
 		// Simply broadcast the raw message to all broadcast clients
 		s.broadcast(message)
+
+		// Parse message and check for system_status
+		var msg map[string]interface{}
+		if err := json.Unmarshal(message, &msg); err == nil {
+			if msgType, ok := msg["type"].(string); ok && msgType == "system_status" {
+				s.mu.Lock()
+				s.latestSystemStatus = message
+				s.mu.Unlock()
+			}
+		}
 	}
 
 	s.mu.Lock()

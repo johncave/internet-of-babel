@@ -207,21 +207,24 @@ function updateClock() {
 }
 
 // Update system status
-function updateSystemStatus() {
+function updateSystemStatus(status, color) {
     const statusIndicator = document.getElementById('statusIndicator');
     const statusText = statusIndicator.querySelector('.status-text');
     const statusDot = statusIndicator.querySelector('.status-dot');
     
     // Simulate system status (in real implementation, this would check actual system health)
-    const isOnline = Math.random() > 0.1; // 90% chance of being online
+    // const isOnline = Math.random() > 0.1; // 90% chance of being online
     
-    if (isOnline) {
-        statusText.textContent = 'ONLINE';
-        statusDot.style.background = '#00ff00';
-    } else {
-        statusText.textContent = 'OFFLINE';
-        statusDot.style.background = '#ff0000';
-    }
+    // if (isOnline) {
+    //     statusText.textContent = 'ONLINE';
+    //     statusDot.style.background = '#00ff00';
+    // } else {
+    //     statusText.textContent = 'OFFLINE';
+    //     statusDot.style.background = '#ff0000';
+    // }
+    statusText.textContent = status || 'UNKNOWN';
+    statusDot.style.background = color || '#00ff00'; // Default to green if no
+
 }
 
 // Utility functions

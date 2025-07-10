@@ -1,53 +1,3 @@
-Programming Languages|1
-Computational Complexity|1
-Image Macro|1
-Evolutionary Biology|1
-Richard Dawkins|1
-Subculture|1
-Internet|1
-Social Media|1
-Digital Communication|1
-Cultural Exchange|1
-Accessible|1
-Widening of the digital divide|1
-Broadband|1
-Email|1
-Newsgroups|1
-Blogs|1
-Internet use|1
-Communication|1
-Information sharing|1
-E-commerce|1
-Hacking|1
-Malware|1
-Phishing|1
-Cybersecurity|1
-Digital divide|1
-Blockchain|1
-5G networks|1
-Adenosine Triphosphate|1
-Accessory Pigments|1
-ATP|1
-Biochemistry|1
-Biotechnology|1
-Carbon Cycle|1
-Calcin Cycle|1
-Chlorophyll|1
-Chloroplasts|1
-Chloroplast Membrane|1
-CO2|1
-Cellulose|1
-Calvin Cycle|1
-Cell Wall|1
-Chloroplast Organelles|1
-C3 Photosynthesis|1
-C4 Photosynthesis|1
-C4CAM|1
-Crassulacean Acid Metabolism|1
-Cyanobacteria|1
-Electrons|1
-Enzyme Complexes|1
-Energy Conversion|1
 Enzymes|1
 Eukaryotes|1
 Fossil Fuel|1
@@ -401,3 +351,150 @@ Email and Collaboration|2
 Security Measures|2
 Management Practices|2
 Firewalls|2
+**APL**|2
+**C**|2
+**C++**|2
+**COBOL**|2
+**Fortran**|2
+**Java**|2
+**Pascal**|2
+**Python**|2
+**Lower Bound Problems**|2
+**Polynomial Time Complexity**|2
+**Quadratic Time Complexity**|2
+**Exponential Time Complexity**|2
+**Space Complexity**|2
+**NP-Completeness**|2
+**On-Paper NP-Completeness**|2
+**NP-Complete Problems**|2
+**Cryptography and Computational Complexity**|2
+**Distributed Systems and Computational Complexity**|2
+**Artificial Intelligence and Computational Complexity**|2
+Adaptation|2
+Atom|2
+Caffeine|2
+Community|2
+Culture|2
+Humor|2
+Image|2
+Macrobatics|2
+Myths|2
+Online|2
+Platform|2
+Productivity|2
+Satire|2
+Social|2
+User|2
+Evolution|2
+Gene|2
+Mutation|2
+Natural|2
+Selection|2
+Species|2
+Variation|2
+*Astronomy*|2
+*Biology*|2
+*Climatology*|2
+*Philosophy of science*|2
+*Religion and science controversy*|2
+*Science popularization*|2
+*The God Delusion*|2
+*The Selfish Gene*|2
+*William Paley*|2
+*Creationism*|2
+*Climategate scandal*|2
+*BBC News*|2
+*London School of Economics and Political Science*|2
+*Cambridge University*|2
+*Eton College*|2
+*Oxford University*|2
+*Reginald J. H. Popper Professor of Science Studies*|2
+Alternative Culture|2
+Artistic Subculture|2
+Cyberpunk Subculture|2
+DIY Ethic|2
+Fashion Subculture|2
+Fashion Style|2
+Hip-Hop Subculture|2
+Mainstream Culture|2
+Music Subculture|2
+Punk Rock Movement|2
+Street Art|2
+Advanced Research Projects Agency|2
+ASCII|2
+Browser|2
+Cable|2
+Command Line Interface|2
+Cookie|2
+Data Transfer Protocol|2
+Domain Name System|2
+HTTP|2
+Hypertext Transfer Protocol|2
+IP Address|2
+Internet Engineering Task Force|2
+-Internet|2
+-IP Address|2
+-ISP|2
+-LAMP|2
+-Media|2
+-MS Office|2
+-Network Security|2
+-Online Etiquette|2
+-Packet Switching|2
+-Portal|2
+-Privacy|2
+-Secure Sockets Layer|2
+-Server|2
+-Software Development Kit|2
+-TCP/IP|2
+-Traffic Management|2
+-User Interface|2
+-Web Browser|2
+Facebook|2
+Twitter|2
+LinkedIn|2
+Instagram|2
+YouTube|2
+TikTok|2
+**Access**|2
+Africa|2
+Accessible Design|2
+Affordable|2
+Technological advancements|2
+Email history|2
+Access|2
+Weblog|2
+World Wide Web|2
+Accessibility|2
+Accessible Information|2
+Electronic Commerce|2
+**Black Hat**|2
+Adware|2
+2-factor authentication|2
+Authentication|2
+Civic|2
+Bitcoin|2
+3GPP|2
+Adenosine Diphosphate|2
+Mineral Ochres|2
+ATP Synthase|2
+Branch of chemistry|2
+Genetics|2
+Respiration|2
+Calcineurin|2
+Algae|2
+Chloroplast|2
+Chloroplast Membrane Structure|2
+Carbon Capture|2
+polysaccharide|2
+Electron Transport Chain|2
+Cell Wall Structure|2
+Carotenoids|2
+Chlorophyll A|2
+Anaerobic|2
+CaffeNet|2
+Acacia|2
+Phytoplankton|2
+Atomic Spectra|2
+**Acid-Base Equilibrium**|2
+- Energy Conversion|2
