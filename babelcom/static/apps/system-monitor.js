@@ -498,7 +498,7 @@ const SystemMonitorApp = {
             .status-value {
                 color: #00ffff;
                 font-weight: bold;
-                text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+                
             }
             
             .performance-metrics {

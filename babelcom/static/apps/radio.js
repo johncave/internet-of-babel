@@ -34,7 +34,7 @@ const RadioApp = {
                         </div>
                         <div class="track-info">
                             <div class="track-title" id="track-title">Loading...</div>
-                            <div class="track-artist" id="track-artist">Loading...</div>
+                            <a href="https://kratzwerk.bandcamp.com/" target="_blank"><div class="track-artist" id="track-artist">Loading...</div></a>
                         </div>
                         <div class="controls">
                             <div class="volume-container">

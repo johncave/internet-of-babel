@@ -10,10 +10,10 @@ document.addEventListener('DOMContentLoaded', function() {
     updateSystemStatus('Online', '#00ff00'); // Default status
     //setInterval(updateSystemStatus, 5000);
     // Open web browser in fullscreen on load
-    setTimeout(() => {
-        let win = openApp('library-browser');
-        win.maximize()
-    }, 100);
+    // setTimeout(() => {
+    //     let win = openApp('library-browser');
+    //     win.maximize()
+    // }, 100);
 });
 
 // Desktop initialization
@@ -104,7 +104,7 @@ function openApp(appId) {
         width: appConfig.defaultWidth || 800,
         height: appConfig.defaultHeight || 600,
         x: 100 + (runningApps.size * 50),
-        y: 100 + (runningApps.size * 50),
+        y: 25 + (runningApps.size * 50),
         resizable: true,
         minimizable: true,
         maximizable: true,
