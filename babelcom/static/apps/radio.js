@@ -64,7 +64,7 @@ const RadioApp = {
     },
 
     connectWebSocket: function() {
-        const wsUrl = '/ws/radio';
+        const wsUrl = 'wss://babelcom.johncave.co.nz/ws/radio';
         try {
             this.websocket = new WebSocket(wsUrl);
             this.websocket.onopen = () => {
