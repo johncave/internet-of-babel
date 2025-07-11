@@ -86,16 +86,16 @@ const RadioApp = {
 
     handleMessage: function(data) {
         try {
-            console.log('📻 Received WebSocket message:', data);
+            //console.log('📻 Received WebSocket message:', data);
             const message = JSON.parse(data);
-            console.log('📻 Parsed message:', message);
+            //console.log('📻 Parsed message:', message);
             
             let np = null;
             if (message && message.pub && message.pub.data && message.pub.data.np) {
                 np = message.pub.data.np;
-                console.log('📻 Now playing data:', np);
+                //console.log('📻 Now playing data:', np);
             } else {
-                console.log('📻 No now playing data found in message structure');
+                //console.log('📻 No now playing data found in message structure');
                 return;
             }
             
@@ -106,8 +106,8 @@ const RadioApp = {
             if (np.station && np.station.mounts) {
                 const mp3Mount = np.station.mounts.find(m => m.format === 'mp3');
                 if (mp3Mount && mp3Mount.url) {
-                    streamUrl = mp3Mount.url.replace(/^https?:/, '');
-                    console.log('📻 Stream URL:', streamUrl);
+                    streamUrl = mp3Mount.url;
+                    //console.log('📻 Stream URL:', streamUrl);
                 }
             }
             

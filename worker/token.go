@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"runtime/debug"
 	"sync"
 	"time"
 
@@ -158,7 +159,7 @@ func connectTokenWebSocketWithRetry() error {
 		time.Sleep(delay)
 
 		// Close existing connection if any
-		disconnectTokenWebSocket()
+		//disconnectTokenWebSocket()
 
 		// Try to connect
 		if err := ConnectTokenWebSocket(WebSocketURL); err != nil {
@@ -285,6 +286,11 @@ func ConnectTokenWebSocket(url string) error {
 // disconnectTokenWebSocket safely disconnects the token WebSocket
 func disconnectTokenWebSocket() {
 	tokenConnMutex.Lock()
+
+	// Print stack trace for debugging
+	log.Printf("Stack trace:\n")
+	debug.PrintStack()
+
 	if tokenConn != nil {
 		log.Printf("Disconnecting token WebSocket")
 		tokenConn.Close()
@@ -302,6 +308,9 @@ func disconnectTokenWebSocket() {
 
 // requestTokenReconnect signals the connection manager to reconnect
 func requestTokenReconnect() {
+
+	debug.PrintStack() // Print stack trace for debugging
+
 	now := time.Now()
 	if now.Sub(lastReconnectRequest) < reconnectCooldown {
 		// Still in cooldown period, ignore this request

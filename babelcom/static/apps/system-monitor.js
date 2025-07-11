@@ -2,8 +2,8 @@
 const SystemMonitorApp = {
     name: 'System Monitor',
     icon: '📊',
-    
-    init: function(container, config) {
+
+    init: function (container, config) {
         this.container = container;
         this.config = config;
         this.updateInterval = null;
@@ -11,39 +11,23 @@ const SystemMonitorApp = {
         this.websocket = null;
         this.reconnectAttempts = 0;
         this.maxReconnectAttempts = 5;
-        
+
         this.render();
         this.connectWebSocket();
-        
+
         console.log('📊 System Monitor initialized');
     },
-    
-    render: function() {
+
+    render: function () {
         this.container.innerHTML = `
             <div class="app-window system-monitor">
                 <h1>System Monitor</h1>
 
                 <!-- Compact System Status -->
                 <div class="compact-status">
-                    <div class="status-card">
-                        <div class="status-icon">
-                            <img src="/static/babelcom.webp" alt="Babelcom" style="width: 1.8em; height: 1.8em; vertical-align: middle;" />
-                        </div>
-                        <div class="status-info">
-                            <div class="status-label">babelcom</div>
-                            <div class="status-value" id="system-status">Loading...</div>
-                        </div>
-                    </div>
                     
-                    <div class="status-card">
-                        <div class="status-icon">
-                            <img src="/static/icons/memory.png" alt="Memory" style="width: 1.8em; height: 1.8em; vertical-align: middle;" />
-                        </div>
-                        <div class="status-info">
-                            <div class="status-label">Memory</div>
-                            <div class="status-value" id="memory-usage">--</div>
-                        </div>
-                    </div>
+                    
+                    
                     
                     <div class="status-card">
                         <div class="status-icon">
@@ -52,6 +36,29 @@ const SystemMonitorApp = {
                         <div class="status-info">
                             <div class="status-label">Compute</div>
                             <div class="status-value" id="cpu-usage">--</div>
+                        </div>
+
+                    
+                    </div>
+
+                    <div class="status-card">
+                        <div class="status-icon">
+                            <img src="/static/icons/temperature.png" alt="Temperature" style="width: 1.8em; height: 1.8em; vertical-align: middle;" />
+                        </div>
+                        <div class="status-info">
+                            <div class="status-label">Entropy</div>
+                            <div class="status-value" id="temperature-value">--</div>
+                        </div>
+                    </div>
+
+
+                    <div class="status-card">
+                        <div class="status-icon">
+                            <img src="/static/icons/memory.png" alt="Memory" style="width: 1.8em; height: 1.8em; vertical-align: middle;" />
+                        </div>
+                        <div class="status-info">
+                            <div class="status-label">Memory</div>
+                            <div class="status-value" id="memory-usage">--</div>
                         </div>
                     </div>
                     
@@ -121,49 +128,49 @@ const SystemMonitorApp = {
                 </div> -->
             </div>
         `;
-        
+
         // Add app-specific styles
         this.addStyles();
     },
-    
-    connectWebSocket: function() {
+
+    connectWebSocket: function () {
         const wsUrl = 'wss://babelcom.johncave.co.nz/ws';
-        
+
         try {
             this.websocket = new WebSocket(wsUrl);
-            
+
             this.websocket.onopen = () => {
                 this.addOutputLine('Connected', 'success');
                 this.reconnectAttempts = 0;
             };
-            
+
             this.websocket.onmessage = (event) => {
                 //console.log('WebSocket message received:', event);
                 this.handleWebSocketMessage(event.data);
             };
-            
+
             this.websocket.onclose = () => {
                 this.addOutputLine('Disconnected from backend', 'warning');
                 this.scheduleReconnect();
             };
-            
+
             this.websocket.onerror = (error) => {
                 this.addOutputLine('WebSocket error: ' + error.message, 'error');
             };
-            
+
         } catch (error) {
             this.addOutputLine('Failed to connect: ' + error.message, 'error');
             this.scheduleReconnect();
         }
     },
-    
-    scheduleReconnect: function() {
+
+    scheduleReconnect: function () {
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
             this.reconnectAttempts++;
             const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000); // Exponential backoff, max 30s
-            
-            this.addOutputLine(`Reconnecting in ${delay/1000}s (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`, 'info');
-            
+
+            this.addOutputLine(`Reconnecting in ${delay / 1000}s (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`, 'info');
+
             this.reconnectTimeout = setTimeout(() => {
                 this.connectWebSocket();
             }, delay);
@@ -171,30 +178,30 @@ const SystemMonitorApp = {
             this.addOutputLine('Max reconnection attempts reached', 'error');
         }
     },
-    
-    handleWebSocketMessage: function(data) {
+
+    handleWebSocketMessage: function (data) {
         const message = JSON.parse(data);
         try {
-            
-            
+
+
             switch (message.type) {
                 case 'initial_data':
                     this.handleInitialData(message.data);
                     break;
-                    
+
                 case 'system_status':
                     this.updateSystemStatus(message.data);
                     break;
-                    
+
                 case 'token':
                     this.addLLMOutput(message.token);
                     break;
-                    
+
                 case 'reset':
                     this.clearLLMOutput();
                     break;
-                    
-                    
+
+
                 default:
                     console.log('Unknown message type:', message.type);
             }
@@ -202,8 +209,8 @@ const SystemMonitorApp = {
             console.error('Error parsing WebSocket message:', message, error);
         }
     },
-    
-    handleInitialData: function(data) {
+
+    handleInitialData: function (data) {
         if (data.system_status) {
             this.updateSystemStatus(data.system_status);
         }
@@ -218,64 +225,53 @@ const SystemMonitorApp = {
                 this.addOutputLine(msg.message, msg.type, false);
             });
         }
-        
+
         // Clear LLM output on initial connection
         const llmContainer = document.getElementById('llm-output-container');
         llmContainer.innerHTML = '<div class="output-line info">Connected to LLM stream...</div>';
     },
-    
-    updateSystemStatus: function(status) {
-        
-        document.getElementById('system-status').textContent = status.status;
+
+    updateSystemStatus: function (status) {
+        //document.getElementById('system-status').textContent = status.status;
         document.getElementById('memory-usage').textContent = status.memory_usage.toFixed(1) + '%';
         document.getElementById('cpu-usage').textContent = status.cpu_usage.toFixed(1) + '%';
+        document.getElementById('temperature-value').textContent = status.temperature + '°C';
+
+        this.updateStatusColor('memory-usage', status.memory_usage);
+        this.updateStatusColor('cpu-usage', status.cpu_usage);
+        this.updateStatusColor('temperature-value', parseFloat(status.temperature));
+
         document.getElementById('articles-count').textContent = status.articles_count.toLocaleString();
         document.getElementById('system-uptime').textContent = status.uptime;
         document.getElementById('task-label').textContent = status.current_phase || 'Writing';
         document.getElementById('current-task').textContent = status.current_title || 'No current task';
 
-        // Update colors based on usage
-        this.updateStatusColor('memory-usage', status.memory_usage);
-        this.updateStatusColor('cpu-usage', status.cpu_usage);
-
-
         const statusIndicator = document.getElementById('statusIndicator');
         const statusText = statusIndicator.querySelector('.status-text');
         const statusDot = statusIndicator.querySelector('.status-dot');
-        
-        // Simulate system status (in real implementation, this would check actual system health)
-        // const isOnline = Math.random() > 0.1; // 90% chance of being online
-        
-        // if (isOnline) {
-        //     statusText.textContent = 'ONLINE';
-        //     statusDot.style.background = '#00ff00';
-        // } else {
-        //     statusText.textContent = 'OFFLINE';
-        //     statusDot.style.background = '#ff0000';
-        // }
         statusText.textContent = status.current_phase || 'UNKNOWN';
         statusDot.style.background = '#00ff00'; //
     },
-    
-    updateGenerationStatus: function(generation) {
+
+    updateGenerationStatus: function (generation) {
         document.getElementById('current-task').textContent = generation.current_task;
         document.getElementById('generation-rate').textContent = generation.progress.toFixed(1) + '%';
         document.getElementById('queue-size').textContent = generation.time_remaining;
     },
-    
-    updateCurrentWord: function(data) {
+
+    updateCurrentWord: function (data) {
         // Update the current word display if needed
         const taskElement = document.getElementById('current-task');
         const currentText = taskElement.textContent;
-        
+
         // If we have a current word, append it to the task
         if (data.word) {
             const baseTask = currentText.split(' - ')[0]; // Remove any existing word
             taskElement.textContent = `${baseTask} - ${data.word}`;
         }
     },
-    
-    updateStatusColor: function(elementId, value) {
+
+    updateStatusColor: function (elementId, value) {
         const element = document.getElementById(elementId);
         if (value > 80) {
             element.style.color = '#ff0000';
@@ -285,72 +281,72 @@ const SystemMonitorApp = {
             element.style.color = '#00ffff';
         }
     },
-    
-    addOutputLine: function(message, type = 'info', scroll = true) {
+
+    addOutputLine: function (message, type = 'info', scroll = true) {
         const container = document.getElementById('llm-output-container');
         const timestamp = new Date().toLocaleTimeString();
-        
+
         // Check if user is at the bottom before adding new content
         const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 50;
-        
+
         const line = document.createElement('div');
         line.className = `output-line ${type}`;
         line.textContent = `[${timestamp}] ${message}`;
-        
+
         container.appendChild(line);
-        
+
         // Only auto-scroll if user was already at the bottom or scroll parameter is true
         if (scroll && isAtBottom) {
             container.scrollTop = container.scrollHeight;
         }
-        
+
         // Keep only last 50 lines
         while (container.children.length > 50) {
             container.removeChild(container.firstChild);
         }
     },
-    
-    addLLMOutput: function(token) {
+
+    addLLMOutput: function (token) {
         const container = document.getElementById('llm-output-container');
-        
+
         // Check if user is at the bottom before adding new content
         const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 50;
-        
+
         // Create a span for the token
         const tokenSpan = document.createElement('span');
         tokenSpan.className = 'llm-token';
         tokenSpan.textContent = token;
-        
+
         // Add a space after the token (except for punctuation)
         // if (!token.match(/^[.,!?;:]$/)) {
         //     tokenSpan.textContent += ' ';
         // }
 
         tokenSpan.innerHTML = token.replace(/\n/g, '<br>');
-        
+
         container.appendChild(tokenSpan);
-        
+
         // Only auto-scroll if user was already at the bottom
         if (isAtBottom) {
             container.scrollTop = container.scrollHeight;
         }
-        
+
         // Keep only last 1000 tokens to prevent memory issues
         while (container.children.length > 1000) {
             container.removeChild(container.firstChild);
         }
     },
-    
-    clearLLMOutput: function() {
+
+    clearLLMOutput: function () {
         const container = document.getElementById('llm-output-container');
         container.innerHTML = '';
         console.log('LLM output cleared');
     },
-    
-    addStyles: function() {
+
+    addStyles: function () {
         const styleId = 'system-monitor-styles';
         if (document.getElementById(styleId)) return;
-        
+
         const style = document.createElement('style');
         style.id = styleId;
         style.textContent = `
@@ -576,21 +572,21 @@ const SystemMonitorApp = {
         `;
         document.head.appendChild(style);
     },
-    
-    refreshData: function() {
+
+    refreshData: function () {
         this.addOutputLine('Manual refresh requested', 'info');
     },
-    
-    clearOutput: function() {
+
+    clearOutput: function () {
         const container = document.getElementById('output-container');
         container.innerHTML = '<div class="output-line info">Output cleared...</div>';
     },
-    
-    exportReport: function() {
+
+    exportReport: function () {
         this.addOutputLine('System report exported', 'success');
     },
-    
-    destroy: function() {
+
+    destroy: function () {
         // Close WebSocket connection and remove event handlers
         if (this.websocket) {
             // Remove event handlers to prevent reconnection
@@ -600,25 +596,25 @@ const SystemMonitorApp = {
             this.websocket.close();
             this.websocket = null;
         }
-        
+
         // Clear any reconnection timeouts
         if (this.reconnectTimeout) {
             clearTimeout(this.reconnectTimeout);
             this.reconnectTimeout = null;
         }
-        
+
         // Clear any update intervals
         if (this.updateInterval) {
             clearInterval(this.updateInterval);
             this.updateInterval = null;
         }
-        
+
         // Reset reconnection attempts to prevent new connections
         this.reconnectAttempts = this.maxReconnectAttempts + 1;
-        
+
         // Clear stored data
         this.generationLog = [];
-        
+
         console.log('📊 System Monitor destroyed - WebSocket connection closed');
     }
 }; 

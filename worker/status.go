@@ -22,16 +22,15 @@ type GenerationStatus struct {
 }
 
 type SystemStatus struct {
-	Status         string    `json:"status"`
-	Uptime         string    `json:"uptime"`
-	MemoryUsage    float64   `json:"memory_usage"`
-	CPUUsage       float64   `json:"cpu_usage"`
-	DiskUsage      float64   `json:"disk_usage"`
-	ArticlesCount  int       `json:"articles_count"`
-	GenerationRate float64   `json:"generation_rate"`
-	LastUpdated    time.Time `json:"last_updated"`
-	CurrentTitle   string    `json:"current_title,omitempty"` // Current article title being processed
-	CurrentPhase   string    `json:"current_phase,omitempty"` // Current phase of the article
+	Status        string    `json:"status"`
+	Uptime        string    `json:"uptime"`
+	MemoryUsage   float64   `json:"memory_usage"`
+	CPUUsage      float64   `json:"cpu_usage"`
+	Temperature   string    `json:"temperature"`
+	ArticlesCount int       `json:"articles_count"`
+	LastUpdated   time.Time `json:"last_updated"`
+	CurrentTitle  string    `json:"current_title,omitempty"` // Current article title being processed
+	CurrentPhase  string    `json:"current_phase,omitempty"` // Current phase of the article
 }
 
 type StatusMonitor struct {
@@ -138,11 +137,6 @@ func (sm *StatusMonitor) getMemoryUsage() float64 {
 	return float64(usedMem) / float64(totalMem) * 100.0
 }
 
-func (sm *StatusMonitor) getDiskUsage() float64 {
-	// Simple disk usage simulation
-	return 45.0
-}
-
 func (sm *StatusMonitor) getArticlesCount() int {
 	// Count files in the articles directory
 	entries, err := os.ReadDir("articles")
@@ -153,53 +147,71 @@ func (sm *StatusMonitor) getArticlesCount() int {
 }
 
 func (sm *StatusMonitor) getCpuTemperature() float64 {
-	// Run 'sensors' and parse for coretemp-isa-0000 section, Core N: temperature
+	// Run 'sensors' command to get temperature readings
 	cmdOutput, err := exec.Command("sensors").Output()
 	if err != nil {
 		log.Printf("Failed to run sensors: %v", err)
 		return 0.0
 	}
+
 	lines := strings.Split(string(cmdOutput), "\n")
-	inCoretemp := false
-	coreTempRe := regexp.MustCompile(`^Core \\d+:\\s+\\+([0-9]+\\.[0-9])\\xB0C`)
-	for _, line := range lines {
-		if strings.HasPrefix(line, "coretemp-isa-0000") {
-			inCoretemp = true
-			continue
-		}
-		if inCoretemp {
-			if strings.TrimSpace(line) == "" || (!strings.HasPrefix(line, "Core ")) {
-				// End of section or not a core line
-				if strings.TrimSpace(line) == "" {
-					break
+	if len(lines) == 0 {
+		log.Printf("No output from sensors command")
+		return 0.0
+	}
+
+	// Check first line to determine sensor type
+	firstLine := strings.TrimSpace(lines[0])
+
+	if strings.HasPrefix(firstLine, "amdgpu") {
+		// Parse AMD GPU temperature from junction line
+		for _, line := range lines {
+			if strings.Contains(line, "junction:") {
+				// Extract temperature from "junction:     +60.0°C  (crit = +110.0°C, hyst = -273.1°C)"
+				re := regexp.MustCompile(`junction:\s+\+([0-9]+\.?[0-9]*)°C`)
+				matches := re.FindStringSubmatch(line)
+				if len(matches) == 2 {
+					temp, err := strconv.ParseFloat(matches[1], 64)
+					if err == nil {
+						return temp
+					}
 				}
-				continue
 			}
-			matches := coreTempRe.FindStringSubmatch(line)
-			if len(matches) == 2 {
-				temp, err := strconv.ParseFloat(matches[1], 64)
-				if err == nil {
-					return temp
+		}
+	} else if strings.HasPrefix(firstLine, "coretemp") {
+		// Parse Intel CPU temperature from Core 0 line
+		for _, line := range lines {
+			if strings.Contains(line, "Core 0:") {
+				// Extract temperature from "Core 0:       +64.0°C  (high = +90.0°C, crit = +90.0°C)"
+				re := regexp.MustCompile(`Core 0:\s+\+([0-9]+\.?[0-9]*)°C`)
+				matches := re.FindStringSubmatch(line)
+				if len(matches) == 2 {
+					temp, err := strconv.ParseFloat(matches[1], 64)
+					if err == nil {
+						return temp
+					}
 				}
 			}
 		}
 	}
-	// Not found
+
+	log.Printf("No temperature reading found in sensors output")
 	return 0.0
 }
 
 func (sm *StatusMonitor) generateStatus() SystemStatus {
+	tempVal := sm.getCpuTemperature()
+	tempStr := fmt.Sprintf("%.1f", tempVal)
 	return SystemStatus{
-		Status:         "Online",
-		Uptime:         sm.getUptime(),
-		MemoryUsage:    sm.getMemoryUsage(),
-		CPUUsage:       sm.getCPUUsage(),
-		DiskUsage:      sm.getDiskUsage(),
-		ArticlesCount:  sm.getArticlesCount(),
-		GenerationRate: 2.5, // Placeholder - could be calculated from recent activity
-		LastUpdated:    time.Now(),
-		CurrentTitle:   generationStatus.Title,
-		CurrentPhase:   generationStatus.Phase,
+		Status:        "Online",
+		Uptime:        sm.getUptime(),
+		MemoryUsage:   sm.getMemoryUsage(),
+		CPUUsage:      sm.getCPUUsage(),
+		Temperature:   tempStr,
+		ArticlesCount: sm.getArticlesCount(),
+		LastUpdated:   time.Now(),
+		CurrentTitle:  generationStatus.Title,
+		CurrentPhase:  generationStatus.Phase,
 	}
 }
 
