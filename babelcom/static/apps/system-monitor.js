@@ -41,15 +41,7 @@ const SystemMonitorApp = {
                     
                     </div>
 
-                    <div class="status-card">
-                        <div class="status-icon">
-                            <img src="/static/icons/temperature.png" alt="Temperature" style="width: 1.8em; height: 1.8em; vertical-align: middle;" />
-                        </div>
-                        <div class="status-info">
-                            <div class="status-label">Entropy</div>
-                            <div class="status-value" id="temperature-value">--</div>
-                        </div>
-                    </div>
+                    
 
 
                     <div class="status-card">
@@ -59,6 +51,16 @@ const SystemMonitorApp = {
                         <div class="status-info">
                             <div class="status-label">Memory</div>
                             <div class="status-value" id="memory-usage">--</div>
+                        </div>
+                    </div>
+
+                    <div class="status-card">
+                        <div class="status-icon">
+                            <img src="/static/icons/temperature.png" alt="Temperature" style="width: 1.8em; height: 1.8em; vertical-align: middle;" />
+                        </div>
+                        <div class="status-info">
+                            <div class="status-label">Entropy</div>
+                            <div class="status-value" id="temperature-value">--</div>
                         </div>
                     </div>
                     
