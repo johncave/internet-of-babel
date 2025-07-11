@@ -36,7 +36,9 @@ const SystemMonitorApp = {
                     </div>
                     
                     <div class="status-card">
-                        <div class="status-icon">💾</div>
+                        <div class="status-icon">
+                            <img src="/static/icons/memory.png" alt="Memory" style="width: 1.8em; height: 1.8em; vertical-align: middle;" />
+                        </div>
                         <div class="status-info">
                             <div class="status-label">Memory</div>
                             <div class="status-value" id="memory-usage">--</div>
@@ -44,7 +46,9 @@ const SystemMonitorApp = {
                     </div>
                     
                     <div class="status-card">
-                        <div class="status-icon">🔥</div>
+                        <div class="status-icon">
+                            <img src="/static/icons/compute.png" alt="Compute" style="width: 1.8em; height: 1.8em; vertical-align: middle;" />
+                        </div>
                         <div class="status-info">
                             <div class="status-label">Compute</div>
                             <div class="status-value" id="cpu-usage">--</div>
@@ -59,8 +63,8 @@ const SystemMonitorApp = {
                     <h3>✨ Current Job</h3>
                     <div class="generation-status">
                         <div class="current-task">
+                            <span class="task-value" id="current-task">Loading...</span>
                             <span class="task-label" id="task-label">Writing</span>
-                            <span class="task-value" id="current-task">Waiting for babelcom...</span>
                         </div>
                         <div class="llm-output-container" id="llm-output-container">
                             <div class="output-line info">Waiting for babelcom...</div>
@@ -75,7 +79,7 @@ const SystemMonitorApp = {
                 
                 <!-- Performance Metrics (Bottom) -->
                 <div class="performance-metrics">
-                    <h3>📈 Overview</h3>
+                    <h3><img src="/static/icons/system-monitor.png" alt="Overview" style="width: 1.2em; height: 1.2em; vertical-align: middle;" /> Overview</h3>
                     <div class="metrics-grid">
                         <div class="metric-item">
                             <span class="metric-label">Articles Generated</span>
@@ -134,7 +138,7 @@ const SystemMonitorApp = {
             };
             
             this.websocket.onmessage = (event) => {
-                console.log('WebSocket message received:', event);
+                //console.log('WebSocket message received:', event);
                 this.handleWebSocketMessage(event.data);
             };
             
@@ -160,7 +164,7 @@ const SystemMonitorApp = {
             
             this.addOutputLine(`Reconnecting in ${delay/1000}s (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`, 'info');
             
-            setTimeout(() => {
+            this.reconnectTimeout = setTimeout(() => {
                 this.connectWebSocket();
             }, delay);
         } else {
@@ -221,8 +225,7 @@ const SystemMonitorApp = {
     },
     
     updateSystemStatus: function(status) {
-        console.log(status);
-        //console.log(status);
+        
         document.getElementById('system-status').textContent = status.status;
         document.getElementById('memory-usage').textContent = status.memory_usage.toFixed(1) + '%';
         document.getElementById('cpu-usage').textContent = status.cpu_usage.toFixed(1) + '%';
@@ -250,7 +253,7 @@ const SystemMonitorApp = {
         //     statusText.textContent = 'OFFLINE';
         //     statusDot.style.background = '#ff0000';
         // }
-        statusText.textContent = status.status || 'UNKNOWN';
+        statusText.textContent = status.current_phase || 'UNKNOWN';
         statusDot.style.background = '#00ff00'; //
     },
     
@@ -287,13 +290,17 @@ const SystemMonitorApp = {
         const container = document.getElementById('llm-output-container');
         const timestamp = new Date().toLocaleTimeString();
         
+        // Check if user is at the bottom before adding new content
+        const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 50;
+        
         const line = document.createElement('div');
         line.className = `output-line ${type}`;
         line.textContent = `[${timestamp}] ${message}`;
         
         container.appendChild(line);
         
-        if (scroll) {
+        // Only auto-scroll if user was already at the bottom or scroll parameter is true
+        if (scroll && isAtBottom) {
             container.scrollTop = container.scrollHeight;
         }
         
@@ -305,6 +312,9 @@ const SystemMonitorApp = {
     
     addLLMOutput: function(token) {
         const container = document.getElementById('llm-output-container');
+        
+        // Check if user is at the bottom before adding new content
+        const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 50;
         
         // Create a span for the token
         const tokenSpan = document.createElement('span');
@@ -320,8 +330,10 @@ const SystemMonitorApp = {
         
         container.appendChild(tokenSpan);
         
-        // Auto-scroll to bottom
-        container.scrollTop = container.scrollHeight;
+        // Only auto-scroll if user was already at the bottom
+        if (isAtBottom) {
+            container.scrollTop = container.scrollHeight;
+        }
         
         // Keep only last 1000 tokens to prevent memory issues
         while (container.children.length > 1000) {
@@ -382,6 +394,7 @@ const SystemMonitorApp = {
                 color: #00ffff;
                 font-weight: bold;
                 text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+                text-decoration: underline;
             }
             
             .real-time-output {
@@ -578,9 +591,34 @@ const SystemMonitorApp = {
     },
     
     destroy: function() {
+        // Close WebSocket connection and remove event handlers
         if (this.websocket) {
+            // Remove event handlers to prevent reconnection
+            this.websocket.onclose = null;
+            this.websocket.onmessage = null;
+            this.websocket.onerror = null;
             this.websocket.close();
+            this.websocket = null;
         }
-        console.log('📊 System Monitor destroyed');
+        
+        // Clear any reconnection timeouts
+        if (this.reconnectTimeout) {
+            clearTimeout(this.reconnectTimeout);
+            this.reconnectTimeout = null;
+        }
+        
+        // Clear any update intervals
+        if (this.updateInterval) {
+            clearInterval(this.updateInterval);
+            this.updateInterval = null;
+        }
+        
+        // Reset reconnection attempts to prevent new connections
+        this.reconnectAttempts = this.maxReconnectAttempts + 1;
+        
+        // Clear stored data
+        this.generationLog = [];
+        
+        console.log('📊 System Monitor destroyed - WebSocket connection closed');
     }
 }; 

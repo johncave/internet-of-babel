@@ -7,9 +7,9 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeDesktop();
     updateClock();
     setInterval(updateClock, 1000);
-    updateSystemStatus();
-    setInterval(updateSystemStatus, 5000);
-    // Open library browser in fullscreen on load
+    updateSystemStatus('Online', '#00ff00'); // Default status
+    //setInterval(updateSystemStatus, 5000);
+    // Open web browser in fullscreen on load
     setTimeout(() => {
         let win = openApp('library-browser');
         win.maximize()
@@ -24,20 +24,23 @@ function initializeDesktop() {
     registerApp('system-monitor', {
         name: 'System Monitor',
         icon: '📊',
+        iconPath: '/static/icons/system-monitor.png',
         component: SystemMonitorApp,
         defaultWidth: 600,
         defaultHeight: 800
     });
     
     registerApp('library-browser', {
-        name: 'Library Browser',
+        name: 'Web Browser',
         icon: '📚',
+        iconPath: '/static/icons/web-browser.png',
         component: LibraryBrowserApp
     });
     
     registerApp('radio', {
         name: 'Radio',
         icon: '📻',
+        iconPath: '/static/icons/radio.png',
         component: RadioApp,
         defaultWidth: 300,
         defaultHeight: 350
@@ -58,8 +61,20 @@ function registerApp(id, config) {
         ...config
     });
     console.log(`📱 Registered app: ${config.name} (${id})`);
+    
+    // Update title for existing windows of this app
+    updateWindowTitle(id, config.name);
 }
 
+// Update window title for existing windows
+function updateWindowTitle(appId, newTitle) {
+    if (runningApps.has(appId)) {
+        const window = runningApps.get(appId);
+        if (window && window.setTitle) {
+            window.setTitle(newTitle);
+        }
+    }
+}
 
 
 // Open an application
@@ -85,6 +100,7 @@ function openApp(appId) {
     // Create window using WinBox
     const window = new WinBox({
         title: appConfig.name,
+        icon: appConfig.iconPath,
         width: appConfig.defaultWidth || 800,
         height: appConfig.defaultHeight || 600,
         x: 100 + (runningApps.size * 50),
@@ -99,6 +115,9 @@ function openApp(appId) {
     // Store window reference
     runningApps.set(appId, window);
     
+    // Ensure window has correct title
+    window.setTitle(appConfig.name);
+    
     // Initialize app component
     if (appConfig.component) {
         const appElement = document.getElementById(`app-${appId}`);
@@ -109,6 +128,11 @@ function openApp(appId) {
     
     // Handle window close
     window.onclose = () => {
+        // Call the app's destroy function if it exists
+        if (appConfig.component && appConfig.component.destroy) {
+            appConfig.component.destroy();
+        }
+        
         runningApps.delete(appId);
         updateTaskbar();
         console.log(`🔒 Closed ${appConfig.name}`);
@@ -150,7 +174,7 @@ function updateTaskbar() {
             const appButton = document.createElement('div');
             appButton.className = 'taskbar-app';
             appButton.innerHTML = `
-                <span class="taskbar-app-icon">${appConfig.icon}</span>
+                <span class="taskbar-app-icon"><img src="${appConfig.iconPath}" alt="${appConfig.name}" style="width: 16px; height: 16px; vertical-align: middle;"></span>
                 <span class="taskbar-app-name">${appConfig.name}</span>
             `;
             appButton.onclick = () => {

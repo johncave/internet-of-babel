@@ -1,6 +1,6 @@
-// Library Browser Application
+// Web Browser Application
 const LibraryBrowserApp = {
-    name: 'Library Browser',
+    name: 'Web Browser',
     icon: '📚',
 
     init: function (container, config) {
@@ -9,7 +9,7 @@ const LibraryBrowserApp = {
 
         this.render();
 
-        console.log('📚 Library Browser initialized');
+        console.log('📚 Web Browser initialized');
     },
 
     render: function () {
@@ -124,6 +124,6 @@ const LibraryBrowserApp = {
     },
 
     destroy: function () {
-        console.log('📚 Library Browser destroyed');
+        console.log('📚 Web Browser destroyed');
     }
 }; 
