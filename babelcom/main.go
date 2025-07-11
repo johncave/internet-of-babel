@@ -144,6 +144,16 @@ func main() {
 	fmt.Println("Starting Babelcom WebSocket Message Bus")
 	server := NewServer()
 
+	// Connect to upstream radio if URL is provided
+	upstreamRadioURL := os.Getenv("BABELCOM_UPSTREAM_RADIO_URL")
+	if upstreamRadioURL == "" {
+		upstreamRadioURL = "wss://radio.johncave.co.nz/api/live/nowplaying/websocket"
+	}
+
+	if err := server.connectUpstreamRadio(upstreamRadioURL); err != nil {
+		log.Printf("Failed to connect to upstream radio: %v", err)
+	}
+
 	// Setup Gin router
 	router := gin.Default()
 
@@ -199,6 +209,7 @@ func main() {
 
 	router.GET("/ws", server.handleBroadcastWebSocket)
 	router.GET("/ws/llm", server.handleLLMWebSocket)
+	router.GET("/ws/radio", server.handleRadioWebSocket)
 
 	// Health check endpoint
 	router.GET("/health", func(c *gin.Context) {
@@ -206,6 +217,7 @@ func main() {
 			"status":                "healthy",
 			"broadcast_connections": len(server.broadcastConnections),
 			"llm_connections":       len(server.llmConnections),
+			"radio_connections":     len(server.radioConnections),
 			"static_mode":           getStaticMode(),
 		})
 	})
@@ -214,9 +226,11 @@ func main() {
 	port := ":8088"
 	log.Printf("Starting server on port %s", port)
 	log.Printf("Static files mode: %s", getStaticMode())
-	log.Printf("Broadcast WebSocket: ws://localhost%s/ws/broadcast", port)
+	log.Printf("Broadcast WebSocket: ws://localhost%s/ws", port)
 	log.Printf("LLM WebSocket: ws://localhost%s/ws/llm?api_key=<your-api-key>", port)
+	log.Printf("Radio WebSocket: ws://localhost%s/ws/radio", port)
 	log.Printf("API key can be configured via BABELCOM_API_KEY environment variable")
+	log.Printf("Upstream radio URL: %s (override with BABELCOM_UPSTREAM_RADIO_URL)", upstreamRadioURL)
 
 	if err := router.Run(port); err != nil {
 		log.Fatal("Failed to start server:", err)

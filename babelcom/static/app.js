@@ -42,8 +42,8 @@ function initializeDesktop() {
         icon: '📻',
         iconPath: '/static/icons/radio.png',
         component: RadioApp,
-        defaultWidth: 300,
-        defaultHeight: 350
+        defaultWidth: 400,
+        defaultHeight: 200
     });
     
 

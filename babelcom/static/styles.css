@@ -383,6 +383,7 @@ body {
 .app-window {
     height: 100%;
     overflow-y: auto;
+    border-radius: 15px;
 }
 
 .app-window h1 {
