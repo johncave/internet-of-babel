@@ -24,9 +24,10 @@ func calculateETag(content []byte) string {
 
 // serveEmbeddedFile serves a file from the embedded filesystem with ETag support
 func serveEmbeddedFile(c *gin.Context, path string, contentType string) {
+	fmt.Println("Serving embedded file:", path)
 	content, err := staticFiles.ReadFile(path)
 	if err != nil {
-		c.String(http.StatusNotFound, "File not found")
+		c.String(http.StatusNotFound, "404: File Not Found")
 		return
 	}
 
@@ -84,6 +85,42 @@ func serveStatic(c *gin.Context) {
 	serveEmbeddedFile(c, "static/index.html", "text/html")
 }
 
+// getContentTypeFromExtension determines the MIME type based on file extension
+func getContentTypeFromExtension(filePath string) string {
+	switch filepath.Ext(filePath) {
+	case ".html":
+		return "text/html"
+	case ".css":
+		return "text/css"
+	case ".js":
+		return "application/javascript"
+	case ".png":
+		return "image/png"
+	case ".jpg", ".jpeg":
+		return "image/jpeg"
+	case ".gif":
+		return "image/gif"
+	case ".svg":
+		return "image/svg+xml"
+	case ".ico":
+		return "image/x-icon"
+	case ".webp":
+		return "image/webp"
+	case ".mp4":
+		return "video/mp4"
+	case ".woff":
+		return "font/woff"
+	case ".woff2":
+		return "font/woff2"
+	case ".ttf":
+		return "font/ttf"
+	case ".eot":
+		return "application/vnd.ms-fontobject"
+	default:
+		return "application/octet-stream"
+	}
+}
+
 // customStaticHandler handles static files with ETag support
 func customStaticHandler(staticPath string) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -95,39 +132,7 @@ func customStaticHandler(staticPath string) gin.HandlerFunc {
 			return
 		}
 
-		// Determine content type based on file extension
-		contentType := "application/octet-stream"
-		switch filepath.Ext(filePath) {
-		case ".html":
-			contentType = "text/html"
-		case ".css":
-			contentType = "text/css"
-		case ".js":
-			contentType = "application/javascript"
-		case ".png":
-			contentType = "image/png"
-		case ".jpg", ".jpeg":
-			contentType = "image/jpeg"
-		case ".gif":
-			contentType = "image/gif"
-		case ".svg":
-			contentType = "image/svg+xml"
-		case ".ico":
-			contentType = "image/x-icon"
-		case ".webp":
-			contentType = "image/webp"
-		case ".mp4":
-			contentType = "video/mp4"
-		case ".woff":
-			contentType = "font/woff"
-		case ".woff2":
-			contentType = "font/woff2"
-		case ".ttf":
-			contentType = "font/ttf"
-		case ".eot":
-			contentType = "application/vnd.ms-fontobject"
-		}
-
+		contentType := getContentTypeFromExtension(filePath)
 		serveDiskFile(c, filePath, contentType)
 	}
 }
@@ -135,8 +140,9 @@ func customStaticHandler(staticPath string) gin.HandlerFunc {
 // customEmbeddedStaticHandler handles embedded static files with ETag support
 func customEmbeddedStaticHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		filePath := "static/" + c.Param("filepath")
-		serveEmbeddedFile(c, filePath, "application/octet-stream")
+		filePath := "static" + c.Param("filepath")
+		contentType := getContentTypeFromExtension(filePath)
+		serveEmbeddedFile(c, filePath, contentType)
 	}
 }
 
