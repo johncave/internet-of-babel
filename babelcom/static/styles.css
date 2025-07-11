@@ -4,7 +4,7 @@
     font-family: 'Orbitron';
     font-style: normal;
     font-weight: 400;
-    src: url('/static/fonts/orbitron-v34-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+    src: url('/static/fonts/w95fa.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
   }
   
   /* orbitron-700 - latin */
@@ -13,7 +13,7 @@
     font-family: 'Orbitron';
     font-style: normal;
     font-weight: 700;
-    src: url('/static/fonts/orbitron-v34-latin-700.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+    src: url('/static/fonts/w95fa.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
   }
   
   /* orbitron-900 - latin */
@@ -22,7 +22,7 @@
     font-family: 'Orbitron';
     font-style: normal;
     font-weight: 900;
-    src: url('/static/fonts/orbitron-v34-latin-900.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+    src: url('/static/fonts/w95fa.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
   }
 
   /* share-tech-mono-regular - latin */
@@ -31,7 +31,7 @@
     font-family: 'Share Tech Mono';
     font-style: normal;
     font-weight: 400;
-    src: url('/static/fonts/share-tech-mono-v15-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+    src: url('/static/fonts/w95fa.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
   }
   
   
@@ -186,7 +186,7 @@ body {
 
 .clock {
     font-family: 'Orbitron', sans-serif;
-    font-size: 0.9em;
+    font-size: 1.2em;
     color: #ff6b9d;
     text-shadow: 0 0 8px rgba(255, 107, 157, 0.5);
 }
@@ -195,7 +195,7 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 0.8em;
+    font-size: 1em;
     font-family: 'Orbitron', sans-serif;
 }
 
@@ -274,7 +274,7 @@ body {
 
 .app-name {
     font-family: 'Orbitron', sans-serif;
-    font-size: 0.9em;
+    font-size: 1em;
     color: #e0e0e0;
 }
 
@@ -317,7 +317,7 @@ body {
 
 .icon-label {
     font-family: 'Orbitron', sans-serif;
-    font-size: 0.8em;
+    font-size: 1em;
     text-align: center;
     color: #e0e0e0;
     text-shadow: 0 0 5px rgba(224, 224, 224, 0.3);
@@ -358,6 +358,10 @@ body {
 .wb-body {
     background: transparent !important;
     color: #e0e0e0 !important;
+    font-family: 'Share Tech Mono', monospace !important;
+}
+.wb-title {
+    font-size: 1.2em !important;
     font-family: 'Share Tech Mono', monospace !important;
 }
 

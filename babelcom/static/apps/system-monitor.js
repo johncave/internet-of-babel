@@ -490,7 +490,7 @@ const SystemMonitorApp = {
             
             .status-label {
                 color: #ff6b9d;
-                font-size: 0.8em;
+                font-size: 1em;
                 font-weight: bold;
                 margin-bottom: 2px;
             }
