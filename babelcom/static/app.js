@@ -32,7 +32,7 @@ function initializeDesktop() {
     
     registerApp('library-browser', {
         name: 'Web Browser',
-        icon: '📚',
+        icon: '📖',
         iconPath: '/static/icons/web-browser.png',
         component: LibraryBrowserApp
     });
@@ -86,37 +86,59 @@ function openApp(appId) {
     
     // Check if app is already running
     if (runningApps.has(appId)) {
-        const window = runningApps.get(appId);
-        if (window.min){
-            window.minimize(false)
+        const winboxWindow = runningApps.get(appId);
+        if (winboxWindow.min){
+            winboxWindow.minimize(false)
         }
-        window.focus();
-        return window; // Return the window instance if already running
+        winboxWindow.focus();
+        return winboxWindow; // Return the window instance if already running
     }
     
     const appConfig = appRegistry.get(appId);
     console.log(`🚀 Opening ${appConfig.name}...`);
     
-    // Create window using WinBox
-    const window = new WinBox({
+    // Detect mobile device
+    const isMobile = window.innerWidth <= 768;
+    
+    
+    // Set window configuration based on device and app
+    let windowConfig = {
         title: appConfig.name,
         icon: appConfig.iconPath,
-        width: appConfig.defaultWidth || 800,
-        height: appConfig.defaultHeight || 600,
-        x: 100 + (runningApps.size * 50),
-        y: 25 + (runningApps.size * 50),
         resizable: true,
         minimizable: true,
         maximizable: true,
         closable: true,
         html: `<div class="app-window" id="app-${appId}"></div>`
-    });
+    };
+    
+    if (isMobile) {
+        if (appId === 'radio') {
+            // Radio opens at 0,0 on mobile
+            windowConfig.x = 0;
+            windowConfig.y = 0;
+            windowConfig.width = appConfig.defaultWidth || 400;
+            windowConfig.height = appConfig.defaultHeight || 200;
+        } else {
+            // All other apps open maximized on mobile
+            windowConfig.max = true;
+        }
+    } else {
+        // Desktop positioning
+        windowConfig.width = appConfig.defaultWidth || 800;
+        windowConfig.height = appConfig.defaultHeight || 600;
+        windowConfig.x = 100 + (runningApps.size * 50);
+        windowConfig.y = 25 + (runningApps.size * 50);
+    }
+    
+    // Create window using WinBox
+    const winboxWindow = new WinBox(windowConfig);
     
     // Store window reference
-    runningApps.set(appId, window);
+    runningApps.set(appId, winboxWindow);
     
     // Ensure window has correct title
-    window.setTitle(appConfig.name);
+    winboxWindow.setTitle(appConfig.name);
     
     // Initialize app component
     if (appConfig.component) {
@@ -127,7 +149,7 @@ function openApp(appId) {
     }
     
     // Handle window close
-    window.onclose = () => {
+    winboxWindow.onclose = () => {
         // Call the app's destroy function if it exists
         if (appConfig.component && appConfig.component.destroy) {
             appConfig.component.destroy();
@@ -139,19 +161,19 @@ function openApp(appId) {
     };
     
     // Handle window minimize
-    window.onminimize = () => {
+    winboxWindow.onminimize = () => {
         updateTaskbar();
         console.log(`📉 Minimized ${appConfig.name}`);
     };
     
     // Handle window maximize
-    window.onmaximize = () => {
+    winboxWindow.onmaximize = () => {
         updateTaskbar();
         console.log(`📈 Maximized ${appConfig.name}`);
     };
     
     // Handle window restore (when unminimized)
-    window.onrestore = () => {
+    winboxWindow.onrestore = () => {
         updateTaskbar();
         console.log(`📋 Restored ${appConfig.name}`);
     };
@@ -160,7 +182,7 @@ function openApp(appId) {
     updateTaskbar();
     
     console.log(`✅ ${appConfig.name} opened successfully`);
-    return window; // Return the window instance when newly created
+    return winboxWindow; // Return the window instance when newly created
 }
 
 // Update taskbar with running apps

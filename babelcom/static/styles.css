@@ -4,7 +4,7 @@
     font-family: 'Orbitron';
     font-style: normal;
     font-weight: 400;
-    src: url('/static/fonts/w95fa.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+    src: url('/static/fonts/orbitron-v34-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
   }
   
   /* orbitron-700 - latin */
@@ -13,7 +13,7 @@
     font-family: 'Orbitron';
     font-style: normal;
     font-weight: 700;
-    src: url('/static/fonts/w95fa.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+    src: url('/static/fonts/orbitron-v34-latin-700.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
   }
   
   /* orbitron-900 - latin */
@@ -22,7 +22,7 @@
     font-family: 'Orbitron';
     font-style: normal;
     font-weight: 900;
-    src: url('/static/fonts/w95fa.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+    src: url('/static/fonts/orbitron-v34-latin-900.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
   }
 
   /* share-tech-mono-regular - latin */
@@ -31,7 +31,7 @@
     font-family: 'Share Tech Mono';
     font-style: normal;
     font-weight: 400;
-    src: url('/static/fonts/w95fa.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+    src: url('/static/fonts/share-tech-mono-v15-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
   }
   
   
@@ -83,7 +83,7 @@ body {
     left: 0;
     right: 0;
     height: 50px;
-    background: rgba(0, 0, 0, 0.9);
+    /* background: rgba(0, 0, 0, 0.9); */
     backdrop-filter: blur(10px);
     border-top: 2px solid #00ffff;
     display: flex;
@@ -92,6 +92,7 @@ body {
     padding: 0 5px;
     z-index: 1000;
     box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+    overflow-x: auto;
 }
 
 .taskbar-left {
@@ -140,6 +141,9 @@ body {
     display: flex;
     gap: 10px;
     align-items: center;
+    overflow-x: auto;
+    min-width: 0;
+    flex-shrink: 1;
 }
 
 .taskbar-app {
@@ -182,6 +186,7 @@ body {
     display: flex;
     align-items: center;
     gap: 15px;
+    padding-left: 5px;
 }
 
 .clock {
@@ -545,4 +550,8 @@ body {
     .taskbar {
         padding: 0 10px;
     }
+    .status-indicator {
+        display: none;
+    }
+
 } 
