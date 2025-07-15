@@ -857,7 +857,7 @@ const RadioApp = {
             .controls-overlay {
                 display: flex;
                 align-items: center;
-                gap: 15px;
+                
                 justify-content: center;
             }
             

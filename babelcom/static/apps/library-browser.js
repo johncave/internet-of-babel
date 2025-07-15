@@ -1,6 +1,6 @@
 // Web Browser Application
 const LibraryBrowserApp = {
-    name: 'Web Browser',
+    name: 'Web of Babel',
     icon: '📚',
 
     init: function (container, config) {

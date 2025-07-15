@@ -14,6 +14,19 @@ document.addEventListener('DOMContentLoaded', function() {
     //     let win = openApp('library-browser');
     //     win.maximize()
     // }, 100);
+
+    // Auto-open Start app if never opened or last opened > 1 week ago
+    try {
+        const lastStartOpened = localStorage.getItem('startLastOpened');
+        const now = Date.now();
+        const oneWeek = 7 * 24 * 60 * 60 * 1000;
+        if (!lastStartOpened || now - parseInt(lastStartOpened, 10) > oneWeek) {
+            openApp('welcome');
+        }
+    } catch (e) {
+        // Fallback: always open if localStorage fails
+        openApp('welcome');
+    }
 });
 
 // Desktop initialization
@@ -31,7 +44,7 @@ function initializeDesktop() {
     });
     
     registerApp('library-browser', {
-        name: 'Web Browser',
+        name: 'Web of Babel',
         icon: '📖',
         iconPath: '/static/icons/web-browser.png',
         component: LibraryBrowserApp
@@ -46,6 +59,14 @@ function initializeDesktop() {
         defaultHeight: 450
     });
     
+    registerApp('welcome', {
+        name: 'Start',
+        icon: '👋',
+        iconPath: '/static/icons/start.svg',
+        component: WelcomeApp,
+        defaultWidth: 400,
+        defaultHeight: 300
+    });
 
     
     console.log('✅ Desktop initialized with', appRegistry.size, 'apps');
@@ -195,6 +216,17 @@ function openApp(appId) {
     console.log(`✅ ${appConfig.name} opened successfully`);
     return winboxWindow; // Return the window instance when newly created
 }
+
+// Patch openApp to record when Start is opened
+const originalOpenApp = openApp;
+openApp = function(appId) {
+    if (appId === 'welcome' || appId === 'start') {
+        try {
+            localStorage.setItem('startLastOpened', Date.now().toString());
+        } catch (e) {}
+    }
+    return originalOpenApp.apply(this, arguments);
+};
 
 // Update taskbar with running apps
 function updateTaskbar() {
