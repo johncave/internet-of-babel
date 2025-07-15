@@ -42,8 +42,8 @@ function initializeDesktop() {
         icon: '📻',
         iconPath: '/static/icons/radio.png',
         component: RadioApp,
-        defaultWidth: 400,
-        defaultHeight: 200
+        defaultWidth: 450,
+        defaultHeight: 450
     });
     
 
@@ -109,7 +109,9 @@ function openApp(appId) {
         minimizable: true,
         maximizable: true,
         closable: true,
-        html: `<div class="app-window" id="app-${appId}"></div>`
+        html: `<div class="app-window" id="app-${appId}"></div>`,
+        top: 0, // Maximum top position
+        bottom: 50 // Maximum bottom position (respects taskbar height)
     };
     
     if (isMobile) {
@@ -144,7 +146,7 @@ function openApp(appId) {
     if (appConfig.component) {
         const appElement = document.getElementById(`app-${appId}`);
         if (appElement) {
-            appConfig.component.init(appElement, appConfig);
+            appConfig.component.init(appElement, appConfig, winboxWindow);
         }
     }
     
@@ -162,8 +164,13 @@ function openApp(appId) {
     
     // Handle window minimize
     winboxWindow.onminimize = () => {
+        // Set display:none on the window's DOM element to hide it, but allow minimize animation
+        if (winboxWindow.window) {
+            winboxWindow.window.style.display = 'none';
+        }
         updateTaskbar();
         console.log(`📉 Minimized ${appConfig.name}`);
+        return false; // Prevent WinBox default roll-up window
     };
     
     // Handle window maximize
@@ -174,6 +181,10 @@ function openApp(appId) {
     
     // Handle window restore (when unminimized)
     winboxWindow.onrestore = () => {
+        // Remove display:none to show the window again
+        if (winboxWindow.window) {
+            winboxWindow.window.style.display = '';
+        }
         updateTaskbar();
         console.log(`📋 Restored ${appConfig.name}`);
     };
