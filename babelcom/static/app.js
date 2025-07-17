@@ -65,7 +65,7 @@ function initializeDesktop() {
         iconPath: '/static/icons/start.svg',
         component: WelcomeApp,
         defaultWidth: 450,
-        defaultHeight: 465
+        defaultHeight: 485
     });
 
     

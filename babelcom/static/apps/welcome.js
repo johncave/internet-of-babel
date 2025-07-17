@@ -23,7 +23,7 @@ const WelcomeApp = {
     render: function() {
         const line = this.lines[this.currentLine];
         this.container.innerHTML = `
-            <div class="welcome-app" style="${line.img ? `background-image: url('${line.img}'); background-size: cover; background-position: center; background-repeat: no-repeat;` : ''}">
+            <div class="welcome-app" style="${line.img ? `background-image: url('${line.img}'); background-size: contain; background-position: center; background-repeat: no-repeat;` : ''}">
                 <div class="welcome-content">
                     <div class="welcome-text" style="font-size:1.2em;margin:20px 0;">${line.text}</div>
                     <div class="welcome-controls" style="display:flex;justify-content:flex-end;">
