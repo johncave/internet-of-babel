@@ -64,8 +64,8 @@ function initializeDesktop() {
         icon: '👋',
         iconPath: '/static/icons/start.svg',
         component: WelcomeApp,
-        defaultWidth: 400,
-        defaultHeight: 300
+        defaultWidth: 450,
+        defaultHeight: 465
     });
 
     
