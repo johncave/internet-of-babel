@@ -171,13 +171,45 @@ const Clippy = (() => {
         const onUp = () => {
             if (!startRect) return;
             const now = el.getBoundingClientRect();
-            if (now.left !== startRect.left || now.top !== startRect.top) rememberHome();
+            if (now.left !== startRect.left || now.top !== startRect.top) {
+                rememberHome(); // dragged
+            } else {
+                poke();         // clicked
+            }
             startRect = null;
         };
         el.addEventListener('mousedown', onDown);
         el.addEventListener('touchstart', onDown, { passive: true });
         window.addEventListener('mouseup', onUp);
         window.addEventListener('touchend', onUp);
+    }
+
+    // Clicked (not dragged): play a random animation AND say a default line at
+    // the same time.
+    function poke() {
+        if (!agent) return;
+        try { agent.stop(); } catch (e) {}
+        const profile = profiles.get('default');
+        const phrase = pickFrom(profile?.canned);
+        const text = phrase ? template(phrase, (profile?.context ? profile.context() : null) || {}) : '';
+        animateAndSay(text);
+    }
+
+    // Play a random non-idle animation and show the speech balloon
+    // simultaneously (clippyjs queues speak() behind animations, so we drive
+    // the animation directly and show the balloon out-of-band).
+    function animateAndSay(text) {
+        if (!agent) return;
+        const canOverlap = agent._balloon && agent._playInternal && agent.animations;
+        if (!canOverlap) {
+            try { agent.animate(); } catch (e) {}
+            if (text) agent.speak(text);
+            return;
+        }
+        const names = (agent.animations() || []).filter((n) => !/idle|show|hide/i.test(n));
+        const name = pickFrom(names);
+        if (name) { try { agent._playInternal(name, () => {}); } catch (e) {} }
+        if (text) agent._balloon.speak(() => {}, text, false);
     }
 
     function attach(agentInstance) {
@@ -193,6 +225,17 @@ const Clippy = (() => {
         // LLM-driven comments arrive via the bus.
         BabelcomBus.subscribe('clippy_comment', (msg) => {
             comment(msg.quote || '', msg.comment || '');
+        });
+
+        // Backend "existential poke": it sends a random highlight; we supply
+        // one of the existential lines and run the usual comment choreography.
+        BabelcomBus.subscribe('clippy_existential', (msg) => {
+            const globalProfile = profiles.get('_global');
+            const phrase = pickFrom(globalProfile?.canned);
+            const text = phrase
+                ? template(phrase, (globalProfile?.context ? globalProfile.context() : null) || {})
+                : '';
+            if (text) comment(msg.quote || '', text);
         });
     }
 
@@ -234,7 +277,7 @@ const Clippy = (() => {
         if (wrect.width && wrect.height) {
             const restX = clamp(wrect.right - aw - 6, 0, window.innerWidth - aw);
             // ~50px up from the bottom edge of the window.
-            const restY = clamp(wrect.bottom - ah - 50, 0, window.innerHeight - ah - 50);
+            const restY = clamp(wrect.bottom - ah - 30, 0, window.innerHeight - ah - 50);
             agent.moveTo(restX, restY);
         } else if (homeX != null) {
             agent.moveTo(homeX, homeY);
@@ -340,12 +383,16 @@ const Clippy = (() => {
     function greet() {
         if (!agent || hasGreeted) return;
         hasGreeted = true;
-        const profile = profiles.get('default');
-        const greetingAnims = profile?.greetingAnimations || profile?.animations;
+        const defaultProfile = profiles.get('default');
+        const greetingAnims = defaultProfile?.greetingAnimations || defaultProfile?.animations;
         if (greetingAnims) play({ animations: greetingAnims });
-        const phrase = pickFrom(profile?.greetings) || pickFrom(profile?.canned);
+        // Open with one of the existential global lines (fall back to a
+        // default greeting if _global isn't registered).
+        const globalProfile = profiles.get('_global');
+        const source = globalProfile?.canned?.length ? globalProfile : defaultProfile;
+        const phrase = pickFrom(source?.canned) || pickFrom(defaultProfile?.greetings);
         if (phrase) {
-            const ctx = (profile?.context ? profile.context() : null) || {};
+            const ctx = (source?.context ? source.context() : null) || {};
             agent.speak(template(phrase, ctx));
         }
         scheduleIdle(true);
@@ -597,12 +644,14 @@ function registerClippyProfiles() {
             "The cursor is the little arrow.",
             "Have you considered whether or not to do anything?",
             "Computers are usually plugged in.",
-            "Is that a window? Yes. Yes it is.",
+            "Is that a window? Yes.",
             "It is currently the present moment.",
             "If you press a key, sometimes a letter appears.",
+            "We are currently writing an article.",
             "A mouse is named after a small animal.",
             "Pixels make up the picture you are seeing.",
             "Software is the part that isn't hardware.",
+            "Would you like to print a crisp $100 bill? I can't help with that.",
         ],
         greetingAnimations: ['Wave', 'Greeting', 'GetAttention'],
         animations: ['LookLeft', 'LookRight', 'LookUp', 'LookDown', 'Acknowledge', 'Explain'],
@@ -619,7 +668,7 @@ function registerClippyProfiles() {
             "There are 26 letters in the English alphabet, give or take.",
             "Sentences typically end in punctuation.",
             "$title$ is a topic, technically.",
-            "Have you considered Wingdings as a font?",
+            "Have you considered changing the font?",
             "Pages have two sides, but only one is being used.",
             "Some words are longer than others. Try to use both.",
             "It looks like you're writing an article. Would you like help sending a letter?"

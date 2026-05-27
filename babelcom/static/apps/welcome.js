@@ -1,11 +1,11 @@
 // Welcome App — shadow DOM custom element
 class BabelWelcome extends HTMLElement {
     static lines = [
-        { text: 'Welcome to your Computer of Babel AI deskmate.', img: '/static/apps/welcome/omg.png' },
-        { text: 'Just plug it in, and Babelcom will start filling the Internet of Babel!', img: '/static/apps/welcome/omg.png' },
-        { text: 'Working together with Babelcom.<br>It\'s like human interaction but not.', img: '/static/apps/welcome/working.png' },
-        { text: 'Open System Monitor to see what your AI buddy is writing.<br>Inspo-radical!', img: '/static/apps/welcome/working.png' },
-        { text: 'What will you find in the Web of Babel?', img: null },
+        { text: 'This dingus is an<br>Intel Compute Stick.', img: '/static/apps/welcome/omg.png' },
+        { text: 'The worst computer ever made.', img: '/static/apps/welcome/omg.png' },
+        { text: 'So I made it write articles forever.', img: '/static/apps/welcome/working.png' },
+        { text: 'It\'s the computer Clippy deserved.', img: '/static/apps/welcome/working.png' },
+        { text: 'Enjoy<br>The Computer of Babel', img: null },
     ];
 
     constructor() {

@@ -230,6 +230,23 @@ body {
     text-shadow: 0 0 8px rgba(255, 107, 157, 0.5);
 }
 
+.taskbar-mute {
+    cursor: pointer;
+    font-size: 1.1em;
+    line-height: 1;
+    user-select: none;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.taskbar-mute:hover {
+    transform: scale(1.15);
+}
+
+.taskbar-mute.muted {
+    opacity: 1;
+    filter: grayscale(0.5);
+}
+
 .status-indicator {
     display: flex;
     align-items: center;

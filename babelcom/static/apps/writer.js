@@ -16,6 +16,7 @@ if (window.marked && !window.marked._babelcomLinksDisabled) {
 
 const WRITER_FONTS = [
     { value: "'Times New Roman', serif", label: 'Times New Roman' },
+    { value: 'Calibri, sans-serif', label: 'Calibri' },
     { value: 'Arial, sans-serif', label: 'Arial' },
     { value: "'Comic Sans MS', cursive", label: 'Comic Sans MS' },
     { value: "'Courier New', monospace", label: 'Courier New' },
@@ -39,7 +40,7 @@ class BabelWriter extends HTMLElement {
         this.alignment = 'left';
         this.activeHighlight = null; // quote string while a Clippy highlight is live
         this.autoFollow = true;      // follow writing to the bottom until the user scrolls up
-        this._ignoreScroll = false;
+        this._ignoreScrollUntil = 0;
     }
 
     connectedCallback() {
@@ -107,14 +108,14 @@ class BabelWriter extends HTMLElement {
         // Bring the highlight into view inside the page scroller so Clippy
         // ends up pointing at something the user can actually see. Instant
         // scroll so the rect we return reflects the final position, and flagged
-        // as a programmatic scroll so it doesn't trip the user-scroll detector.
-        this._ignoreScroll = true;
+        // (by time window) so the async scroll event doesn't trip the
+        // user-scroll detector and wipe _preHighlight.
+        this._ignoreScrollUntil = performance.now() + 200;
         try {
             mark.scrollIntoView({ block: 'center', behavior: 'instant' });
         } catch (e) {
             mark.scrollIntoView();
         }
-        requestAnimationFrame(() => { this._ignoreScroll = false; });
 
         return {
             mark,
@@ -560,13 +561,14 @@ class BabelWriter extends HTMLElement {
     }
 
     // Programmatic scroll that the scroll listener ignores, so it doesn't get
-    // mistaken for the user scrolling and flip autoFollow.
+    // mistaken for the user scrolling and flip autoFollow. Uses a short time
+    // window rather than a flag-per-frame, because scroll events fire async
+    // and can land a frame or two after the scroll is set.
     _setScrollTop(top) {
         const scroll = this.$('page-scroll');
         if (!scroll) return;
-        this._ignoreScroll = true;
+        this._ignoreScrollUntil = performance.now() + 200;
         scroll.scrollTop = top;
-        requestAnimationFrame(() => { this._ignoreScroll = false; });
     }
 
     // scrollTop that keeps the bottom of the TEXT just inside the viewport.
@@ -583,10 +585,10 @@ class BabelWriter extends HTMLElement {
     }
 
     // Called on the page-scroll's scroll event. Only user scrolls reach here
-    // (programmatic ones set _ignoreScroll). Following resumes when the user
-    // returns to (near) the text bottom, pauses when they scroll up to read.
+    // (programmatic ones open a brief ignore window). Following resumes when
+    // the user returns to (near) the text bottom, pauses when they scroll up.
     onUserScroll() {
-        if (this._ignoreScroll) return;
+        if (performance.now() < (this._ignoreScrollUntil || 0)) return;
         const scroll = this.$('page-scroll');
         if (!scroll) return;
         this.autoFollow = scroll.scrollTop >= this._followTarget() - 40;

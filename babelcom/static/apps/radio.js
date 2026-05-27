@@ -24,6 +24,7 @@ const RadioApp = {
         this.render();
         this.connectWebSocket();
         this.addStyles();
+        this.createTaskbarMute();
 
         // Butterchurn visualizer integration
         if (!window.butterchurn) {
@@ -450,23 +451,47 @@ const RadioApp = {
 
     toggleMute: function() {
         this.isMuted = !this.isMuted;
+        // Mute without pausing (keeps the stream/visualizer running).
+        if (this.audio) this.audio.volume = this.isMuted ? 0 : this.volume;
+        this.updateMuteUI();
+    },
+
+    // Keep the in-window mute button and the taskbar toggle in sync.
+    updateMuteUI: function() {
+        const icon = this.isMuted ? '🔇' : '🔊';
         const muteBtn = document.getElementById('mute-btn');
-        const muteIcon = muteBtn.querySelector('.mute-icon');
-        if (this.isMuted) {
-            muteIcon.textContent = '🔇';
-            muteBtn.classList.add('muted');
-            // Set volume to 0 to mute without pausing
-            if (this.audio) {
-                this.audio.volume = 0;
-            }
-        } else {
-            muteIcon.textContent = '🔊';
-            muteBtn.classList.remove('muted');
-            // Restore volume without pausing
-            if (this.audio) {
-                this.audio.volume = this.volume;
-            }
+        if (muteBtn) {
+            const muteIcon = muteBtn.querySelector('.mute-icon');
+            if (muteIcon) muteIcon.textContent = icon;
+            muteBtn.classList.toggle('muted', this.isMuted);
         }
+        const taskbarMute = document.getElementById('taskbar-mute');
+        if (taskbarMute) {
+            taskbarMute.textContent = icon;
+            taskbarMute.classList.toggle('muted', this.isMuted);
+        }
+    },
+
+    // Add a mute toggle to the taskbar, between the clock and the system
+    // status indicator. Removed again in destroy().
+    createTaskbarMute: function() {
+        if (document.getElementById('taskbar-mute')) return;
+        const clock = document.getElementById('clock');
+        if (!clock || !clock.parentNode) return;
+        const el = document.createElement('div');
+        el.id = 'taskbar-mute';
+        el.className = 'taskbar-mute';
+        el.title = 'Mute / unmute radio';
+        el.textContent = this.isMuted ? '🔇' : '🔊';
+        el.classList.toggle('muted', this.isMuted);
+        el.onclick = () => this.toggleMute();
+        // Insert right after the clock → sits between clock and status.
+        clock.parentNode.insertBefore(el, clock);
+    },
+
+    removeTaskbarMute: function() {
+        const el = document.getElementById('taskbar-mute');
+        if (el) el.remove();
     },
 
     // Start playback. If the browser blocks it (autoplay policy — e.g. the
@@ -1099,6 +1124,7 @@ const RadioApp = {
     },
 
     destroy: function() {
+        this.removeTaskbarMute();
         if (this.websocket) {
             this.websocket.close();
             this.websocket = null;

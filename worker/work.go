@@ -225,7 +225,7 @@ func work() {
 		messages := []api.Message{
 			{
 				Role:    "system",
-				Content: "Write a detailed encyclopedia article about the given topic in markdown format. The article should be well-structured with sections and subsections as needed, and should include important details and context about the topic. The writing style should be informative and neutral, similar to a Wikipedia article. Do not include a reference section or external links, just the article content.",
+				Content: "Write a detailed encyclopedia article about the given topic in markdown format. The article should be well-structured with sections and subsections as needed, and should include important details and context about the topic. The writing style should be informative and neutral, similar to a Wikipedia article. Do NOT use horizontal rules. Do not include a reference section or external links, just the article content.",
 			},
 			{
 				Role:    "user",

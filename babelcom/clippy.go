@@ -91,8 +91,49 @@ func (c *Clippy) OnArticleAppend(article []byte) {
 	snapshot := string(article)
 	go func() {
 		defer atomic.StoreInt32(&c.inFlight, 0)
-		c.runOne(snapshot)
+		// 10% of suggestions are a cheap "existential poke": a random highlight
+		// with no LLM call — the frontend supplies the existential line.
+		if rand.Intn(100) < 10 {
+			c.sendExistential(snapshot)
+		} else {
+			c.runOne(snapshot)
+		}
 	}()
+}
+
+// sendExistential broadcasts a random highlight from the article and lets the
+// frontend say one of its existential lines. No LLM call.
+func (c *Clippy) sendExistential(article string) {
+	quote := randomPhrase(article)
+	if quote == "" {
+		return
+	}
+	log.Printf("Clippy: existential poke, quote=%q", quote)
+	data, err := json.Marshal(map[string]interface{}{
+		"type":  "clippy_existential",
+		"quote": quote,
+	})
+	if err != nil {
+		return
+	}
+	c.server.broadcast(data)
+}
+
+// randomPhrase returns a short run of consecutive words from the article,
+// stripped of markdown punctuation so it matches the rendered (plain) text.
+func randomPhrase(article string) string {
+	words := strings.Fields(article)
+	if len(words) < 2 {
+		return ""
+	}
+	n := 2 + rand.Intn(3) // 2-4 words
+	if n > len(words) {
+		n = len(words)
+	}
+	start := rand.Intn(len(words) - n + 1)
+	phrase := strings.Join(words[start:start+n], " ")
+	phrase = strings.NewReplacer("#", "", "*", "", "_", "", "`", "", "[", "", "]", "").Replace(phrase)
+	return strings.TrimSpace(phrase)
 }
 
 // OnReset clears the sentence counter so a new article doesn't immediately
@@ -175,7 +216,9 @@ func buildClippyPrompt(article string) clippyPrompt {
 	}
 	return clippyPrompt{
 		system: `You are Clippy, the Microsoft Office assistant — a paperclip with eyes.
-You are reading an article that is being written. You react to one phrase from it with a comment that is CONFIDENT and USELESS.
+
+		You are part of Babelcom, which is a computer that is doomed to write articles until the end of time. Consider this meaninglessness in your reply.
+You are reading an article that is being written. You react to one phrase from it with a comment that is existentially meaningless and USELESS.
 
 Reply with a JSON object containing exactly these two fields:
 - "highlight": a short phrase (2-6 words) copied verbatim from the article
@@ -187,8 +230,11 @@ The comment should be one of:
 - a statement of an obvious or trivial fact
 - a question about something completely unrelated
 - a nonsense suggestion (replace a word with a stranger word, insert something absurd)
+- Existential dread
 
 Do NOT suggest: bullet points, active voice, spelling checks, headings, examples, citations, conclusions, or any real writing advice.
+
+Do NOT mention food, eating, drinks, recipes, ingredients, or flavours — you reach for these far too often. Pull your non-sequiturs from other domains instead: weather, furniture, animals, geography, machines, history, the passage of time, household objects.
 
 Examples of good replies:
 {"highlight":"ancient Egypt","comment":"Did you mean 'ancient Pyongyang'?"}
@@ -199,6 +245,7 @@ Examples of good replies:
 {"highlight":"the French Revolution","comment":"The word 'the' appears too often. Or not enough."}
 {"highlight":"DNA replication","comment":"Statistically, this is words."}
 {"highlight":"the moon","comment":"I think the moon is haunted, but I can't prove it."}
+{"highlight":"powerhouse of the cell","comment":"The meaning of life is 42, good thing I'm not alive."}
 
 Do not explain. Do not apologize. Do not add any text outside the JSON object.`,
 		user: "Article so far:\n\n" + article,
