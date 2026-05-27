@@ -8,6 +8,17 @@
     <script src="/static/winbox.bundle.js"></script>
 </head>
 <body>
+    <!-- Boot screen — painted before everything, dismissed by app.js -->
+    <div class="boot-screen" id="bootScreen">
+        <div class="boot-content">
+            <div class="boot-logo">✨ BABELCOM</div>
+            <div class="boot-sub">COMPUTER OF BABEL CONTROL SYSTEM</div>
+            <div class="boot-log" id="bootLog"></div>
+            <div class="boot-progress"><div class="boot-progress-fill"></div></div>
+            <div class="boot-hint">click to skip</div>
+        </div>
+    </div>
+
     <div class="desktop">
         <!-- Desktop Background Video -->
         <video class="desktop-background-video" autoplay muted loop playsinline>
@@ -30,6 +41,10 @@
             </div>
             <div class="taskbar-right">
                 <div class="system-tray">
+                    <div class="taskbar-metric" id="taskbarMetric">
+                        <span class="taskbar-metric-icon" id="taskbarMetricIcon"></span>
+                        <span class="taskbar-metric-value" id="taskbarMetricValue">--</span>
+                    </div>
                     <div class="clock" id="clock"></div>
                     <div class="status-indicator" id="statusIndicator">
                         <span class="status-dot"></span>
@@ -57,6 +72,16 @@
                     <div class="app-icon">📻</div>
                     <div class="app-name">Radio</div>
                 </div>
+                <div class="app-item" data-tianji-event="open-writer-from-start-menu" onclick="openApp('writer')">
+                    <div class="app-icon">📝</div>
+                    <div class="app-name">Writer</div>
+                </div>
+
+                <div class="start-menu-divider"></div>
+                <div class="app-item" data-tianji-event="restart-babelcom" onclick="restartBabelcom()">
+                    <div class="app-icon">🔄</div>
+                    <div class="app-name">Restart</div>
+                </div>
 
             </div>
         </div>
@@ -75,6 +100,10 @@
                 <div class="icon">📻</div>
                 <div class="icon-label">Radio</div>
             </div>
+            <div class="desktop-icon" data-tianji-event="open-writer-from-desktop" onclick="openApp('writer')">
+                <div class="icon">📝</div>
+                <div class="icon-label">Writer</div>
+            </div>
             <div class="desktop-icon" data-tianji-event="open-welcome-from-desktop" onclick="openApp('welcome')">
                 <div class="icon">👋</div>
                 <div class="icon-label">Start</div>
@@ -85,11 +114,14 @@
         <div id="windowContainer"></div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="/static/app.js"></script>
     <script src="/static/apps/system-monitor.js"></script>
     <script src="/static/apps/library-browser.js"></script>
     <script src="/static/apps/radio.js"></script>
     <script src="/static/apps/welcome.js"></script>
+    <script src="/static/apps/writer.js"></script>
+    <script type="module" src="/static/clippy-init.js"></script>
     <script async defer src="https://tianji.johncave.co.nz/tracker.js" data-website-id="cmcwlnyrd000168v5crqedchd"></script>
 </body>
 </html> 

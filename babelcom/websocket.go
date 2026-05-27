@@ -31,6 +31,8 @@ type Server struct {
 	upgrader             websocket.Upgrader
 	apiKey               string
 	latestSystemStatus   []byte
+	currentArticle       []byte // accumulated token stream since the last reset
+	clippy               *Clippy
 }
 
 // NewServer creates a new server instance
@@ -115,7 +117,20 @@ func (s *Server) handleBroadcastWebSocket(c *gin.Context) {
 			log.Printf("Error sending latest system status: %v", err)
 		}
 	}
+	// Snapshot of the article so far so Writer (and future apps) can render
+	// what's already been written when they connect or reconnect.
+	snapshot := map[string]interface{}{
+		"type": "article_snapshot",
+		"text": string(s.currentArticle),
+	}
 	s.mu.RUnlock()
+	if data, err := json.Marshal(snapshot); err == nil {
+		connection.mu.Lock()
+		if err := connection.conn.WriteMessage(websocket.TextMessage, data); err != nil {
+			log.Printf("Error sending article snapshot: %v", err)
+		}
+		connection.mu.Unlock()
+	}
 
 	log.Printf("Broadcast client connected. Total connections: %d", len(s.broadcastConnections))
 
@@ -186,19 +201,33 @@ func (s *Server) handleLLMWebSocket(c *gin.Context) {
 			break
 		}
 
-		//log.Printf("LLM WebSocket received message: %s", string(message))
-		fmt.Println(string(message))
-
 		// Simply broadcast the raw message to all broadcast clients
 		s.broadcast(message)
 
-		// Parse message and check for system_status
+		// Parse and update cached state by type
 		var msg map[string]interface{}
 		if err := json.Unmarshal(message, &msg); err == nil {
-			if msgType, ok := msg["type"].(string); ok && msgType == "system_status" {
-				s.mu.Lock()
-				s.latestSystemStatus = message
-				s.mu.Unlock()
+			if msgType, ok := msg["type"].(string); ok {
+				switch msgType {
+				case "system_status":
+					s.mu.Lock()
+					s.latestSystemStatus = message
+					s.mu.Unlock()
+				case "token":
+					if tok, ok := msg["token"].(string); ok && tok != "" {
+						s.mu.Lock()
+						s.currentArticle = append(s.currentArticle, tok...)
+						snapshot := make([]byte, len(s.currentArticle))
+						copy(snapshot, s.currentArticle)
+						s.mu.Unlock()
+						s.clippy.OnArticleAppend(snapshot)
+					}
+				case "reset":
+					s.mu.Lock()
+					s.currentArticle = s.currentArticle[:0]
+					s.mu.Unlock()
+					s.clippy.OnReset()
+				}
 			}
 		}
 	}

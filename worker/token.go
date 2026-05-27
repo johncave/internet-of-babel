@@ -17,14 +17,21 @@ var tokenReconnectChan chan bool
 var lastReconnectRequest time.Time
 var reconnectCooldown = 10 * time.Second
 
-// Token batching system
-var tokenChannel chan string
+// Token batching system. We send both tokens and resets through one channel
+// so the worker drains everything in order — a reset must not jump ahead of
+// tokens still queued from the previous article.
+type tokenMsg struct {
+	reset bool
+	token string
+}
+
+var tokenChannel chan tokenMsg
 var tokenWorkerStop chan bool
 var tokenWorkerWg sync.WaitGroup
 
 func init() {
 	tokenReconnectChan = make(chan bool, 1)
-	tokenChannel = make(chan string, 1000) // Buffer for tokens
+	tokenChannel = make(chan tokenMsg, 1000)
 	tokenWorkerStop = make(chan bool, 1)
 
 	go tokenConnectionManager()
@@ -44,13 +51,23 @@ func tokenWorker() {
 
 	for {
 		select {
-		case token := <-tokenChannel:
-			tokens = append(tokens, token)
+		case msg := <-tokenChannel:
+			if msg.reset {
+				// Flush any pending tokens before resetting so order is preserved.
+				if len(tokens) > 0 {
+					sendTokenBatch(tokens)
+					tokens = tokens[:0]
+				}
+				sendResetDirect()
+				continue
+			}
+
+			tokens = append(tokens, msg.token)
 
 			// Send immediately if we have a full batch
 			if len(tokens) >= maxBatchSize {
 				sendTokenBatch(tokens)
-				tokens = tokens[:0] // Clear slice but keep capacity
+				tokens = tokens[:0]
 			}
 
 		case <-ticker.C:
@@ -172,7 +189,19 @@ func connectTokenWebSocketWithRetry() error {
 	}
 }
 
+// SendReset enqueues a reset behind any pending tokens. The worker flushes
+// the batch first, so clients see all preceding tokens before the reset.
 func SendReset() {
+	select {
+	case tokenChannel <- tokenMsg{reset: true}:
+	default:
+		log.Printf("Warning: token channel is full, dropping reset")
+	}
+}
+
+// sendResetDirect actually writes the reset message to the websocket. Only
+// called from tokenWorker so it stays in order with token batches.
+func sendResetDirect() {
 	tokenConnMutex.Lock()
 	defer tokenConnMutex.Unlock()
 
@@ -182,36 +211,24 @@ func SendReset() {
 		return
 	}
 
-	message := map[string]interface{}{
-		"type": "reset",
-	}
-
-	data, err := json.Marshal(message)
+	data, err := json.Marshal(map[string]interface{}{"type": "reset"})
 	if err != nil {
 		log.Printf("Failed to marshal reset message: %v", err)
 		return
 	}
 
-	err = tokenConn.WriteMessage(websocket.TextMessage, data)
-	if err != nil {
+	if err := tokenConn.WriteMessage(websocket.TextMessage, data); err != nil {
 		log.Printf("Failed to send reset message: %v", err)
 		requestTokenReconnect()
 		return
 	}
-
-	//log.Println("Sent reset message to WebSocket")
 }
 
 // SendToken sends a single token to the batching channel
 func SendToken(token string) {
-	//return // Disable token sending for now
-	//fmt.Print(token)
-
 	select {
-	case tokenChannel <- token:
-		// Token sent to channel successfully
+	case tokenChannel <- tokenMsg{token: token}:
 	default:
-		// Channel is full, log warning but don't block
 		log.Printf("Warning: token channel is full, dropping token")
 	}
 }

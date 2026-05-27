@@ -225,7 +225,7 @@ func work() {
 		messages := []api.Message{
 			{
 				Role:    "system",
-				Content: "Write a detailed encyclopedia article about the given topic in markdown format.",
+				Content: "Write a detailed encyclopedia article about the given topic in markdown format. The article should be well-structured with sections and subsections as needed, and should include important details and context about the topic. The writing style should be informative and neutral, similar to a Wikipedia article. Do not include a reference section or external links, just the article content.",
 			},
 			{
 				Role:    "user",
@@ -244,7 +244,7 @@ func work() {
 			articleContent += resp.Message.Content
 			// Pace the article to roughly 1 token/sec — Ollama blocks on the
 			// callback, so this naturally throttles generation.
-			time.Sleep(time.Second)
+			time.Sleep(300 * time.Millisecond)
 			return nil
 		}
 		articleReq := &api.ChatRequest{
@@ -272,7 +272,7 @@ func work() {
 		})
 		messages = append(messages, api.Message{
 			Role:    "user",
-			Content: "Extract a list of important words, THAT ARE MENTIONED in the article above, that should be turned into links. The list must be of acceptable, properly formatted, and title case titles of a Wikipedia article. Reply only with a flat markdown unordered list (using * or -), no formatting.",
+			Content: "Extract a list of important words, THAT ARE MENTIONED in the article above, that should be turned into links. The list must be of acceptable, properly formatted, and title case titles of a Wikipedia article. Reply only with a flat markdown unordered list (using * or -), no formatting, not even links.",
 		})
 
 		generationStatus.Phase = "Analyzing"

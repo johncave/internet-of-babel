@@ -190,6 +190,39 @@ body {
     padding-left: 5px;
 }
 
+.taskbar-metric {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Orbitron', sans-serif;
+    color: #00ffff;
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+    transition: opacity 0.1s ease;
+    min-width: 64px;
+    justify-content: flex-end;
+}
+
+.taskbar-metric.fading {
+    opacity: 0;
+}
+
+.taskbar-metric-icon {
+    display: inline-flex;
+    align-items: center;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.taskbar-metric-icon img {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+}
+
+.taskbar-metric-value {
+    font-size: 0.95em;
+}
+
 .clock {
     font-family: 'Orbitron', sans-serif;
     font-size: 1.2em;
@@ -284,6 +317,12 @@ body {
     color: #e0e0e0;
 }
 
+.start-menu-divider {
+    height: 1px;
+    background: rgba(0, 255, 255, 0.3);
+    margin: 8px 4px;
+}
+
 /* Desktop Icons */
 .desktop-icons {
     position: absolute;
@@ -348,6 +387,14 @@ body {
     border-radius: 15px !important;
     box-shadow: 0 0 30px rgba(0, 255, 255, 0.3) !important;
     pointer-events: auto !important;
+    animation: winboxOpen 0.33s ease-out;
+}
+
+/* Fade in while sliding down into place when a window opens. WinBox uses CSS
+   variables (not transform) for positioning, so the transform here is free. */
+@keyframes winboxOpen {
+    from { opacity: 0; transform: translateY(-30px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
 .wb-header {
@@ -555,4 +602,165 @@ body {
         display: none;
     }
 
-} 
+}
+
+/* Translucent chrome so the wallpaper / visualizer shows through. Applied at
+   all times. These come after the base rules, so they win by source order. */
+.desktop-background-overlay {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.winbox {
+    background: rgba(0, 0, 0, 0.55) !important;
+}
+
+.start-menu {
+    background: rgba(0, 0, 0, 0.65);
+}
+
+.desktop-icon {
+    background: rgba(0, 0, 0, 0.12);
+}
+
+.taskbar-app {
+    background: rgba(0, 255, 255, 0.06);
+}
+
+/* "Click to enable audio" prompt (autoplay blocked) */
+#audio-enable-prompt {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9000;
+    padding: 12px 24px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid #00ffff;
+    border-radius: 10px;
+    color: #00ffff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.95em;
+    letter-spacing: 1px;
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
+    pointer-events: none; /* clicks pass through; the document listener still fires */
+    animation: audioPromptPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes audioPromptPulse {
+    0%, 100% { box-shadow: 0 0 18px rgba(0, 255, 255, 0.4); }
+    50%      { box-shadow: 0 0 32px rgba(0, 255, 255, 0.85); }
+}
+
+/* Boot screen */
+.boot-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+    color: #00ffff;
+    transition: opacity 0.6s ease;
+    overflow: hidden;
+}
+
+.boot-screen.boot-done {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.boot-content {
+    width: 90%;
+    max-width: 600px;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.boot-logo {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 3em;
+    font-weight: 900;
+    color: #00ffff;
+    text-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
+    letter-spacing: 4px;
+    margin-bottom: 6px;
+}
+
+.boot-sub {
+    color: #ff0080;
+    text-shadow: 0 0 10px rgba(255, 0, 128, 0.5);
+    letter-spacing: 2px;
+    margin-bottom: 24px;
+    font-size: 0.9em;
+}
+
+.boot-log {
+    min-height: 200px;
+    font-size: 0.95em;
+    line-height: 1.7;
+}
+
+.boot-line {
+    opacity: 0;
+    animation: bootLineIn 0.2s ease forwards;
+    white-space: pre;
+}
+
+.boot-line .ok {
+    color: #00ff00;
+    text-shadow: 0 0 6px rgba(0, 255, 0, 0.5);
+}
+
+@keyframes bootLineIn {
+    from { opacity: 0; transform: translateX(-6px); }
+    to { opacity: 1; transform: none; }
+}
+
+.boot-progress {
+    margin-top: 24px;
+    height: 6px;
+    background: rgba(0, 255, 255, 0.12);
+    border: 1px solid rgba(0, 255, 255, 0.4);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.boot-progress-fill {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, #00ffff, #ff0080);
+    box-shadow: 0 0 12px rgba(0, 255, 255, 0.6);
+    animation: bootProgress 3s ease-in-out forwards;
+}
+
+@keyframes bootProgress {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+.boot-hint {
+    margin-top: 18px;
+    font-size: 0.8em;
+    color: rgba(0, 255, 255, 0.4);
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+/* CRT scanlines over the whole boot screen */
+.boot-screen::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(0, 255, 255, 0.04) 0px,
+        rgba(0, 255, 255, 0.04) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    pointer-events: none;
+    z-index: 2;
+}

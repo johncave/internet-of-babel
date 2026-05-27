@@ -1,61 +1,3 @@
-Enzymes|1
-Eukaryotes|1
-Fossil Fuel|1
-Glucose|1
-Green Plants|1
-Hypoxia|1
-Light Energy|1
-Lipids|1
-Lysosomes|1
-Malondialdehyde|1
-Mitochondria|1
-Monocots|1
-Mutations|1
-NADPH|1
-Oxygenation|1
-Photosynthesis II|1
-Photosystem II|1
-Plastid Membrane|1
-Photosynthetic Pigments|1
-Plant Cells|1
-Plant Hormones|1
-Plant Leaves|1
-Absorption|1
-Acceleration|1
-Action|1
-Actuality|1
-Acoustic|1
-Analysis|1
-Angular Momentum|1
-Atomic Energy|1
-Atoms|1
-Ballistic|1
-Basic|1
-Battery|1
-Boltzmann|1
-Boundary|1
-Brane|1
-Calculus|1
-Capacitor|1
-Centrifugal|1
-Change|1
-Classical Mechanics|1
-Classification|1
-Coherence|1
-Complementary|1
-Conservation|1
-Constant|1
-Cosmology|1
-Counterintuitive|1
-Coupling|1
-Crystallization|1
-Curvature|1
-Damping|1
-Density|1
-Determinism|1
-Diffraction|1
-Dimensional|1
-Direct|1
 Dynamics|1
 Electromagnetic|1
 Electrostatic|1
@@ -498,3 +440,61 @@ Phytoplankton|2
 Atomic Spectra|2
 **Acid-Base Equilibrium**|2
 - Energy Conversion|2
+Animal cells|2
+Bacteria|2
+Air pollution|2
+Glucose metabolism|2
+- Adaptation|2
+Aerobic Respiration|2
+Absolut Zero|2
+Acyl groups|2
+**Lysosome**|2
+*Antioxidants*|2
+- Mitochondrial Genetics|2
+Agave|2
+- Cancer|2
+Adenine nucleoside phosphorylase|2
+Air Purification|2
+ATP|2
+Photosynthesis|2
+Chloroplasts|2
+Chlorophyll|2
+Cell Wall|2
+Auxin|2
+Angiosperms|2
+Physical Absorption|2
+Velocity|2
+physics|2
+Actualization|2
+Acoustic frequency|2
+Descriptive analysis|2
+Joseph Louis Lagrange|2
+Nuclear Reactions|2
+Atomic Number|2
+Air|2
+Basic Technology|2
+Alessandro Volta|2
+**Name**|2
+Abstract boundaries|2
+higher-dimensional|2
+Algebra|2
+Ceramic|2
+Aerodynamics|2
+Anarchy|2
+Action-and-Reaction|2
+Artificial Intelligence|2
+Axiom|2
+**Acid-base chemistry**|2
+Agroforestry|2
+**ASCII Constant**|2
+Accelerating Expansion|2
+**Counterintuitive Concepts**|2
+Software Engineering|2
+Antimony sulfide|2
+Algebraic Curvature|2
+Air Resistance|2
+Atomic mass|2
+causal determinism|2
+Aperture|2
+Dimensional space|2
+Financial Transactions|2

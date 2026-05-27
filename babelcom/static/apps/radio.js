@@ -53,6 +53,8 @@ const RadioApp = {
     },
 
     setupVisualizer: function() {
+        this._setupCount = (this._setupCount || 0) + 1;
+        console.log('📻 setupVisualizer call #' + this._setupCount);
         // Clean up any existing visualizer first
         if (this.visualizer) {
             console.log('📻 Visualizer: Cleaning up existing visualizer before reinitializing');
@@ -83,8 +85,11 @@ const RadioApp = {
             return;
         }
         
-        // Create new audio context
-        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // Create new audio context — 'playback' uses a larger buffer to avoid
+        // underruns that crackle other page audio (e.g. Clippy chimes).
+        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)({
+            latencyHint: 'playback'
+        });
         
         // Resume audio context if suspended (required for autoplay policies)
         if (this.audioCtx.state === 'suspended') {
@@ -107,7 +112,10 @@ const RadioApp = {
             height: canvas.height,
             pixelRatio: window.devicePixelRatio || 1
         });
-        
+
+        // Feed audio into the visualizer so presets actually react to the music
+        this.visualizer.connectAudio(this.source);
+
         // Load all presets
         const presets = window.butterchurnPresets.getPresets();
         const presetNames = Object.keys(presets);
@@ -128,19 +136,42 @@ const RadioApp = {
         this.startPresetCycling();
         
         // Animate
+        this.visualizerEnabled = true;
+        let fpsFrames = 0;
+        let fpsLastT = performance.now();
+        const fpsEl = document.getElementById('visualizer-fps');
         const renderFrame = () => {
+            if (!this.visualizerEnabled) {
+                this.visualizerFrame = null;
+                return;
+            }
             if (this.visualizer) this.visualizer.render();
+            fpsFrames++;
+            const now = performance.now();
+            if (now - fpsLastT >= 1000) {
+                if (fpsEl) fpsEl.textContent = `${Math.round(fpsFrames * 1000 / (now - fpsLastT))} fps`;
+                fpsFrames = 0;
+                fpsLastT = now;
+            }
             this.visualizerFrame = requestAnimationFrame(renderFrame);
         };
+        this.renderFrame = renderFrame;
         renderFrame();
         
         // Responsive - handle both window resize and container resize
+        this._resizeCount = 0;
         const handleResize = () => {
             if (!canvas) return;
-            
+
             const newWidth = canvas.clientWidth * window.devicePixelRatio;
             const newHeight = canvas.clientHeight * window.devicePixelRatio;
-            
+
+            // Skip if size hasn't actually changed — ResizeObserver fires on many layout changes
+            if (canvas.width === newWidth && canvas.height === newHeight) return;
+
+            this._resizeCount++;
+            console.log('📻 handleResize #' + this._resizeCount, newWidth, 'x', newHeight);
+
             // Update canvas size
             canvas.width = newWidth;
             canvas.height = newHeight;
@@ -195,6 +226,29 @@ const RadioApp = {
         this.handleUserInteraction();
 
         console.log('📻 Visualizer: Setup completed successfully');
+
+        // Session restore asked for wallpaper mode before the visualizer was
+        // ready — honor it now.
+        if (this._pendingWallpaper) {
+            this._pendingWallpaper = false;
+            this.setAsWallpaper();
+            const menu = document.getElementById('visualizer-menu');
+            if (menu) menu.classList.remove('active');
+        }
+    },
+
+    // Enter wallpaper mode, deferring until the visualizer has finished its
+    // async (Butterchurn) setup if it isn't ready yet. Used by session restore.
+    requestWallpaper: function() {
+        if (document.getElementById('desktop-visualizer')) return; // already wallpaper
+        const canvas = document.getElementById('visualizer-canvas');
+        if (canvas && this.visualizer) {
+            this.setAsWallpaper();
+            const menu = document.getElementById('visualizer-menu');
+            if (menu) menu.classList.remove('active');
+        } else {
+            this._pendingWallpaper = true;
+        }
     },
 
     handleUserInteraction: function() {
@@ -229,6 +283,7 @@ const RadioApp = {
             <div class="radio-app">
                 <audio id="radio-audio" preload="none" crossorigin="anonymous"></audio>
                 <canvas id="visualizer-canvas" width="800" height="600" style="width:100%;height:100%;display:block;position:absolute;top:0;left:0;"></canvas>
+                <div id="visualizer-fps" style="position:absolute;top:4px;right:8px;z-index:30;color:#0f0;font:11px monospace;text-shadow:0 0 2px #000;pointer-events:none;">— fps</div>
                 <div class="radio-controls-overlay">
                     <div class="main-controls-row">
                         <div class="track-info-overlay">
@@ -337,16 +392,7 @@ const RadioApp = {
             if (streamUrl && this.currentStreamUrl !== streamUrl) {
                 this.currentStreamUrl = streamUrl;
                 this.audio.src = streamUrl;
-                if (!this.isMuted) {
-                    this.audio.play().then(() => {
-                        // Check audio context state after playback starts
-                        if (this.audioCtx && this.audioCtx.state === 'suspended') {
-                            this.audioCtx.resume();
-                        }
-                    }).catch(error => {
-                        console.error('📻 Audio: Failed to start playback:', error);
-                    });
-                }
+                if (!this.isMuted) this.playAudio();
             }
             
             // Update now playing info
@@ -423,6 +469,50 @@ const RadioApp = {
         }
     },
 
+    // Start playback. If the browser blocks it (autoplay policy — e.g. the
+    // radio was restored on boot without a user gesture), wait for the next
+    // click/keypress and retry then.
+    playAudio: function() {
+        if (!this.audio || this.isMuted) return;
+        const p = this.audio.play();
+        if (p && p.then) {
+            p.then(() => {
+                if (this.audioCtx && this.audioCtx.state === 'suspended') this.audioCtx.resume();
+            }).catch((error) => {
+                console.warn('📻 Audio: autoplay blocked, waiting for user gesture', error);
+                this.armGesturePlay();
+            });
+        }
+    },
+
+    armGesturePlay: function() {
+        if (this._gestureArmed) return;
+        this._gestureArmed = true;
+        this.showAudioPrompt();
+        const resume = () => {
+            this._gestureArmed = false;
+            document.removeEventListener('pointerdown', resume);
+            document.removeEventListener('keydown', resume);
+            this.hideAudioPrompt();
+            this.playAudio();
+        };
+        document.addEventListener('pointerdown', resume, { once: true });
+        document.addEventListener('keydown', resume, { once: true });
+    },
+
+    showAudioPrompt: function() {
+        if (document.getElementById('audio-enable-prompt')) return;
+        const el = document.createElement('div');
+        el.id = 'audio-enable-prompt';
+        el.textContent = '🔊 Click anywhere to enable audio';
+        document.body.appendChild(el);
+    },
+
+    hideAudioPrompt: function() {
+        const el = document.getElementById('audio-enable-prompt');
+        if (el) el.remove();
+    },
+
     createAudioElement: function() {
         // Create new audio element
         this.audio = document.getElementById('radio-audio'); // Get the existing audio element
@@ -432,34 +522,6 @@ const RadioApp = {
             this.audio.preload = 'none';
             this.audio.setAttribute('crossorigin', 'anonymous');
             this.audio.volume = this.volume;
-            this.audio.addEventListener('ended', () => {
-                // No-op, as play/pause is removed
-            });
-            // Add event listeners for debugging audio issues
-            const allAudioEvents = [
-                'abort', 'canplay', 'canplaythrough', 'durationchange', 'emptied', 'ended', 'error', 'loadeddata',
-                'loadedmetadata', 'loadstart', 'pause', 'play', 'playing', 'progress', 'ratechange', 'seeked',
-                'seeking', 'stalled', 'suspend', 'timeupdate', 'volumechange', 'waiting'
-            ];
-            allAudioEvents.forEach(eventType => {
-                this.audio.addEventListener(eventType, (e) => {
-                    if (eventType === 'error') {
-                        const err = e.currentTarget.error;
-                        let msg = 'Unknown error';
-                        if (err) {
-                            switch (err.code) {
-                                case err.MEDIA_ERR_ABORTED: msg = 'You aborted the audio playback.'; break;
-                                case err.MEDIA_ERR_NETWORK: msg = 'A network error caused the audio download to fail.'; break;
-                                case err.MEDIA_ERR_DECODE: msg = 'The audio playback was aborted due to a corruption problem or because the media used features your browser did not support.'; break;
-                                case err.MEDIA_ERR_SRC_NOT_SUPPORTED: msg = 'The audio could not be loaded, either because the server or network failed or because the format is not supported.'; break;
-                            }
-                        }
-                        console.error('📻 Audio event:', eventType, msg, err);
-                    } else {
-                        console.log('📻 Audio event:', eventType, e);
-                    }
-                });
-            });
             // Insert after the main-info div
             const mainInfo = document.querySelector('.main-info');
             mainInfo.parentNode.insertBefore(this.audio, mainInfo.nextSibling);
@@ -617,21 +679,35 @@ const RadioApp = {
     toggleVisualizer: function() {
         const canvas = document.getElementById('visualizer-canvas');
         const toggleText = document.getElementById('visualizer-toggle-text');
-        
+
         if (canvas && toggleText) {
             if (canvas.style.display === 'none') {
                 // Enable visualizer
                 canvas.style.display = 'block';
                 toggleText.textContent = 'Disable Visualizer';
+                this.visualizerEnabled = true;
+                if (!this.visualizerFrame && this.renderFrame) {
+                    this.renderFrame();
+                }
+                this.startPresetCycling();
                 console.log('📻 Visualizer: Enabled');
             } else {
                 // Disable visualizer
                 canvas.style.display = 'none';
                 toggleText.textContent = 'Enable Visualizer';
+                this.visualizerEnabled = false;
+                if (this.visualizerFrame) {
+                    cancelAnimationFrame(this.visualizerFrame);
+                    this.visualizerFrame = null;
+                }
+                if (this.presetInterval) {
+                    clearInterval(this.presetInterval);
+                    this.presetInterval = null;
+                }
                 console.log('📻 Visualizer: Disabled');
             }
         }
-        
+
         // Close the menu
         this.toggleVisualizerMenu();
     },
@@ -764,7 +840,7 @@ const RadioApp = {
                 position: relative;
                 width: 100%;
                 height: 100%;
-                background: rgba(0, 0, 0, 0.8);
+                background: transparent; /* let the translucent .winbox show through */
                 color: #00ffff;
                 font-family: 'Orbitron', sans-serif;
                 overflow: hidden;
@@ -1041,6 +1117,11 @@ const RadioApp = {
             cancelAnimationFrame(this.visualizerFrame);
             this.visualizerFrame = null;
         }
+
+        // If the visualizer was the desktop wallpaper, remove that canvas so it
+        // doesn't linger (frozen) on the desktop after the radio closes.
+        const wallpaperCanvas = document.getElementById('desktop-visualizer');
+        if (wallpaperCanvas) wallpaperCanvas.remove();
         if (this.visualizer) {
             this.visualizer = null;
         }

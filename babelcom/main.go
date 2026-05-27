@@ -151,6 +151,7 @@ func customEmbeddedStaticHandler() gin.HandlerFunc {
 func main() {
 	fmt.Println("Starting Babelcom WebSocket Message Bus")
 	server := NewServer()
+	server.clippy = NewClippy(server)
 
 	// Connect to upstream radio if URL is provided
 	upstreamRadioURL := os.Getenv("BABELCOM_UPSTREAM_RADIO_URL")

@@ -362,11 +362,9 @@ class BabelSystemMonitor extends HTMLElement {
         this.$('val-memory').textContent = METRICS.memory.format(memory);
         this.$('val-heat').textContent = Number.isNaN(heat) ? '--' : METRICS.heat.format(heat);
 
-        // Job + overview
+        // Overview
         this.$('articles-count').textContent = status.articles_count.toLocaleString();
         this.$('system-uptime').textContent = status.uptime;
-        this.$('task-label').textContent = status.current_phase || 'Writing';
-        this.$('current-task').textContent = status.current_title || 'No current task';
 
         this.renderGraph();
     }
