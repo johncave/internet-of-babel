@@ -2,13 +2,98 @@
 let runningApps = new Map();
 let appRegistry = new Map();
 
+// ---- Shared WebSocket bus ----
+// One connection to /ws lives in the shell. Apps subscribe to message types
+// via BabelcomAPI.subscribe(type, fn). The taskbar status indicator is driven
+// from here so it works whether or not any app is open.
+const BabelcomBus = (() => {
+    const listeners = new Map(); // type -> Set<fn>
+    const latest = new Map();    // type -> last full message
+    let ws = null;
+    let reconnectAttempts = 0;
+    let reconnectTimer = null;
+    const maxReconnectDelay = 30000;
+
+    function connect() {
+        const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const url = `${wsProtocol}//${location.host}/ws`;
+        updateSystemStatus('CONNECTING', '#ffff00');
+
+        try {
+            ws = new WebSocket(url);
+        } catch (e) {
+            console.warn('🛰️  Bus: failed to construct WebSocket', e);
+            scheduleReconnect();
+            return;
+        }
+
+        ws.onopen = () => {
+            reconnectAttempts = 0;
+            updateSystemStatus('ONLINE', '#00ff00');
+            console.log('🛰️  Babelcom bus connected');
+        };
+
+        ws.onmessage = (event) => {
+            let msg;
+            try { msg = JSON.parse(event.data); } catch (e) { return; }
+            if (!msg || !msg.type) return;
+
+            latest.set(msg.type, msg);
+
+            // Shell-side reactions
+            if (msg.type === 'system_status' && msg.data) {
+                updateSystemStatus(msg.data.current_phase || 'ONLINE', '#00ff00');
+            }
+
+            const subs = listeners.get(msg.type);
+            if (subs) {
+                for (const fn of subs) {
+                    try { fn(msg); } catch (e) { console.error('subscriber error', e); }
+                }
+            }
+        };
+
+        ws.onclose = () => {
+            ws = null;
+            updateSystemStatus('OFFLINE', '#ff0000');
+            scheduleReconnect();
+        };
+
+        ws.onerror = (e) => {
+            console.warn('🛰️  Babelcom bus error', e);
+        };
+    }
+
+    function scheduleReconnect() {
+        if (reconnectTimer) return;
+        reconnectAttempts++;
+        const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), maxReconnectDelay);
+        updateSystemStatus(`RECONNECTING ${Math.round(delay / 1000)}s`, '#ffff00');
+        reconnectTimer = setTimeout(() => {
+            reconnectTimer = null;
+            connect();
+        }, delay);
+    }
+
+    function subscribe(type, fn) {
+        if (!listeners.has(type)) listeners.set(type, new Set());
+        listeners.get(type).add(fn);
+        return () => listeners.get(type)?.delete(fn);
+    }
+
+    function getLatest(type) {
+        return latest.get(type) || null;
+    }
+
+    return { connect, subscribe, getLatest };
+})();
+
 // Initialize the desktop
 document.addEventListener('DOMContentLoaded', function() {
     initializeDesktop();
     updateClock();
     setInterval(updateClock, 1000);
-    updateSystemStatus('Online', '#00ff00'); // Default status
-    //setInterval(updateSystemStatus, 5000);
+    BabelcomBus.connect();
     // Open web browser in fullscreen on load
     // setTimeout(() => {
     //     let win = openApp('library-browser');
@@ -33,23 +118,26 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeDesktop() {
     console.log('🚀 Babelcom Desktop Initializing...');
     
-    // Register built-in apps
+    // Register built-in apps.
+    // tag-based apps are shadow DOM custom elements (isolated CSS + DOM).
+    // component-based apps are the legacy global-object pattern.
     registerApp('system-monitor', {
         name: 'System Monitor',
         icon: '📊',
         iconPath: '/static/icons/system-monitor.png',
-        component: SystemMonitorApp,
+        tag: 'babel-system-monitor',
         defaultWidth: 600,
         defaultHeight: 800
     });
-    
+
     registerApp('library-browser', {
         name: 'Web of Babel',
         icon: '📖',
         iconPath: '/static/icons/web-browser.png',
-        component: LibraryBrowserApp
+        tag: 'babel-library-browser'
     });
-    
+
+    // TODO: migrate radio to shadow DOM (Butterchurn + audio context need careful handling)
     registerApp('radio', {
         name: 'Radio',
         icon: '📻',
@@ -58,12 +146,12 @@ function initializeDesktop() {
         defaultWidth: 450,
         defaultHeight: 450
     });
-    
+
     registerApp('welcome', {
         name: 'Start',
         icon: '👋',
         iconPath: '/static/icons/start.svg',
-        component: WelcomeApp,
+        tag: 'babel-welcome',
         defaultWidth: 450,
         defaultHeight: 485
     });
@@ -122,7 +210,9 @@ function openApp(appId) {
     const isMobile = window.innerWidth <= 768;
     
     
-    // Set window configuration based on device and app
+    // Set window configuration based on device and app.
+    // tag-based apps mount a custom element directly into the WinBox body;
+    // component-based apps render into a seeded div.
     let windowConfig = {
         title: appConfig.name,
         icon: appConfig.iconPath,
@@ -130,9 +220,9 @@ function openApp(appId) {
         minimizable: true,
         maximizable: true,
         closable: true,
-        html: `<div class="app-window" id="app-${appId}"></div>`,
-        top: 0, // Maximum top position
-        bottom: 50 // Maximum bottom position (respects taskbar height)
+        html: appConfig.tag ? '' : `<div class="app-window" id="app-${appId}"></div>`,
+        top: 0,
+        bottom: 50
     };
     
     if (isMobile) {
@@ -163,8 +253,16 @@ function openApp(appId) {
     // Ensure window has correct title
     winboxWindow.setTitle(appConfig.name);
     
-    // Initialize app component
-    if (appConfig.component) {
+    // Mount the app
+    if (appConfig.tag) {
+        const el = document.createElement(appConfig.tag);
+        // Attach the winbox reference BEFORE inserting so connectedCallback can see it
+        el.winboxWindow = winboxWindow;
+        el.appConfig = appConfig;
+        winboxWindow.body.appendChild(el);
+        // Stash on the winbox so we can clean up on close
+        winboxWindow._appElement = el;
+    } else if (appConfig.component) {
         const appElement = document.getElementById(`app-${appId}`);
         if (appElement) {
             appConfig.component.init(appElement, appConfig, winboxWindow);
@@ -173,11 +271,14 @@ function openApp(appId) {
     
     // Handle window close
     winboxWindow.onclose = () => {
-        // Call the app's destroy function if it exists
-        if (appConfig.component && appConfig.component.destroy) {
+        if (appConfig.tag) {
+            // Removing the element triggers disconnectedCallback for cleanup
+            const el = winboxWindow._appElement;
+            if (el && el.parentNode) el.parentNode.removeChild(el);
+        } else if (appConfig.component && appConfig.component.destroy) {
             appConfig.component.destroy();
         }
-        
+
         runningApps.delete(appId);
         updateTaskbar();
         console.log(`🔒 Closed ${appConfig.name}`);
@@ -295,25 +396,14 @@ function updateClock() {
     clockElement.textContent = timeString;
 }
 
-// Update system status
+// Update the taskbar status indicator. Called by BabelcomBus only.
 function updateSystemStatus(status, color) {
     const statusIndicator = document.getElementById('statusIndicator');
+    if (!statusIndicator) return;
     const statusText = statusIndicator.querySelector('.status-text');
     const statusDot = statusIndicator.querySelector('.status-dot');
-    
-    // Simulate system status (in real implementation, this would check actual system health)
-    // const isOnline = Math.random() > 0.1; // 90% chance of being online
-    
-    // if (isOnline) {
-    //     statusText.textContent = 'ONLINE';
-    //     statusDot.style.background = '#00ff00';
-    // } else {
-    //     statusText.textContent = 'OFFLINE';
-    //     statusDot.style.background = '#ff0000';
-    // }
     statusText.textContent = status || 'UNKNOWN';
-    statusDot.style.background = color || '#00ff00'; // Default to green if no
-
+    statusDot.style.background = color || '#00ff00';
 }
 
 // Utility functions
@@ -345,6 +435,8 @@ window.BabelcomAPI = {
     registerApp,
     formatBytes,
     formatUptime,
+    subscribe: BabelcomBus.subscribe,
+    getLatest: BabelcomBus.getLatest,
     getRunningApps: () => Array.from(runningApps.keys()),
     getAppRegistry: () => Array.from(appRegistry.keys())
 };

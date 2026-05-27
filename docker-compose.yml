@@ -1,0 +1,14 @@
+services:
+  babelcom:
+    build:
+      context: .
+      dockerfile: babelcom/Dockerfile
+    ports:
+      - "8088:8088"
+    volumes:
+      - ./babelcom/static:/app/static:ro
+    environment:
+      - BABELCOM_USE_DISK_STATIC=true
+      - BABELCOM_STATIC_PATH=/app/static
+      - BABELCOM_API_KEY=local-dev-key
+    restart: unless-stopped

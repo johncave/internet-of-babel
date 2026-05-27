@@ -44,7 +44,9 @@ func serveEmbeddedFile(c *gin.Context, path string, contentType string) {
 	c.Data(http.StatusOK, contentType, content)
 }
 
-// serveDiskFile serves a file from disk with ETag support
+// serveDiskFile serves a file from disk with ETag support.
+// Disk mode is dev-only, so we force revalidation every request — the ETag
+// still gives cheap 304s when files haven't changed.
 func serveDiskFile(c *gin.Context, filePath string, contentType string) {
 	content, err := os.ReadFile(filePath)
 	if err != nil {
@@ -61,7 +63,7 @@ func serveDiskFile(c *gin.Context, filePath string, contentType string) {
 	}
 
 	c.Header("ETag", etag)
-	c.Header("Cache-Control", "public, max-age=3600, must-revalidate") // Cache for 1 hour
+	c.Header("Cache-Control", "no-cache")
 	c.Data(http.StatusOK, contentType, content)
 }
 
@@ -229,7 +231,7 @@ func main() {
 	})
 
 	// Start server
-	port := ":8088"
+	port := ":8888"
 	log.Printf("Starting server on port %s", port)
 	log.Printf("Static files mode: %s", getStaticMode())
 	log.Printf("Broadcast WebSocket: ws://localhost%s/ws", port)
