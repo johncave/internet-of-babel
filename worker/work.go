@@ -241,8 +241,10 @@ func work() {
 		articleContent := ""
 		articleRespFunc := func(resp api.ChatResponse) error {
 			go SendToken(resp.Message.Content) // Send each token to the WebSocket
-			//fmt.Print(resp.Message.Content)
 			articleContent += resp.Message.Content
+			// Pace the article to roughly 1 token/sec — Ollama blocks on the
+			// callback, so this naturally throttles generation.
+			time.Sleep(time.Second)
 			return nil
 		}
 		articleReq := &api.ChatRequest{
