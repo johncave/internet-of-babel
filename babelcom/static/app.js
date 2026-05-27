@@ -109,6 +109,8 @@ const Clippy = (() => {
     let agent = null;
     let idleTimer = null;
     let hasGreeted = false;
+    let agentReady = false;     // set once the agent has settled after show()
+    let greetRequested = false; // shell asked to greet (maybe before ready)
 
     // Dev mode: enable via ?clippyDev in the URL or localStorage.clippyDev = '1'
     const DEV_MODE = (() => {
@@ -215,11 +217,12 @@ const Clippy = (() => {
     function attach(agentInstance) {
         agent = agentInstance;
         agent.show();
-        // Brief delay so he settles before saying anything.
+        // Brief delay so he settles before he's allowed to speak.
         setTimeout(() => {
             restoreHome();
             trackDrag();
-            greet();
+            agentReady = true;
+            if (greetRequested) doGreet();
         }, 1500);
 
         // LLM-driven comments arrive via the bus.
@@ -380,7 +383,15 @@ const Clippy = (() => {
         agent.speak(template(phrase, ctx));
     }
 
+    // Public: request a greeting. Called by the shell after the user finishes
+    // setup (or after a session restore), not on page load. Defers if the
+    // agent is still loading.
     function greet() {
+        greetRequested = true;
+        if (agentReady) doGreet();
+    }
+
+    function doGreet() {
         if (!agent || hasGreeted) return;
         hasGreeted = true;
         const defaultProfile = profiles.get('default');
@@ -431,7 +442,11 @@ const Clippy = (() => {
         }, delay);
     }
 
-    return { registerProfile, attach, pushApp, popApp, comment };
+    function clearSavedPosition() {
+        try { localStorage.removeItem(CLIPPY_POS_KEY); } catch (e) {}
+    }
+
+    return { registerProfile, attach, pushApp, popApp, comment, clearSavedPosition, greet };
 })();
 
 window.BabelcomClippy = Clippy;
@@ -484,10 +499,222 @@ function startTaskbarMetrics() {
 
 // Fires once the boot screen has finished (or been skipped).
 function onBootComplete() {
-    // Returning visitor — bring back their last window layout.
-    if (restoreSession()) return;
-    // First visit (no saved session) — show the intro.
-    openApp('welcome');
+    // Returning visitor — bring back their last window layout, then greet.
+    if (restoreSession()) {
+        Clippy.greet();
+        return;
+    }
+    // First visit (no saved session) — let them pick wallpaper + radio.
+    showSetupPicker(applySetup);
+}
+
+// First-load setup: two binary choices (wallpaper, radio). The ENTER click is
+// a user gesture, so radio audio can autoplay straight after.
+function showSetupPicker(onDone) {
+    // Suppress session saving while the picker is up — otherwise refreshing
+    // before ENTER would persist an empty session and skip the picker next time.
+    setupPending = true;
+    const choices = { wallpaper: 'visualiser', radio: 'playing' };
+
+    const overlay = document.createElement('div');
+    overlay.className = 'setup-picker';
+    overlay.innerHTML = `
+        <div class="setup-content">
+            <div class="setup-logo">✨ BABELCOM</div>
+            <div class="setup-sub">CONFIGURE SESSION</div>
+
+            <div class="setup-question">
+                <div class="setup-label">Wallpaper</div>
+                <div class="setup-options" data-group="wallpaper">
+                    <button class="setup-card" data-value="palms">
+                        <div class="setup-card-preview"><img src="/static/palms.png" alt=""></div>
+                        <div class="setup-card-name">Palms</div>
+                    </button>
+                    <button class="setup-card selected" data-value="visualiser">
+                        <div class="setup-card-preview"><canvas id="setup-viz"></canvas></div>
+                        <div class="setup-card-name">Visualiser</div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="setup-question">
+                <div class="setup-label">Radio</div>
+                <div class="setup-options" data-group="radio">
+                    <button class="setup-card" data-value="off">
+                        <div class="setup-card-preview emoji">🔇</div>
+                        <div class="setup-card-name">Off</div>
+                    </button>
+                    <button class="setup-card selected" data-value="playing">
+                        <div class="setup-card-preview emoji">📻</div>
+                        <div class="setup-card-name">Playing</div>
+                    </button>
+                    <button class="setup-card" data-value="fullscreen">
+                        <div class="setup-card-preview"><canvas id="setup-viz-full"></canvas></div>
+                        <div class="setup-card-name">Full screen</div>
+                    </button>
+                </div>
+            </div>
+
+            <button class="setup-enter" id="setup-enter">ENTER</button>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    // Live Butterchurn previews in the Visualiser and Full screen cards (best-effort).
+    const vizCleanups = [
+        initPickerVisualizer(overlay.querySelector('#setup-viz')),
+        initPickerVisualizer(overlay.querySelector('#setup-viz-full')),
+    ];
+
+    overlay.querySelectorAll('.setup-options').forEach((group) => {
+        const key = group.dataset.group;
+        group.querySelectorAll('.setup-card').forEach((card) => {
+            card.addEventListener('click', () => {
+                group.querySelectorAll('.setup-card').forEach((c) => c.classList.remove('selected'));
+                card.classList.add('selected');
+                choices[key] = card.dataset.value;
+            });
+        });
+    });
+
+    overlay.querySelector('#setup-enter').addEventListener('click', () => {
+        vizCleanups.forEach((fn) => fn && fn());
+        overlay.classList.add('setup-done');
+        setTimeout(() => overlay.remove(), 500);
+        // Setup is done — allow saving again, then apply (which opens apps and
+        // triggers the first save).
+        setupPending = false;
+        if (onDone) onDone(choices);
+    });
+}
+
+// Loads Butterchurn (if needed) and renders a random preset into `canvas`.
+// Returns a cleanup function. Best-effort: silently does nothing on failure,
+// and the canvas may show a static frame if the AudioContext is still
+// suspended (no user gesture yet).
+function initPickerVisualizer(canvas) {
+    if (!canvas) return () => {};
+    let raf = null, audioCtx = null, stopped = false;
+
+    const ensureLib = (cb) => {
+        const needBC = !window.butterchurn;
+        const needPresets = !window.butterchurnPresets;
+        let pending = (needBC ? 1 : 0) + (needPresets ? 1 : 0);
+        if (!pending) { cb(); return; }
+        const done = () => { if (--pending <= 0) cb(); };
+        const add = (src) => {
+            const s = document.createElement('script');
+            s.src = src; s.onload = done; s.onerror = done;
+            document.head.appendChild(s);
+        };
+        if (needBC) add('https://cdn.jsdelivr.net/npm/butterchurn@2.6.7/lib/butterchurn.js');
+        if (needPresets) add('https://cdn.jsdelivr.net/npm/butterchurn-presets@2.4.7/lib/butterchurnPresets.min.js');
+    };
+
+    ensureLib(() => {
+        if (stopped || !window.butterchurn || !window.butterchurnPresets) return;
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            audioCtx.resume && audioCtx.resume();
+            const api = window.butterchurn.default || window.butterchurn;
+            const w = canvas.clientWidth || 220;
+            const h = canvas.clientHeight || 100;
+            canvas.width = w;
+            canvas.height = h;
+            const viz = api.createVisualizer(audioCtx, canvas, {
+                width: w, height: h, pixelRatio: window.devicePixelRatio || 1,
+            });
+            const presets = window.butterchurnPresets.getPresets();
+            const names = Object.keys(presets);
+            // Substring match — preset keys often carry author prefixes/extra
+            // punctuation, so an exact lookup misses. This preset has strong
+            // time-based motion, so it animates even without audio.
+            const name = names.find((n) => n.toLowerCase().includes('swing out on the spiral'))
+                || names.find((n) => n.toLowerCase().includes('flexi'))
+                || names[0];
+            console.log('📺 Picker preset:', name);
+            viz.loadPreset(presets[name], 0.0);
+            const render = () => {
+                if (stopped) return;
+                viz.render();
+                raf = requestAnimationFrame(render);
+            };
+            render();
+        } catch (e) {
+            console.warn('Picker visualizer failed', e);
+        }
+    });
+
+    return () => {
+        stopped = true;
+        if (raf) cancelAnimationFrame(raf);
+        if (audioCtx) { try { audioCtx.close(); } catch (e) {} }
+    };
+}
+
+function applySetup(choices) {
+    const layout = defaultLayout();
+
+    openApp('system-monitor', layout['system-monitor']);
+
+    // Radio is needed unless it's explicitly off and the wallpaper isn't the
+    // visualiser (the visualiser is produced by the radio's audio analysis).
+    const wantRadio = choices.radio !== 'off' || choices.wallpaper === 'visualiser';
+    if (wantRadio && typeof RadioApp !== 'undefined') {
+        RadioApp.isMuted = (choices.radio === 'off');
+        const radioWin = openApp('radio', layout['radio']);
+        if (RadioApp.updateMuteUI) RadioApp.updateMuteUI();
+        // Visualiser wallpaper and fullscreen both claim the one canvas, so
+        // they're mutually exclusive — fullscreen wins (visualiser shows in the
+        // fullscreen window instead).
+        if (choices.radio === 'fullscreen' && radioWin && radioWin.fullscreen) {
+            // Runs in the ENTER gesture's call stack, so the Fullscreen API
+            // request is allowed.
+            radioWin.fullscreen(true);
+        } else if (choices.wallpaper === 'visualiser' && RadioApp.requestWallpaper) {
+            RadioApp.requestWallpaper();
+        }
+    }
+
+    openApp('writer', layout['writer']);
+
+    // Welcome centered on top of everything.
+    openApp('welcome', centeredPosition('welcome'));
+
+    // Setup done — Clippy may greet now.
+    Clippy.greet();
+}
+
+// Centered top-left coords for an app at its default size.
+function centeredPosition(id) {
+    const c = appRegistry.get(id) || {};
+    const w = c.defaultWidth || 450;
+    const h = c.defaultHeight || 485;
+    const taskbar = 50;
+    return {
+        x: Math.max(0, Math.round((window.innerWidth - w) / 2)),
+        y: Math.max(0, Math.round((window.innerHeight - taskbar - h) / 2)),
+    };
+}
+
+// Default placement only — each window keeps its own default size (so they may
+// overlap). Writer top-left but shifted past the desktop-icon column so the
+// icons stay discoverable; System Monitor top-right; Radio bottom-right.
+function defaultLayout() {
+    const margin = 20, taskbar = 50, iconGap = 140;
+    const W = window.innerWidth;
+    const H = window.innerHeight - taskbar;
+    const size = (id) => {
+        const c = appRegistry.get(id) || {};
+        return { w: c.defaultWidth || 800, h: c.defaultHeight || 600 };
+    };
+    const sm = size('system-monitor');
+    const rd = size('radio');
+    return {
+        'writer':         { x: iconGap, y: margin },
+        'system-monitor': { x: Math.max(iconGap, W - sm.w - margin), y: margin },
+        'radio':          { x: Math.max(margin, W - rd.w - margin), y: Math.max(margin, H - rd.h - margin) },
+    };
 }
 
 // Retro boot/POST animation. Types out fake boot lines, then fades and
@@ -774,16 +1001,17 @@ function updateWindowTitle(appId, newTitle) {
 const SESSION_KEY = 'babelcom.session';
 let restoringSession = false;
 let restarting = false;
+let setupPending = false; // true while the first-load picker is up — don't save yet
 let saveTimer = null;
 
 function scheduleSave() {
-    if (restoringSession || restarting) return;
+    if (restoringSession || restarting || setupPending) return;
     if (saveTimer) clearTimeout(saveTimer);
     saveTimer = setTimeout(saveSession, 500);
 }
 
 function saveSession() {
-    if (restoringSession || restarting) return;
+    if (restoringSession || restarting || setupPending) return;
     const apps = [];
     runningApps.forEach((win, id) => {
         apps.push({
@@ -839,6 +1067,7 @@ window.addEventListener('beforeunload', saveSession);
 function restartBabelcom() {
     restarting = true;
     try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
+    Clippy.clearSavedPosition();
     location.reload();
 }
 

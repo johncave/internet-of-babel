@@ -557,7 +557,7 @@ class BabelWriter extends HTMLElement {
 
         this.$('status-page').textContent = `Page ${pages} of ${pages}`;
         this.$('status-words').textContent = `Words: ${words.toLocaleString()}`;
-        this.$('status-chars').textContent = `Chars: ${chars.toLocaleString()}`;
+        this.$('status-chars').textContent = `Characters: ${chars.toLocaleString()}`;
     }
 
     // Programmatic scroll that the scroll listener ignores, so it doesn't get

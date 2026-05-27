@@ -323,6 +323,10 @@ const RadioApp = {
                                 <span class="menu-icon">🖼️</span>
                                 <span class="menu-text" id="visualizer-wallpaper-text">Wallpaper</span>
                             </div>
+                            <div class="menu-item" onclick="RadioApp.toggleFullscreen()">
+                                <span class="menu-icon">🖥️</span>
+                                <span class="menu-text" id="visualizer-fullscreen-text">Full screen</span>
+                            </div>
                         </div>
                     </div>
                     <div class="progress-container">
@@ -393,7 +397,9 @@ const RadioApp = {
             if (streamUrl && this.currentStreamUrl !== streamUrl) {
                 this.currentStreamUrl = streamUrl;
                 this.audio.src = streamUrl;
-                if (!this.isMuted) this.playAudio();
+                // Always play; muting is volume 0, so the stream keeps feeding
+                // the visualiser even when silent.
+                this.playAudio();
             }
             
             // Update now playing info
@@ -498,10 +504,12 @@ const RadioApp = {
     // radio was restored on boot without a user gesture), wait for the next
     // click/keypress and retry then.
     playAudio: function() {
-        if (!this.audio || this.isMuted) return;
+        if (!this.audio) return;
         const p = this.audio.play();
         if (p && p.then) {
             p.then(() => {
+                // Mute = volume 0 (still streaming), so the visualiser stays fed.
+                this.audio.volume = this.isMuted ? 0 : this.volume;
                 if (this.audioCtx && this.audioCtx.state === 'suspended') this.audioCtx.resume();
             }).catch((error) => {
                 console.warn('📻 Audio: autoplay blocked, waiting for user gesture', error);
@@ -661,18 +669,24 @@ const RadioApp = {
     },
 
     toggleFullscreen: function() {
-        if (this.winboxWindow) {
-            // Toggle fullscreen state using WinBox's fullscreen functionality
-            if (this.winboxWindow.fullscreen) {
-                this.winboxWindow.fullscreen(false);
-                console.log('📻 Radio: Exited fullscreen');
-            } else {
-                this.winboxWindow.fullscreen(true);
-                console.log('📻 Radio: Entered fullscreen');
-            }
-        } else {
+        if (!this.winboxWindow) {
             console.log('📻 Radio: WinBox window reference not available');
+            return;
         }
+        // .full is WinBox's current-state boolean (the .fullscreen method itself
+        // is always truthy, which is the bug the old check had).
+        const goFull = !this.winboxWindow.full;
+        // Fullscreen shows the in-window visualizer, so if it's currently the
+        // desktop wallpaper, recall it into the window first.
+        if (goFull && document.getElementById('desktop-visualizer')) {
+            this.setAsWallpaper();
+        }
+        this.winboxWindow.fullscreen(goFull);
+        const text = document.getElementById('visualizer-fullscreen-text');
+        if (text) text.textContent = goFull ? 'Exit full screen' : 'Full screen';
+        const menu = document.getElementById('visualizer-menu');
+        if (menu) menu.classList.remove('active');
+        console.log(goFull ? '📻 Radio: Entered fullscreen' : '📻 Radio: Exited fullscreen');
     },
 
     toggleVisualizerMenu: function() {
@@ -769,6 +783,13 @@ const RadioApp = {
             if (wallpaperMenuText) wallpaperMenuText.textContent = 'Wallpaper';
             console.log('📻 Visualizer: Restored to radio window');
         } else if (canvas) {
+            // Going to wallpaper — the canvas is leaving the window, so a
+            // fullscreen radio window would be empty. Exit fullscreen first.
+            if (this.winboxWindow && this.winboxWindow.full) {
+                this.winboxWindow.fullscreen(false);
+                const ft = document.getElementById('visualizer-fullscreen-text');
+                if (ft) ft.textContent = 'Full screen';
+            }
             // Move the canvas to the body as a desktop wallpaper
             canvas.parentNode.removeChild(canvas);
             canvas.id = 'desktop-visualizer';

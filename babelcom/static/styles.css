@@ -668,6 +668,128 @@ body {
     50%      { box-shadow: 0 0 32px rgba(0, 255, 255, 0.85); }
 }
 
+/* First-load setup picker */
+.setup-picker {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: rgba(0, 0, 0, 0.92);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+    color: #00ffff;
+    transition: opacity 0.5s ease;
+}
+
+.setup-picker.setup-done {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.setup-content {
+    text-align: center;
+    width: 90%;
+    max-width: 480px;
+}
+
+.setup-logo {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2.4em;
+    font-weight: 900;
+    letter-spacing: 4px;
+    text-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
+}
+
+.setup-sub {
+    color: #ff0080;
+    letter-spacing: 2px;
+    margin-bottom: 30px;
+    font-size: 0.9em;
+}
+
+.setup-question { margin-bottom: 22px; }
+
+.setup-label {
+    font-family: 'Orbitron', sans-serif;
+    color: #ff6b9d;
+    text-align: left;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+    font-size: 1.2em;
+}
+
+.setup-options { display: flex; gap: 16px; }
+
+.setup-card {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(0, 255, 255, 0.3);
+    border-radius: 12px;
+    padding: 18px;
+    color: #e0e0e0;
+    cursor: pointer;
+    font-family: 'Orbitron', sans-serif;
+    transition: all 0.2s ease;
+}
+
+.setup-card:hover {
+    border-color: #00ffff;
+    background: rgba(0, 255, 255, 0.08);
+}
+
+.setup-card.selected {
+    border-color: #00ffff;
+    background: rgba(0, 255, 255, 0.15);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+    color: #fff;
+}
+
+.setup-card-preview {
+    height: 90px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, #001a1a, #0a0020);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.setup-card-preview.emoji { font-size: 2.4em; }
+
+.setup-card-preview img,
+.setup-card-preview canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.setup-card-name { font-family: 'Orbitron', sans-serif; }
+
+.setup-enter {
+    margin-top: 14px;
+    padding: 14px 40px;
+    background: linear-gradient(45deg, rgba(0, 255, 255, 0.15), rgba(255, 0, 128, 0.15));
+    border: 2px solid #00ffff;
+    color: #00ffff;
+    border-radius: 10px;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: bold;
+    font-size: 1.1em;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.setup-enter:hover {
+    background: linear-gradient(45deg, rgba(0, 255, 255, 0.3), rgba(255, 0, 128, 0.3));
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+    transform: translateY(-2px);
+}
+
 /* Boot screen */
 .boot-screen {
     position: fixed;
