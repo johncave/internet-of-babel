@@ -244,7 +244,7 @@ func work() {
 			articleContent += resp.Message.Content
 			// Pace the article to roughly 1 token/sec — Ollama blocks on the
 			// callback, so this naturally throttles generation.
-			time.Sleep(300 * time.Millisecond)
+			time.Sleep(1100 * time.Millisecond)
 			return nil
 		}
 		articleReq := &api.ChatRequest{

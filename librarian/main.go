@@ -14,6 +14,7 @@ import (
 )
 
 var articlesDir = "../worker/articles"
+var wikiDir = "./wiki"
 
 //go:embed templates
 var templates embed.FS
@@ -172,6 +173,12 @@ func main() {
 		articlesDir = envArticlesDir
 	}
 
+	// Check if WIKI_DIR environment variable exists
+	envWikiDir := os.Getenv("WIKI_DIR")
+	if envWikiDir != "" {
+		wikiDir = envWikiDir
+	}
+
 	// Check if USE_EMBEDDED_STATIC environment variable exists
 	// Set to "false" to serve static files from disk instead of embedded FS
 	useEmbedded := os.Getenv("USE_EMBEDDED_STATIC")
@@ -253,6 +260,7 @@ func main() {
 	r.GET("/search", searchHandler)
 	r.GET("/all/:page", allArticlesHandler)
 	r.GET("/random", randomArticleHandler)
+	r.GET("/wiki/:article", wikiArticleHandler)
 	r.GET("/:article", articleHandler)
 
 	port := ":8080"

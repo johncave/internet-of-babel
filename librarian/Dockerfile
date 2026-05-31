@@ -35,6 +35,9 @@ WORKDIR /app
 # Copy the binary from builder stage
 COPY --from=builder /app/librarian .
 
+# Copy hand-written wiki content (read from disk at runtime)
+COPY ./librarian/wiki ./wiki
+
 # Change ownership to non-root user
 RUN chown -R appuser:appgroup /app
 

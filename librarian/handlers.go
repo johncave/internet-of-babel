@@ -555,6 +555,46 @@ func articleHandler(c *gin.Context) {
 	}
 }
 
+func wikiArticleHandler(c *gin.Context) {
+	articleName := c.Param("article")
+	if articleName == "" {
+		c.Redirect(http.StatusSeeOther, "/")
+		return
+	}
+	if strings.Contains(articleName, "..") || strings.Contains(articleName, "/") {
+		c.String(http.StatusBadRequest, "Invalid wiki page name")
+		return
+	}
+
+	mdContent, err := os.ReadFile(filepath.Join(wikiDir, articleName+".md"))
+	if err != nil {
+		c.String(http.StatusNotFound, "Wiki page not found")
+		return
+	}
+
+	htmlContent := mdToHTML(mdContent)
+	recentArticles := getRecentArticles(articlesDir)
+	data := PageData{
+		Title:    desanitizeTitle(articleName),
+		Content:  template.HTML(htmlContent),
+		Count:    getTotalArticleCount(articlesDir),
+		Articles: recentArticles,
+		IsWiki:   true,
+	}
+
+	tmpl, err := template.ParseFS(templates, "templates/base.html", "templates/article.html")
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Template error")
+		return
+	}
+
+	err = tmpl.Execute(c.Writer, data)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Template execution error")
+		return
+	}
+}
+
 func searchHandler(c *gin.Context) {
 	query := c.Query("q")
 

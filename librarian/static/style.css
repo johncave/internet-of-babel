@@ -43,10 +43,8 @@ body {
     line-height: 1.6;
     margin: 0;
     padding: 0;
-    background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #533483 100%);
-    background-attachment: fixed;
+    background: #0a0a0f;
     color: #00ffff;
-    /* min-height: 100vh; */
     position: relative;
 }
 
@@ -57,12 +55,14 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background: 
-        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 2px,
+        rgba(0, 255, 255, 0.025) 2px,
+        rgba(0, 255, 255, 0.025) 3px
+    );
     pointer-events: none;
-    /* z-index: -1; */
 }
 
 /* Minimalist Cyberpunk Header */
@@ -535,7 +535,6 @@ h3 {
 p {
     margin-bottom: 20px;
     color: #e0e0e0;
-    text-shadow: 0 0 5px rgba(224, 224, 224, 0.3);
 }
 
 code {
@@ -614,6 +613,61 @@ a:hover {
     border: 1px solid rgba(0, 255, 255, 0.3);
     box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
 } */
+
+/* Article body: calm reading surface — chrome stays loud, this stays legible */
+.article p {
+    line-height: 1.75;
+    font-size: 1.02em;
+}
+
+.article a {
+    text-shadow: none;
+    border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.article a:hover {
+    color: #ff0080;
+    border-bottom-color: #ff0080;
+    text-shadow: none;
+    transform: none;
+}
+
+.article a.missing-article {
+    border-bottom-color: rgba(255, 107, 0, 0.4);
+}
+
+.article a.missing-article:hover {
+    border-bottom-color: #ff8c00;
+}
+
+/* Babelcorp wiki: human-written articles, distinguished by subtle green accent */
+.wiki-badge {
+    display: inline-block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75em;
+    letter-spacing: 2px;
+    color: #00ff7f;
+    border: 1px solid rgba(0, 255, 127, 0.4);
+    padding: 4px 10px;
+    margin-bottom: 20px;
+    background: rgba(0, 255, 127, 0.05);
+    text-shadow: 0 0 6px rgba(0, 255, 127, 0.5);
+}
+
+.wiki-article h1 {
+    border-bottom-color: #00ff7f;
+}
+
+.wiki-article a {
+    color: #00ff7f;
+    border-bottom-color: rgba(0, 255, 127, 0.3);
+}
+
+.wiki-article a:hover {
+    color: #7fff9f;
+    border-bottom-color: #7fff9f;
+}
 
 .queue-status {
     text-align: center;

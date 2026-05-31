@@ -21,6 +21,7 @@ type PageData struct {
 	Content  template.HTML
 	Count    int
 	Articles []ArticleInfo
+	IsWiki   bool
 }
 
 type IndexData struct {

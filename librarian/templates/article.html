@@ -1,5 +1,6 @@
 {{define "content"}}
-<div class="article">
+<div class="article{{if .IsWiki}} wiki-article{{end}}">
+    {{if .IsWiki}}<div class="wiki-badge">&gt; BABELCORP // CANONICAL</div>{{end}}
     {{.Content}}
 </div>
 {{end}} 
