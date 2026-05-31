@@ -1,4 +1,4 @@
-package main
+package librarian
 
 import (
 	"embed"
@@ -166,58 +166,40 @@ func staticHandler(c *gin.Context) {
 	c.Data(http.StatusOK, contentType, content)
 }
 
-func main() {
-	// Check if ARTICLES_DIR environment variable exists
+// Setup configures the passed gin engine with librarian's middleware and routes.
+// Reads environment, initializes the search index, then registers handlers.
+func Setup(r *gin.Engine) error {
 	envArticlesDir := os.Getenv("ARTICLES_DIR")
 	if envArticlesDir != "" {
 		articlesDir = envArticlesDir
 	}
 
-	// Check if WIKI_DIR environment variable exists
 	envWikiDir := os.Getenv("WIKI_DIR")
 	if envWikiDir != "" {
 		wikiDir = envWikiDir
 	}
 
-	// Check if USE_EMBEDDED_STATIC environment variable exists
-	// Set to "false" to serve static files from disk instead of embedded FS
 	useEmbedded := os.Getenv("USE_EMBEDDED_STATIC")
 	if useEmbedded == "false" {
 		UseEmbeddedStatic = false
-		fmt.Println("Static files will be served from disk (USE_EMBEDDED_STATIC=false)")
+		log.Println("librarian: static files from disk (USE_EMBEDDED_STATIC=false)")
 	} else {
 		UseEmbeddedStatic = true
-		fmt.Println("Static files will be served from embedded filesystem")
 	}
 
-	// Initialize API key from environment variable
 	apiKey = os.Getenv("LIBRARIAN_API_KEY")
 	if apiKey == "" {
-		fmt.Println("Warning: LIBRARIAN_API_KEY not set, upload endpoint will be disabled")
-	} else {
-		fmt.Println("API key loaded for upload endpoint")
+		log.Println("librarian: LIBRARIAN_API_KEY not set, upload endpoint will reject all requests")
 	}
 
-	// Check if articles directory exists
 	if _, err := os.Stat(articlesDir); os.IsNotExist(err) {
-		log.Fatal("Articles directory not found. Please run the article generator first.")
+		return fmt.Errorf("librarian: articles directory not found: %s", articlesDir)
 	}
 
-	// Initialize search index
 	if err := initializeSearchIndex(); err != nil {
-		log.Printf("Warning: Failed to initialize search index: %v", err)
-		log.Println("Search functionality will be disabled")
-	} else {
-		log.Println("Search index initialized successfully")
+		log.Printf("librarian: search index init failed, search disabled: %v", err)
 	}
 
-	// Set Gin to release mode for production
-	gin.SetMode(gin.ReleaseMode)
-
-	// Create Gin router
-	r := gin.New()
-
-	// Add logging middleware
 	r.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
 		timestamp := param.TimeStamp.Format("02/Jan/2006:15:04:05 -0700")
 		clientIP := param.ClientIP
@@ -229,7 +211,7 @@ func main() {
 		if referer == "" {
 			referer = "-"
 		}
-		return fmt.Sprintf(`%s - - [%s] "%s %s %s" %d %d "%s" "%s" %.3f`+"\n",
+		return fmt.Sprintf(`wiki %s - - [%s] "%s %s %s" %d %d "%s" "%s" %.3f`+"\n",
 			clientIP,
 			timestamp,
 			param.Method,
@@ -242,20 +224,14 @@ func main() {
 			param.Latency.Seconds(),
 		)
 	}))
-
-	// Add recovery middleware
 	r.Use(gin.Recovery())
-
 	r.Use(gzip.Gzip(gzip.DefaultCompression))
 
-	// Static file routes
 	r.GET("/static/*filepath", staticHandler)
 	r.GET("/favicon.ico", faviconHandler)
 
-	// API routes
 	r.POST("/api/upload", uploadArticleHandler)
 
-	// Main routes
 	r.GET("/", indexHandler)
 	r.GET("/search", searchHandler)
 	r.GET("/all/:page", allArticlesHandler)
@@ -263,9 +239,5 @@ func main() {
 	r.GET("/wiki/:article", wikiArticleHandler)
 	r.GET("/:article", articleHandler)
 
-	port := ":8080"
-	fmt.Printf("Starting server on http://localhost%s\n", port)
-	fmt.Println("Press Ctrl+C to stop the server")
-
-	log.Fatal(r.Run(port))
+	return nil
 }

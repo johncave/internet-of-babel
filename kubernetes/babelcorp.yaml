@@ -1,0 +1,186 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: internet-of-babel
+  labels:
+    name: internet-of-babel
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: babelcorp-articles-pvc
+  namespace: internet-of-babel
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ssd-large
+  resources:
+    requests:
+      storage: 100Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: babelcorp
+  namespace: internet-of-babel
+  labels:
+    app: babelcorp
+spec:
+  # Single replica: WebSocket state, search index, and worker status all
+  # live in-process. ReadWriteOnce PVC enforces this anyway.
+  replicas: 1
+  selector:
+    matchLabels:
+      app: babelcorp
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: babelcorp
+    spec:
+      containers:
+      - name: babelcorp
+        image: ghcr.io/johncave/internet-of-babel/babelcorp:latest
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: PORT
+          value: "8080"
+        - name: ARTICLES_DIR
+          value: "/app/articles"
+        - name: WIKI_DIR
+          value: "/app/wiki"
+        - name: LIBRARIAN_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: babelcom-api-key
+              key: api-key
+        - name: BABELCOM_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: babelcom-api-key
+              key: api-key
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "2000m"
+          limits:
+            memory: "4Gi"
+            cpu: "4000m"
+        volumeMounts:
+        - name: articles-storage
+          mountPath: /app/articles
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+            httpHeaders:
+            - name: Host
+              value: wiki.johncave.co.nz
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+            httpHeaders:
+            - name: Host
+              value: wiki.johncave.co.nz
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+          # search index writes to disk inside the articles volume
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+            - ALL
+      volumes:
+      - name: articles-storage
+        persistentVolumeClaim:
+          claimName: babelcorp-articles-pvc
+      securityContext:
+        fsGroup: 1001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: babelcorp-service
+  namespace: internet-of-babel
+  labels:
+    app: babelcorp
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    app: babelcorp
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: babelcorp-ingress
+  namespace: internet-of-babel
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    # WebSocket support for babelcom.* host
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/proxy-set-headers: "Connection upgrade, Upgrade $http_upgrade"
+spec:
+  tls:
+  - hosts:
+    - wiki.johncave.co.nz
+    - web4.johncave.co.nz
+    - babelcom.johncave.co.nz
+    secretName: babelcorp-tls
+  rules:
+  - host: wiki.johncave.co.nz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: babelcorp-service
+            port:
+              number: 80
+  - host: web4.johncave.co.nz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: babelcorp-service
+            port:
+              number: 80
+  - host: babelcom.johncave.co.nz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: babelcorp-service
+            port:
+              number: 80

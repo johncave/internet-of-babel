@@ -1,4 +1,4 @@
-package main
+package babelcom
 
 import (
 	"crypto/md5"
@@ -148,36 +148,25 @@ func customEmbeddedStaticHandler() gin.HandlerFunc {
 	}
 }
 
-func main() {
-	fmt.Println("Starting Babelcom WebSocket Message Bus")
+// Setup configures the passed gin engine with babelcom's middleware and routes.
+// Creates the WebSocket server, Clippy, and connects to the upstream radio.
+func Setup(router *gin.Engine) error {
+	log.Println("babelcom: starting WebSocket message bus")
 	server := NewServer()
 	server.clippy = NewClippy(server)
 
-	// Connect to upstream radio if URL is provided
 	upstreamRadioURL := os.Getenv("BABELCOM_UPSTREAM_RADIO_URL")
 	if upstreamRadioURL == "" {
 		upstreamRadioURL = "wss://radio.johncave.co.nz/api/live/nowplaying/websocket"
 	}
-
 	if err := server.connectUpstreamRadio(upstreamRadioURL); err != nil {
-		log.Printf("Failed to connect to upstream radio: %v", err)
+		log.Printf("babelcom: upstream radio connect failed: %v", err)
 	}
 
-	// Setup Gin router
-	router := gin.Default()
-
-	// CORS configuration
-	// router.Use(cors.New(cors.Config{
-	// 	AllowOrigins:     []string{"*"},
-	// 	AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-	// 	AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
-	// 	ExposeHeaders:    []string{"Content-Length"},
-	// 	AllowCredentials: true,
-	// }))
-
+	router.Use(gin.Logger())
+	router.Use(gin.Recovery())
 	router.Use(gzip.Gzip(gzip.DefaultCompression))
 
-	// Routes
 	router.GET("/", serveStatic)
 	router.GET("/favicon.ico", func(c *gin.Context) {
 		if os.Getenv("BABELCOM_USE_DISK_STATIC") == "true" {
@@ -185,7 +174,6 @@ func main() {
 			if staticPath == "" {
 				staticPath = "./static"
 			}
-
 			filePath := filepath.Join(staticPath, "favicon.ico")
 			if _, err := os.Stat(filePath); err == nil {
 				serveDiskFile(c, filePath, "image/x-icon")
@@ -195,24 +183,19 @@ func main() {
 		serveEmbeddedFile(c, "static/favicon.ico", "image/x-icon")
 	})
 
-	// Serve static files
 	if os.Getenv("BABELCOM_USE_DISK_STATIC") == "true" {
 		staticPath := os.Getenv("BABELCOM_STATIC_PATH")
 		if staticPath == "" {
 			staticPath = "./static"
 		}
-
-		// Check if static directory exists
 		if _, err := os.Stat(staticPath); err == nil {
-			log.Printf("Serving static files from disk: %s", staticPath)
+			log.Printf("babelcom: serving static from disk: %s", staticPath)
 			router.GET("/static/*filepath", customStaticHandler(staticPath))
 		} else {
-			log.Printf("Static directory not found at %s, falling back to embedded files", staticPath)
-			// Fall back to embedded files
+			log.Printf("babelcom: static dir not found at %s, falling back to embedded", staticPath)
 			router.GET("/static/*filepath", customEmbeddedStaticHandler())
 		}
 	} else {
-		// Serve embedded static files
 		router.GET("/static/*filepath", customEmbeddedStaticHandler())
 	}
 
@@ -220,7 +203,6 @@ func main() {
 	router.GET("/ws/llm", server.handleLLMWebSocket)
 	router.GET("/ws/radio", server.handleRadioWebSocket)
 
-	// Health check endpoint
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status":                "healthy",
@@ -231,19 +213,8 @@ func main() {
 		})
 	})
 
-	// Start server
-	port := ":8888"
-	log.Printf("Starting server on port %s", port)
-	log.Printf("Static files mode: %s", getStaticMode())
-	log.Printf("Broadcast WebSocket: ws://localhost%s/ws", port)
-	log.Printf("LLM WebSocket: ws://localhost%s/ws/llm?api_key=<your-api-key>", port)
-	log.Printf("Radio WebSocket: ws://localhost%s/ws/radio", port)
-	log.Printf("API key can be configured via BABELCOM_API_KEY environment variable")
-	log.Printf("Upstream radio URL: %s (override with BABELCOM_UPSTREAM_RADIO_URL)", upstreamRadioURL)
-
-	if err := router.Run(port); err != nil {
-		log.Fatal("Failed to start server:", err)
-	}
+	log.Printf("babelcom: static mode=%s, upstream radio=%s", getStaticMode(), upstreamRadioURL)
+	return nil
 }
 
 // getStaticMode returns a string describing the current static file serving mode

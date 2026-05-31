@@ -1,0 +1,30 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  cmd = "go build -o ./tmp/babelcorp ./cmd/babelcorp"
+  # full_bin runs the binary with the env vars it needs in dev.
+  # Paths are relative to the repo root (where you run `air` from).
+  full_bin = "ARTICLES_DIR=./worker/articles WIKI_DIR=./librarian/wiki PORT=18080 ./tmp/babelcorp"
+  # Embedded templates/static require a Go rebuild to pick up changes.
+  include_ext = ["go", "html", "css", "js", "md"]
+  include_dir = ["librarian", "babelcom", "cmd"]
+  exclude_dir = ["tmp", "vendor", "node_modules", "worker/articles", "babelcom/tmp", "librarian/tmp"]
+  exclude_regex = ["_test\\.go"]
+  delay = 500
+  kill_delay = "500ms"
+  send_interrupt = true
+  stop_on_error = true
+  log = "build-errors.log"
+
+[log]
+  time = true
+
+[color]
+  main = "magenta"
+  watcher = "cyan"
+  build = "yellow"
+  runner = "green"
+
+[misc]
+  clean_on_exit = true

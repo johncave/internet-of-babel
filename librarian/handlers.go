@@ -1,4 +1,4 @@
-package main
+package librarian
 
 import (
 	"fmt"
