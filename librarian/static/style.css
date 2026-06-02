@@ -1072,6 +1072,30 @@ a:hover {
     text-shadow: 0 0 10px rgba(var(--state-rgb), 0.5);
 }
 
+/* Wiki search hits — green accent + small inline badge */
+.search-result-wiki .result-title {
+    color: var(--accent);
+}
+
+.search-result-wiki .result-title:hover {
+    color: var(--accent-bright);
+    text-shadow: 0 0 10px rgba(var(--accent-rgb), 0.5);
+}
+
+.result-badge {
+    display: inline-block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65em;
+    letter-spacing: 2px;
+    color: var(--accent);
+    border: 1px solid rgba(var(--accent-rgb), 0.4);
+    padding: 2px 8px;
+    margin-left: 10px;
+    vertical-align: middle;
+    background: rgba(var(--accent-rgb), 0.05);
+    text-shadow: none;
+}
+
 .result-highlights {
     margin: 15px 0;
 }
@@ -1128,4 +1152,332 @@ a:hover {
 .no-results li {
     margin: 8px 0;
     font-family: 'Share Tech Mono', monospace;
+}
+
+/* ===========================================================================
+   HOME DASHBOARD
+   =========================================================================== */
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+}
+
+/* Intro */
+.dashboard-intro {
+    text-align: center;
+}
+
+.dashboard-tagline {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.4em;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: 2px;
+    margin: 0 0 16px;
+    text-transform: lowercase;
+}
+
+.dashboard-intro-body {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.05em;
+    max-width: 600px;
+    margin: 0 auto;
+    color: var(--text-body);
+    line-height: 1.6;
+}
+
+.dashboard-intro-body strong {
+    color: var(--primary);
+    font-weight: normal;
+}
+
+/* Giant search */
+.dashboard-search {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--primary);
+    padding: 14px 18px;
+    max-width: 700px;
+    margin: 0 auto;
+    width: 100%;
+    box-shadow: 0 0 16px rgba(var(--primary-rgb), 0.25);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.dashboard-search:focus-within {
+    border-color: var(--state);
+    box-shadow: 0 0 20px rgba(var(--state-rgb), 0.4);
+}
+
+.dashboard-search-prompt {
+    color: var(--accent);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.4em;
+    font-weight: bold;
+    user-select: none;
+}
+
+.dashboard-search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--primary);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.2em;
+    padding: 4px 0;
+    min-width: 0;
+    text-shadow: none;
+}
+
+.dashboard-search-input::placeholder {
+    color: rgba(var(--primary-rgb), 0.4);
+}
+
+.dashboard-search-submit {
+    background: transparent;
+    border: 1px solid rgba(var(--primary-rgb), 0.4);
+    color: var(--primary);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.9em;
+    letter-spacing: 1px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.dashboard-search-submit:hover {
+    border-color: var(--state);
+    color: var(--state);
+    text-shadow: 0 0 6px rgba(var(--state-rgb), 0.5);
+}
+
+.dashboard-search-hint {
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8em;
+    color: rgba(var(--text-body-rgb), 0.5);
+    margin: -32px 0 0;
+}
+
+.dashboard-search-hint kbd {
+    background: rgba(var(--primary-rgb), 0.1);
+    border: 1px solid rgba(var(--primary-rgb), 0.3);
+    padding: 1px 6px;
+    font-family: inherit;
+    color: rgba(var(--primary-rgb), 0.85);
+}
+
+/* Section blocks */
+.dashboard-block-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.9em;
+    color: var(--primary);
+    letter-spacing: 2px;
+    margin: 0 0 14px;
+    padding: 0;
+    border-bottom: none;
+    text-shadow: none;
+    font-weight: normal;
+    text-transform: uppercase;
+}
+
+/* NOW WRITING pill — fixed geometry so it doesn't jump as tokens stream */
+.now-writing-pill {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(var(--primary-rgb), 0.4);
+    padding: 14px 16px;
+    font-family: 'Share Tech Mono', monospace;
+    width: 100%;
+    min-height: 7.5em; /* title row + snippet (3 lines) + monitor link */
+    box-sizing: border-box;
+}
+
+.now-writing-title {
+    color: var(--primary);
+    letter-spacing: 1px;
+    font-size: 1.05em;
+    line-height: 1.3;
+    min-height: 1.3em;
+}
+
+.now-writing-snippet {
+    color: rgba(var(--text-body-rgb), 0.65);
+    font-size: 0.9em;
+    line-height: 1.5;
+    word-break: break-word;
+    min-height: 4.5em;       /* 3 lines — stable height even when empty */
+    max-height: 4.5em;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+.now-writing-monitor {
+    align-self: flex-end;
+    margin-top: 4px;
+    font-size: 0.75em;
+    color: var(--accent);
+    text-decoration: none;
+    text-shadow: none;
+    letter-spacing: 1px;
+}
+
+.now-writing-monitor:hover {
+    color: var(--accent-bright);
+    text-shadow: 0 0 6px rgba(var(--accent-rgb), 0.5);
+    transform: none;
+}
+
+.now-writing-cursor,
+.dashboard-stat-cursor {
+    color: var(--accent);
+    animation: blink-cursor 1s steps(2, start) infinite;
+}
+
+@keyframes blink-cursor {
+    50% { opacity: 0; }
+}
+
+/* RECENTLY GENERATED list */
+.dashboard-recent-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.dashboard-recent-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 14px;
+    background: rgba(0, 0, 0, 0.3);
+    border-left: 2px solid transparent;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.dashboard-recent-item:hover {
+    background: rgba(var(--primary-rgb), 0.08);
+    border-left-color: var(--state);
+}
+
+.dashboard-recent-link {
+    color: var(--primary);
+    text-decoration: none;
+    font-family: 'Share Tech Mono', monospace;
+    text-shadow: none;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dashboard-recent-link:hover {
+    color: var(--state);
+    text-shadow: 0 0 6px rgba(var(--state-rgb), 0.5);
+    transform: none;
+}
+
+.dashboard-recent-date {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.85em;
+    color: rgba(var(--text-body-rgb), 0.5);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* Stats */
+.dashboard-stats {
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.95em;
+    color: rgba(var(--text-body-rgb), 0.7);
+    letter-spacing: 1px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.dashboard-stat-sep {
+    color: rgba(var(--text-body-rgb), 0.3);
+}
+
+.dashboard-stat-active {
+    color: var(--accent);
+}
+
+/* Primary actions */
+.dashboard-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.dashboard-action {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.95em;
+    color: var(--primary);
+    text-decoration: none;
+    border: 1px solid var(--primary);
+    background: rgba(var(--primary-rgb), 0.05);
+    padding: 12px 20px;
+    letter-spacing: 2px;
+    transition: all 0.2s;
+    text-shadow: none;
+}
+
+.dashboard-action:hover {
+    background: rgba(var(--primary-rgb), 0.15);
+    border-color: var(--state);
+    color: var(--state);
+    text-shadow: 0 0 8px rgba(var(--state-rgb), 0.5);
+    transform: none;
+}
+
+@media (max-width: 600px) {
+    .dashboard {
+        gap: 32px;
+    }
+
+    .dashboard-tagline {
+        font-size: 1.1em;
+    }
+
+    .dashboard-search {
+        padding: 10px 14px;
+    }
+
+    .dashboard-search-input {
+        font-size: 1em;
+    }
+
+    .dashboard-search-submit {
+        display: none;
+    }
+
+    .dashboard-recent-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .dashboard-actions {
+        flex-direction: column;
+    }
 }

@@ -29,6 +29,7 @@ type IndexData struct {
 	Title    string
 	Count    int
 	Articles []ArticleInfo
+	Rate     float64 // articles per hour, recent average
 	Embedded bool
 }
 

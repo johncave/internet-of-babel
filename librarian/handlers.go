@@ -32,6 +32,7 @@ func isEmbedded(c *gin.Context) bool {
 type SearchResult struct {
 	Title      string
 	Filename   string
+	Kind       string // "ai" or "wiki"
 	Score      float64
 	Highlights []string
 }
@@ -67,6 +68,11 @@ func initializeSearchIndex() error {
 		filenameFieldMapping.Analyzer = "keyword"
 		articleMapping.AddFieldMappingsAt("filename", filenameFieldMapping)
 
+		// Kind field — "ai" or "wiki", for routing and badging in results
+		kindFieldMapping := bleve.NewTextFieldMapping()
+		kindFieldMapping.Analyzer = "keyword"
+		articleMapping.AddFieldMappingsAt("kind", kindFieldMapping)
+
 		indexMapping.AddDocumentMapping("article", articleMapping)
 
 		index, err = bleve.New(indexPath, indexMapping)
@@ -74,8 +80,9 @@ func initializeSearchIndex() error {
 			return fmt.Errorf("failed to create search index: %v", err)
 		}
 
-		// Index all existing articles
-		if err := indexAllArticles(index); err != nil {
+		// Index AI articles only at create time. Wiki articles get indexed
+		// below on every startup (they're a small set baked into the image).
+		if err := indexDir(index, articlesDir, "ai"); err != nil {
 			return fmt.Errorf("failed to index articles: %v", err)
 		}
 	} else {
@@ -83,48 +90,59 @@ func initializeSearchIndex() error {
 	}
 
 	searchIndex = index
+
+	// Always re-index wiki articles on startup. They live in the image, so
+	// edits between deploys need to land in the index. Re-indexing is
+	// idempotent (same doc ID → overwrite).
+	if err := indexDir(index, wikiDir, "wiki"); err != nil {
+		log.Printf("Warning: failed to index wiki articles: %v", err)
+	}
+
 	return nil
 }
 
-// indexAllArticles indexes all markdown files in the articles directory
-func indexAllArticles(index bleve.Index) error {
-	articles, err := os.ReadDir(articlesDir)
+// indexDir walks a directory of markdown files and indexes each one with the
+// given kind. Doc IDs are namespaced for wiki entries ("wiki:<slug>") so they
+// can't collide with AI articles that share a slug.
+func indexDir(index bleve.Index, dir, kind string) error {
+	files, err := os.ReadDir(dir)
 	if err != nil {
 		return err
 	}
 
 	count := 0
-	for _, article := range articles {
-		if !article.IsDir() && strings.HasSuffix(article.Name(), ".md") {
-			filename := strings.TrimSuffix(article.Name(), ".md")
-			title := desanitizeTitle(filename)
-
-			// Read article content
-			articlePath := filepath.Join(articlesDir, article.Name())
-			content, err := os.ReadFile(articlePath)
-			if err != nil {
-				log.Printf("Warning: failed to read article %s: %v", article.Name(), err)
-				continue
-			}
-
-			// Create document for indexing
-			doc := map[string]interface{}{
-				"title":    title,
-				"content":  string(content),
-				"filename": filename,
-			}
-
-			// Index the document
-			if err := index.Index(filename, doc); err != nil {
-				log.Printf("Warning: failed to index article %s: %v", filename, err)
-				continue
-			}
-
-			count++
+	for _, f := range files {
+		if f.IsDir() || !strings.HasSuffix(f.Name(), ".md") {
+			continue
 		}
+		filename := strings.TrimSuffix(f.Name(), ".md")
+		title := desanitizeTitle(filename)
+
+		content, err := os.ReadFile(filepath.Join(dir, f.Name()))
+		if err != nil {
+			log.Printf("Warning: failed to read %s: %v", f.Name(), err)
+			continue
+		}
+
+		doc := map[string]interface{}{
+			"title":    title,
+			"content":  string(content),
+			"filename": filename,
+			"kind":     kind,
+		}
+
+		id := filename
+		if kind != "ai" {
+			id = kind + ":" + filename
+		}
+		if err := index.Index(id, doc); err != nil {
+			log.Printf("Warning: failed to index %s (%s): %v", id, kind, err)
+			continue
+		}
+		count++
 	}
 
-	log.Printf("Indexed %d articles", count)
+	log.Printf("Indexed %d %s articles", count, kind)
 	return nil
 }
 
@@ -138,7 +156,7 @@ func searchArticles(query string, limit int) ([]SearchResult, error) {
 	searchQuery := bleve.NewQueryStringQuery(query)
 	searchRequest := bleve.NewSearchRequest(searchQuery)
 	searchRequest.Size = limit
-	searchRequest.Fields = []string{"title", "filename"}
+	searchRequest.Fields = []string{"title", "filename", "kind"}
 	searchRequest.Highlight = bleve.NewHighlight()
 
 	// Perform search
@@ -152,6 +170,10 @@ func searchArticles(query string, limit int) ([]SearchResult, error) {
 	for _, hit := range searchResult.Hits {
 		title, _ := hit.Fields["title"].(string)
 		filename, _ := hit.Fields["filename"].(string)
+		kind, _ := hit.Fields["kind"].(string)
+		if kind == "" {
+			kind = "ai" // legacy docs indexed before the kind field existed
+		}
 
 		// Extract highlights and strip mark tags
 		var highlights []string
@@ -170,6 +192,7 @@ func searchArticles(query string, limit int) ([]SearchResult, error) {
 		results = append(results, SearchResult{
 			Title:      title,
 			Filename:   filename,
+			Kind:       kind,
 			Score:      hit.Score,
 			Highlights: highlights,
 		})
@@ -253,6 +276,7 @@ func uploadArticleHandler(c *gin.Context) {
 			"title":    upload.Title,
 			"content":  upload.Content,
 			"filename": filename,
+			"kind":     "ai",
 		}
 		if err := searchIndex.Index(filename, doc); err != nil {
 			log.Printf("Warning: failed to index article %s for search: %v", filename, err)
@@ -309,6 +333,22 @@ func getRecentArticles(articlesDir string) []ArticleInfo {
 	}
 
 	return articleList
+}
+
+// computeGenerationRate returns articles per hour over the window covered by
+// the passed list (oldest to newest). Returns 0 when the window is too small
+// or degenerate to give a meaningful number.
+func computeGenerationRate(articles []ArticleInfo) float64 {
+	if len(articles) < 2 {
+		return 0
+	}
+	newest := articles[0].CreatedTime
+	oldest := articles[len(articles)-1].CreatedTime
+	hours := newest.Sub(oldest).Hours()
+	if hours <= 0 {
+		return 0
+	}
+	return float64(len(articles)-1) / hours
 }
 
 func generateRandomPage(currentPage, totalPages int) int {
@@ -372,6 +412,7 @@ func indexHandler(c *gin.Context) {
 		Title:    "Home",
 		Count:    totalCount,
 		Articles: articleList,
+		Rate:     computeGenerationRate(articleList),
 		Embedded: isEmbedded(c),
 	}
 

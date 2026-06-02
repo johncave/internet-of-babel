@@ -1,27 +1,191 @@
 {{define "content"}}
-<h2>Welcome to Web4</h2>
+<div class="dashboard">
 
-<p>A language model generates an article about a topic, then a list of articles it links to.</p>
-<p>
-    Repeat forever.
-    <br>
-    Grow forever.
-</p>
+    <section class="dashboard-intro">
+        <p class="dashboard-tagline">The Long Language Model Encyclopedia</p>
+        <p class="dashboard-intro-body">The <a href="/wiki/Babelcom">Babelcom&reg;</a> Long Language Model writes articles, then all the articles it links to. Until the end of time. <strong>{{.Count}}</strong> articles deep.</p>
+    </section>
 
-<p>There is a similar project ongoing at <a data-tianji-event="click-google-on-homepage" href="https://www.google.com">google.com</a>.</p>
-<center>
-<a href="/random" class="btn btn-primary random-btn" data-tianji-event="click-explore-home-page" >🎲 Explore 🎲</a>
-</center>  
-<h2>The Interesting Part</h2>
-<p>Humans can monitor the status of the project and browse Web4 through <a href="https://babelcom.johncave.co.nz/">babelcom</a>. </p>
-<p>Bots can continue scraping this site. The ouroboros hungers.</p>
+    <form action="/search" method="GET" class="dashboard-search" role="search">
+        <label class="visually-hidden" for="dashboard-search-input">Search the Web of Babel</label>
+        <span class="dashboard-search-prompt" aria-hidden="true">&gt;</span>
+        <input
+            id="dashboard-search-input"
+            type="text"
+            name="q"
+            placeholder="search the web of babel…"
+            class="dashboard-search-input"
+            autocomplete="off">
+        <button type="submit" class="dashboard-search-submit" data-tianji-event="click-dashboard-search">[ ENTER ]</button>
+    </form>
+    <p class="dashboard-search-hint">press <kbd>/</kbd> or <kbd>⌘K</kbd> from anywhere</p>
 
-<p>This project is running on the slowest computer in my collection: an Intel Compute Stick. It takes about 10 minutes to generate each article. However, it is exactly 0% slower than a cluster of supercomputers.</p>
+    
 
-<!-- <div class="project-stats">
-    <h3>Current Status</h3>
-    <p>Articles generated: {{.Count}}</p>
-    <p>Generation rate: ~6 articles per hour</p>
-    <p>Estimated completion: Never</p>
-</div> -->
-{{end}} 
+    <nav class="dashboard-actions" aria-label="Primary actions">
+        <a href="/random" class="dashboard-action" data-tianji-event="click-dashboard-random">🎲 RANDOM</a>
+        <a href="/all/1" class="dashboard-action" data-tianji-event="click-dashboard-all">📚 ALL ARTICLES</a>
+        <a href="/wiki/babelcorp" class="dashboard-action" data-tianji-event="click-dashboard-about">📖 ABOUT</a>
+    </nav>
+
+     <section class="dashboard-stats">
+        <span class="dashboard-stat">{{.Count}} articles</span>
+        <span class="dashboard-stat-sep">·</span>
+        <span class="dashboard-stat">{{if gt .Rate 0.0}}{{printf "%.1f" .Rate}}/hr{{else}}—/hr{{end}}</span>
+        <span class="dashboard-stat-sep">·</span>
+        <span class="dashboard-stat dashboard-stat-active">STATUS ACTIVE <span class="dashboard-stat-cursor">▮</span></span>
+    </section>
+
+    <section class="dashboard-block">
+        <h2 class="dashboard-block-title">&gt; NOW WRITING</h2>
+        <div class="now-writing-pill">
+            <div class="now-writing-title">worker idle<span class="now-writing-cursor">▮</span></div>
+            <div class="now-writing-snippet"></div>
+            {{if not .Embedded}}
+            <a href="https://babelcom.johncave.co.nz" target="_top" class="now-writing-monitor" data-tianji-event="click-now-writing-monitor">Watch →</a>
+            {{end}}
+        </div>
+    </section>
+
+    <section class="dashboard-block">
+        <h2 class="dashboard-block-title">&gt; RECENTLY GENERATED</h2>
+        <ul class="dashboard-recent-list">
+            {{range .Articles}}
+            <li class="dashboard-recent-item">
+                <a href="/{{.Filename}}" class="dashboard-recent-link" data-tianji-event="click-dashboard-recent">{{.Title}}</a>
+                <span class="dashboard-recent-date">{{.FormattedTime}}</span>
+            </li>
+            {{end}}
+        </ul>
+    </section>
+
+   
+
+    
+
+</div>
+
+<script>
+(function () {
+    const titleEl = document.querySelector('.now-writing-title');
+    const snippetEl = document.querySelector('.now-writing-snippet');
+    if (!titleEl || !snippetEl) return;
+    const cursor = '<span class="now-writing-cursor">▮</span>';
+
+    // Subscribe to babelcom's broadcast WS — it sends an article_snapshot on
+    // connect, then token + reset messages live as the worker generates.
+    // Same stream the babelcom UI uses; no duplicate state to maintain.
+    const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    // Always target the babelcom subdomain regardless of how the dashboard
+    // was reached (wiki.*, web4.*, or bare localhost). The merged binary
+    // routes /ws only on the babelcom engine.
+    let host = location.host;
+    if (host.startsWith('wiki.')) host = 'babelcom.' + host.slice(5);
+    else if (host.startsWith('web4.')) host = 'babelcom.' + host.slice(5);
+    else if (!host.startsWith('babelcom.')) host = 'babelcom.' + host;
+    const url = proto + '//' + host + '/ws';
+
+    const SNIPPET_MAX = 220; // tail chars to display
+    let article = '';
+    let currentTitle = ''; // from system_status.data.current_title (canonical)
+    let pending = false;
+
+    function escapeHTML(s) {
+        return s.replace(/[&<>"']/g, c => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[c]));
+    }
+
+    function extract(text) {
+        // Only treat the first non-blank line as the title if it's an actual
+        // markdown heading (starts with #). Otherwise there's no real title
+        // and everything is body — prevents freezing the first prose sentence
+        // as a fake title while the snippet rolls on past it.
+        if (!text) return { title: '', body: '' };
+        const lines = text.split('\n');
+        let firstIdx = -1;
+        for (let i = 0; i < lines.length; i++) {
+            if (lines[i].trim()) { firstIdx = i; break; }
+        }
+        if (firstIdx === -1) return { title: '', body: text };
+
+        const first = lines[firstIdx].trim();
+        if (!first.startsWith('#')) {
+            return { title: '', body: text };
+        }
+        const title = first.replace(/^#+\s*/, '');
+        const bodyStart = lines.slice(0, firstIdx + 1).join('\n').length + 1;
+        return { title, body: text.slice(bodyStart) };
+    }
+
+    function tailSnippet(body) {
+        let s = body.replace(/\s+/g, ' ').trim();
+        if (s.length > SNIPPET_MAX) {
+            s = '…' + s.slice(-SNIPPET_MAX);
+        }
+        return s;
+    }
+
+    function render() {
+        if (pending) return;
+        pending = true;
+        requestAnimationFrame(() => {
+            pending = false;
+
+            // Title: prefer canonical name from worker's system_status;
+            // fall back to extracting the first markdown heading from the
+            // accumulated token stream if system_status hasn't arrived yet.
+            let title = currentTitle.trim();
+            const extracted = extract(article);
+            if (!title) title = extracted.title;
+            const body = extracted.body || (extracted.title ? '' : article);
+            const snippet = tailSnippet(body);
+
+            if (!title && !snippet) {
+                titleEl.innerHTML = 'worker idle' + cursor;
+                snippetEl.textContent = '';
+                return;
+            }
+
+            if (snippet) {
+                // Live body — title static, cursor at the writing point
+                titleEl.textContent = title || 'untitled';
+                snippetEl.innerHTML = escapeHTML(snippet) + cursor;
+            } else {
+                // Title only, no body yet — cursor lives at the title's end
+                titleEl.innerHTML = escapeHTML(title || 'untitled') + cursor;
+                snippetEl.textContent = '';
+            }
+        });
+    }
+
+    function connect() {
+        let ws;
+        try { ws = new WebSocket(url); } catch (e) { setTimeout(connect, 5000); return; }
+        ws.addEventListener('message', (e) => {
+            let msg;
+            try { msg = JSON.parse(e.data); } catch { return; }
+            if (msg.type === 'article_snapshot') {
+                article = msg.text || '';
+                render();
+            } else if (msg.type === 'token' && msg.token) {
+                article += msg.token;
+                render();
+            } else if (msg.type === 'reset') {
+                article = '';
+                render();
+            } else if (msg.type === 'system_status' && msg.data) {
+                const t = (msg.data.current_title || '').trim();
+                if (t !== currentTitle) {
+                    currentTitle = t;
+                    render();
+                }
+            }
+        });
+        ws.addEventListener('close', () => setTimeout(connect, 5000));
+        ws.addEventListener('error', () => ws.close());
+    }
+    connect();
+})();
+</script>
+{{end}}

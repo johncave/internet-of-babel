@@ -30,9 +30,9 @@ type Server struct {
 	mu                   sync.RWMutex
 	upgrader             websocket.Upgrader
 	apiKey               string
-	latestSystemStatus   []byte
-	currentArticle       []byte // accumulated token stream since the last reset
-	clippy               *Clippy
+	latestSystemStatus []byte
+	currentArticle     []byte // accumulated token stream since the last reset
+	clippy             *Clippy
 }
 
 // NewServer creates a new server instance

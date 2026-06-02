@@ -13,8 +13,15 @@
             <p class="results-count">Found {{len .Results}} result{{if ne (len .Results) 1}}s{{end}} for "{{.Query}}"</p>
             
             {{range .Results}}
-            <div class="search-result">
-                <h3><a href="/{{.Filename}}" class="result-title">{{.Title}}</a></h3>
+            <div class="search-result{{if eq .Kind "wiki"}} search-result-wiki{{end}}">
+                <h3>
+                    {{if eq .Kind "wiki"}}
+                    <a href="/wiki/{{.Filename}}" class="result-title">{{.Title}}</a>
+                    <span class="result-badge">BABELCORP</span>
+                    {{else}}
+                    <a href="/{{.Filename}}" class="result-title">{{.Title}}</a>
+                    {{end}}
+                </h3>
                 {{if .Highlights}}
                     <div class="result-highlights">
                         {{range .Highlights}}
