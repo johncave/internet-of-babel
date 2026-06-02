@@ -346,25 +346,15 @@ const RadioApp = {
     },
 
     connectWebSocket: function() {
-        const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${wsProtocol}//${location.host}/ws/radio`;
-        try {
-            this.websocket = new WebSocket(wsUrl);
-            this.websocket.onopen = () => {
-                console.log('📻 Radio WebSocket connected');
-            };
-            this.websocket.onmessage = (event) => {
-                this.handleMessage(event.data);
-            };
-            this.websocket.onclose = () => {
-                console.log('📻 Radio WebSocket disconnected');
-            };
-            this.websocket.onerror = (error) => {
-                console.error('📻 Radio WebSocket error:', error);
-            };
-        } catch (error) {
-            console.error('📻 Failed to connect to radio WebSocket:', error);
-        }
+        // Now-playing rides the main /ws bus as {type:"radio", payload:<raw>}.
+        // This gets us the bus's auto-reconnect for free.
+        const onRadio = (msg) => {
+            if (msg && msg.payload) this.handleMessage(JSON.stringify(msg.payload));
+        };
+        this._radioUnsub = BabelcomAPI.subscribe('radio', onRadio);
+        // Hydrate from the bus's cached last message, if any.
+        const cached = BabelcomAPI.getLatest('radio');
+        if (cached) onRadio(cached);
     },
 
     handleMessage: function(data) {
@@ -1146,10 +1136,7 @@ const RadioApp = {
 
     destroy: function() {
         this.removeTaskbarMute();
-        if (this.websocket) {
-            this.websocket.close();
-            this.websocket = null;
-        }
+        if (this._radioUnsub) { this._radioUnsub(); this._radioUnsub = null; }
         if (this.progressInterval) {
             clearInterval(this.progressInterval);
             this.progressInterval = null;

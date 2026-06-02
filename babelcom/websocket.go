@@ -24,15 +24,14 @@ type Connection struct {
 type Server struct {
 	broadcastConnections map[*Connection]bool
 	llmConnections       map[*Connection]bool
-	radioConnections     map[*Connection]bool
 	upstreamRadioConn    *websocket.Conn
 	lastRadioMessage     []byte
 	mu                   sync.RWMutex
 	upgrader             websocket.Upgrader
 	apiKey               string
-	latestSystemStatus []byte
-	currentArticle     []byte // accumulated token stream since the last reset
-	clippy             *Clippy
+	latestSystemStatus   []byte
+	currentArticle       []byte // accumulated token stream since the last reset
+	clippy               *Clippy
 }
 
 // NewServer creates a new server instance
@@ -49,7 +48,6 @@ func NewServer() *Server {
 	return &Server{
 		broadcastConnections: make(map[*Connection]bool),
 		llmConnections:       make(map[*Connection]bool),
-		radioConnections:     make(map[*Connection]bool),
 		apiKey:               apiKey,
 		upgrader: websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
@@ -77,17 +75,14 @@ func (s *Server) broadcast(message []byte) {
 
 // Broadcast message to all radio connections
 func (s *Server) broadcastRadio(message []byte) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
-	for conn := range s.radioConnections {
-		conn.mu.Lock()
-		err := conn.conn.WriteMessage(websocket.TextMessage, message)
-		conn.mu.Unlock()
-		if err != nil {
-			log.Printf("Error broadcasting radio message: %v", err)
-			delete(s.radioConnections, conn)
-		}
+	// Wrap the upstream payload and ride the main /ws bus so the radio uses
+	// the same auto-reconnecting connection as everything else.
+	wrapped, err := json.Marshal(map[string]interface{}{
+		"type":    "radio",
+		"payload": json.RawMessage(message),
+	})
+	if err == nil {
+		s.broadcast(wrapped)
 	}
 }
 
@@ -130,6 +125,25 @@ func (s *Server) handleBroadcastWebSocket(c *gin.Context) {
 			log.Printf("Error sending article snapshot: %v", err)
 		}
 		connection.mu.Unlock()
+	}
+
+	// Cached upstream-radio "now playing" wrapped as {type:"radio", payload:...}
+	// so it rides the same connection as everything else.
+	s.mu.RLock()
+	lastRadio := s.lastRadioMessage
+	s.mu.RUnlock()
+	if lastRadio != nil {
+		wrapped := map[string]interface{}{
+			"type":    "radio",
+			"payload": json.RawMessage(lastRadio),
+		}
+		if data, err := json.Marshal(wrapped); err == nil {
+			connection.mu.Lock()
+			if err := connection.conn.WriteMessage(websocket.TextMessage, data); err != nil {
+				log.Printf("Error sending cached radio: %v", err)
+			}
+			connection.mu.Unlock()
+		}
 	}
 
 	log.Printf("Broadcast client connected. Total connections: %d", len(s.broadcastConnections))
@@ -288,60 +302,3 @@ func (s *Server) connectUpstreamRadio(upstreamURL string) error {
 	return nil
 }
 
-// Handle radio WebSocket connections
-func (s *Server) handleRadioWebSocket(c *gin.Context) {
-	conn, err := s.upgrader.Upgrade(c.Writer, c.Request, nil)
-	if err != nil {
-		log.Printf("Error upgrading radio connection: %v", err)
-		return
-	}
-
-	connection := &Connection{
-		conn:     conn,
-		connType: "radio",
-	}
-
-	s.mu.Lock()
-	s.radioConnections[connection] = true
-	s.mu.Unlock()
-
-	// Send the last message if available
-	s.mu.RLock()
-	if s.lastRadioMessage != nil {
-		connection.mu.Lock()
-		err := connection.conn.WriteMessage(websocket.TextMessage, s.lastRadioMessage)
-		connection.mu.Unlock()
-		if err != nil {
-			log.Printf("Error sending last radio message: %v", err)
-		} else {
-			log.Printf("Sent last radio message to new client")
-		}
-	}
-	s.mu.RUnlock()
-
-	log.Printf("Radio client connected. Total radio connections: %d", len(s.radioConnections))
-
-	// Handle incoming messages from radio clients
-	for {
-		_, message, err := conn.ReadMessage()
-		if err != nil {
-			log.Printf("Radio client disconnected: %v", err)
-			break
-		}
-
-		// Forward messages to upstream if connected
-		if s.upstreamRadioConn != nil {
-			err := s.upstreamRadioConn.WriteMessage(websocket.TextMessage, message)
-			if err != nil {
-				log.Printf("Error forwarding message to upstream radio: %v", err)
-			}
-		}
-	}
-
-	s.mu.Lock()
-	delete(s.radioConnections, connection)
-	s.mu.Unlock()
-
-	conn.Close()
-	log.Printf("Radio client disconnected. Total radio connections: %d", len(s.radioConnections))
-}

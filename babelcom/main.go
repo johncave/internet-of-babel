@@ -201,14 +201,12 @@ func Setup(router *gin.Engine) error {
 
 	router.GET("/ws", server.handleBroadcastWebSocket)
 	router.GET("/ws/llm", server.handleLLMWebSocket)
-	router.GET("/ws/radio", server.handleRadioWebSocket)
 
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status":                "healthy",
 			"broadcast_connections": len(server.broadcastConnections),
 			"llm_connections":       len(server.llmConnections),
-			"radio_connections":     len(server.radioConnections),
 			"static_mode":           getStaticMode(),
 		})
 	})
