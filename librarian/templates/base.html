@@ -3,82 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{.Title}} - Web4: The Web of Babel</title>
+    <title>{{.Title}} - Web of Babel</title>
     <link rel="stylesheet" href="/static/style.css">
     <meta name="title" property="og:title" content="{{.Title}} - The Web of Babel">
-    <meta name="description" property="og:description" content="{{.Title}} on The Web of Babel - an AI-generated encyclopedia. Explore the infinite web of knowledge.">
+    <meta name="description" property="og:description" content="{{.Title}} on The Web of Babel - an AI-generated encyclopedia that writes itself.">
 </head>
 <body>
-    <div class="cyberpunk-header">
-        <div class="header-content">
-            <a href="/"><h1 class="glitch-title" data-text="Web of Babel">Web of Babel</h1></a>
-            <div class="header-status">
-                <div class="status-item">
-                    <span class="status-label">ARTICLES</span>
-                    <span class="status-value">{{.Count}}</span>
-                </div>
-                <div class="status-item">
-                    <a href="https://babelcom.johncave.co.nz" data-tianji-event="click-status-link" target="_blank" rel="noopener noreferrer" class="status-link">
-                    <span class="status-label">STATUS</span>
-                    <span class="status-value status-active">ACTIVE</span>
-                    </a>
-                </div>
-                <!-- <div class="status-item">
-                    <span class="status-label">MODE</span>
-                    <span class="status-value">WRITING</span>
-                </div> -->
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a href="/" class="topbar-brand" aria-label="Web of Babel home">
+                <span class="glitch-title" data-text="Web of Babel">Web of Babel</span>
+                <span class="tagline">an encyclopedia that writes itself</span>
+            </a>
+
+            <form action="/search" method="GET" class="topbar-search" role="search">
+                <label class="visually-hidden" for="topbar-search-input">Search articles</label>
+                <span class="topbar-search-prompt" aria-hidden="true">&gt;</span>
+                <input
+                    id="topbar-search-input"
+                    type="text"
+                    name="q"
+                    placeholder="search the web of babel…"
+                    class="topbar-search-input"
+                    autocomplete="off"
+                    data-tianji-event="click-topbar-search">
+                <span class="topbar-search-hint" aria-hidden="true">⌘K</span>
+            </form>
+
+            <nav class="topbar-links" aria-label="Site">
+                <a href="/wiki/babelcorp" class="topbar-link" data-tianji-event="click-topbar-about">[ ABOUT ]</a>
+                <a href="/all/1" class="topbar-link" data-tianji-event="click-topbar-all">[ ALL ]</a>
+                <a href="/random" class="topbar-link topbar-link-random" data-tianji-event="click-topbar-random" title="Random article">[ 🎲 ]</a>
+                {{if not .Embedded}}
+                <a href="https://babelcom.johncave.co.nz" class="topbar-link topbar-link-babelcom" data-tianji-event="click-topbar-babelcom" target="_top">[ BABELCOM&nbsp;↗ ]</a>
+                {{end}}
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="content-container">
+            {{template "content" .}}
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="site-footer-inner">
+            <div class="footer-cols">
+                <section class="footer-col">
+                    <h4 class="footer-col-title">&gt; NAVIGATE</h4>
+                    <ul class="footer-list">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/all/1">All articles</a></li>
+                        <li><a href="/random">Random</a></li>
+                    </ul>
+                </section>
+
+                <section class="footer-col">
+                    <h4 class="footer-col-title">&gt; ABOUT</h4>
+                    <ul class="footer-list">
+                        <li><a href="/wiki/babelcorp">About Babelcorp</a></li>
+                        <li><a href="/wiki/the_web_of_babel">The Web of Babel</a></li>
+                        {{if not .Embedded}}
+                        <li><a href="https://babelcom.johncave.co.nz" target="_top" class="footer-link-babelcom">Babelcom ↗</a></li>
+                        {{end}}
+                    </ul>
+                </section>
+
+                <section class="footer-col">
+                    <h4 class="footer-col-title">&gt; CONNECT</h4>
+                    <ul class="footer-list">
+                        <li><a href="https://github.com/johncave/internet-of-babel" target="_blank" rel="noopener">Source ↗</a></li>
+                        <li><a href="https://johncave.co.nz" target="_blank" rel="noopener">johncave.co.nz ↗</a></li>
+                    </ul>
+                </section>
+            </div>
+
+            <div class="footer-strip">
+                <span class="footer-brand">INTERNET OF BABEL &middot; AI-GENERATED ENCYCLOPEDIA &middot; RUNNING ON AN INTEL COMPUTE STICK</span>
+                <span class="footer-count">{{.Count}} / ｉｎｆｉｎｉｔｅ articles</span>
             </div>
         </div>
-    </div>
-    
-    <div class="main-layout">
-        <aside class="sidebar">
-            <div class="sidebar-content">
-                <div class="mobile-buttons">
-                    <a href="/random" data-tianji-event="click-random-sidebar" class="btn btn-primary random-btn">🎲 Random</a>
-                    <a href="/all/1" data-tianji-event="click-recent-sidebar" class="btn btn-secondary all-btn">📚 Recent</a>
-                </div>
-                
-                <form action="/search" method="GET" class="search-form">
-                    <input type="text" name="q" placeholder="Search articles..." class="search-input">
-                    <button data-tianji-event="click-search-button" type="submit" class="btn btn-secondary">🔍</button>
-                </form>
-                
-                <h3 class="entries-header">
-                    <a href="/all/1"><span>{{.Count}} Entries</span></a>
-                    <a href="/all/1" class="all-link">All</a>
-                </h3>
-                <ul class="recent-articles">
-                    {{range .Articles}}
-                    <li><a href="/{{.Filename}}" data-tianji-event="click-sidebar-article">{{.Title}}</a></li>
-                    {{end}}
-                    <!-- <li><a href="/all/1">&laquo; All Entries &raquo;</a></li> -->
-                </ul>
-                
-                <!-- <div class="sidebar-section">
-                    <h4>Quick Actions</h4>
-                    
-                </div> -->
-                
-                <!-- <div class="sidebar-section">
-                    <h4>Project Info</h4>
-                    <p>Total Articles: {{.Count}}</p>
-                    <p>Status: Active</p>
-                </div> -->
-            </div>
-        </aside>
-        
-        <main class="main-content">
-            <div class="content-container">
-                {{template "content" .}}
-            </div>
-        </main>
-    </div>
-    
-    <div class="footer">
-        <p>INTERNET OF BABEL - AI-GENERATED ENCYCLOPEDIA<br>{{.Count}} / ｉｎｆｉｎｉｔｅ articles</p>
-        <p>POWERED BY OLLAMA & GO</p>
-    </div>
+    </footer>
+
+    <script>
+    (function () {
+        const input = document.getElementById('topbar-search-input');
+        if (!input) return;
+
+        const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform);
+
+        document.addEventListener('keydown', function (e) {
+            const tag = (document.activeElement && document.activeElement.tagName) || '';
+            const inField = tag === 'INPUT' || tag === 'TEXTAREA' || (document.activeElement && document.activeElement.isContentEditable);
+
+            // Cmd+K (mac) / Ctrl+K (others): always works
+            const modK = e.key === 'k' && (isMac ? e.metaKey : e.ctrlKey);
+            // "/" : only when not already typing in a field
+            const slash = e.key === '/' && !inField;
+
+            if (modK || slash) {
+                e.preventDefault();
+                input.focus();
+                input.select();
+            }
+        });
+    })();
+    </script>
+
+    <script async defer src="https://tianji.johncave.co.nz/tracker.js" data-website-id="cmcwly5qw000368v58zyf1nd8"></script>
 </body>
-<script async defer src="https://tianji.johncave.co.nz/tracker.js" data-website-id="cmcwly5qw000368v58zyf1nd8"></script>
-</html> 
+</html>

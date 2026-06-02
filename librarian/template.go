@@ -22,12 +22,14 @@ type PageData struct {
 	Count    int
 	Articles []ArticleInfo
 	IsWiki   bool
+	Embedded bool
 }
 
 type IndexData struct {
 	Title    string
 	Count    int
 	Articles []ArticleInfo
+	Embedded bool
 }
 
 type ArticleInfo struct {

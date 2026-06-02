@@ -21,6 +21,13 @@ import (
 // Global search index
 var searchIndex bleve.Index
 
+// isEmbedded reports whether the request is rendered inside babelcom's iframe.
+// Babelcom appends ?embed=1 when it loads the wiki in the library-browser app;
+// templates use this to hide the "BABELCOM" link (and later, more chrome).
+func isEmbedded(c *gin.Context) bool {
+	return c.Query("embed") == "1"
+}
+
 // SearchResult represents a search result
 type SearchResult struct {
 	Title      string
@@ -365,6 +372,7 @@ func indexHandler(c *gin.Context) {
 		Title:    "Home",
 		Count:    totalCount,
 		Articles: articleList,
+		Embedded: isEmbedded(c),
 	}
 
 	// Parse the embedded template
@@ -468,12 +476,14 @@ func allArticlesHandler(c *gin.Context) {
 		Articles     []ArticleInfo
 		PageArticles []ArticleInfo
 		Pagination   interface{}
+		Embedded     bool
 	}{
 		Title:        fmt.Sprintf("All Articles - Page %d", page),
 		Count:        totalCount,
-		Articles:     recentArticles, // Use recent articles for sidebar
-		PageArticles: pageArticles,   // Use paginated articles for main content
+		Articles:     recentArticles,
+		PageArticles: pageArticles,
 		Pagination:   pagination,
+		Embedded:     isEmbedded(c),
 	}
 
 	// Parse the embedded template
@@ -511,6 +521,7 @@ func articleHandler(c *gin.Context) {
 			Content:  template.HTML(""),
 			Count:    getTotalArticleCount(articlesDir),
 			Articles: recentArticles,
+			Embedded: isEmbedded(c),
 		}
 
 		// Parse the embedded template
@@ -538,6 +549,7 @@ func articleHandler(c *gin.Context) {
 		Content:  template.HTML(htmlContent),
 		Count:    getTotalArticleCount(articlesDir),
 		Articles: recentArticles,
+		Embedded: isEmbedded(c),
 	}
 
 	// Parse the embedded template
@@ -580,6 +592,7 @@ func wikiArticleHandler(c *gin.Context) {
 		Count:    getTotalArticleCount(articlesDir),
 		Articles: recentArticles,
 		IsWiki:   true,
+		Embedded: isEmbedded(c),
 	}
 
 	tmpl, err := template.ParseFS(templates, "templates/base.html", "templates/article.html")
@@ -608,6 +621,7 @@ func searchHandler(c *gin.Context) {
 			Query      string
 			Results    []SearchResult
 			HasResults bool
+			Embedded   bool
 		}{
 			Title:      "Search",
 			Count:      getTotalArticleCount(articlesDir),
@@ -615,6 +629,7 @@ func searchHandler(c *gin.Context) {
 			Query:      "",
 			Results:    []SearchResult{},
 			HasResults: false,
+			Embedded:   isEmbedded(c),
 		}
 
 		// Parse the embedded template
@@ -652,6 +667,7 @@ func searchHandler(c *gin.Context) {
 		Query      string
 		Results    []SearchResult
 		HasResults bool
+		Embedded   bool
 	}{
 		Title:      fmt.Sprintf("Search: %s", query),
 		Count:      getTotalArticleCount(articlesDir),
@@ -659,6 +675,7 @@ func searchHandler(c *gin.Context) {
 		Query:      query,
 		Results:    results,
 		HasResults: len(results) > 0,
+		Embedded:   isEmbedded(c),
 	}
 
 	// Parse the embedded template
