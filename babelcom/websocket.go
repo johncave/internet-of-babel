@@ -31,7 +31,16 @@ type Server struct {
 	apiKey               string
 	latestSystemStatus   []byte
 	currentArticle       []byte // accumulated token stream since the last reset
+	currentTitle         string // latest article title parsed from system_status
 	clippy               *Clippy
+}
+
+// CurrentTitle returns the most recent article title observed on the LLM bus,
+// or empty string if none has been seen. Safe for concurrent use.
+func (s *Server) CurrentTitle() string {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.currentTitle
 }
 
 // NewServer creates a new server instance
@@ -224,8 +233,12 @@ func (s *Server) handleLLMWebSocket(c *gin.Context) {
 			if msgType, ok := msg["type"].(string); ok {
 				switch msgType {
 				case "system_status":
+					title := extractCurrentTitle(msg)
 					s.mu.Lock()
 					s.latestSystemStatus = message
+					if title != "" {
+						s.currentTitle = title
+					}
 					s.mu.Unlock()
 				case "token":
 					if tok, ok := msg["token"].(string); ok && tok != "" {
@@ -252,6 +265,18 @@ func (s *Server) handleLLMWebSocket(c *gin.Context) {
 
 	conn.Close()
 	log.Printf("LLM client disconnected. Total LLM connections: %d", len(s.llmConnections))
+}
+
+// extractCurrentTitle pulls msg.data.current_title from a parsed system_status
+// message, if present. Returns "" if the shape doesn't match — system_status
+// payloads vary, so callers should treat empty as "no update".
+func extractCurrentTitle(msg map[string]interface{}) string {
+	data, ok := msg["data"].(map[string]interface{})
+	if !ok {
+		return ""
+	}
+	title, _ := data["current_title"].(string)
+	return title
 }
 
 // Connect to upstream radio WebSocket

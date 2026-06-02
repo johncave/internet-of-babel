@@ -111,6 +111,11 @@ const Clippy = (() => {
     let hasGreeted = false;
     let agentReady = false;     // set once the agent has settled after show()
     let greetRequested = false; // shell asked to greet (maybe before ready)
+    // Optional containment: when set, agent._el lives inside `host` instead of
+    // document.body, so other WinBox windows can occlude Clippy naturally.
+    // Writer registers itself as host on connect (see writer.js).
+    let host = null;
+    let pendingHost = null;     // setHost called before the agent loaded
 
     // Dev mode: enable via ?clippyDev in the URL or localStorage.clippyDev = '1'
     const DEV_MODE = (() => {
@@ -214,6 +219,78 @@ const Clippy = (() => {
         if (text) agent._balloon.speak(() => {}, text, false);
     }
 
+    // ---- Containment helpers ----
+    // When `host` is set, agent._el is a child of `host` instead of
+    // document.body, so position styles are relative to the host (and other
+    // WinBox windows can stack on top of Clippy). All viewport-coord inputs
+    // (rects from getBoundingClientRect) need to be converted to host-local
+    // before being handed to clippyjs internals.
+    function toLocalX(vx) {
+        if (!host) return vx;
+        return vx - host.getBoundingClientRect().left;
+    }
+    function toLocalY(vy) {
+        if (!host) return vy;
+        return vy - host.getBoundingClientRect().top;
+    }
+    function moveAgentTo(vx, vy) {
+        if (!agent) return;
+        try { agent.moveTo(toLocalX(vx), toLocalY(vy)); } catch (e) {}
+    }
+
+    function applyHost(hostEl) {
+        if (!agent?._el) return;
+        host = hostEl;
+        // agent._el is position:absolute — host needs a non-static position
+        // so it becomes Clippy's offset parent.
+        if (getComputedStyle(host).position === 'static') {
+            host._babelPrevPosition = host.style.position || '';
+            host.style.position = 'relative';
+        }
+        const el = agent._el;
+        const r = el.getBoundingClientRect();
+        const hr = host.getBoundingClientRect();
+        host.appendChild(el);
+        // Clamp to inside the host: a position saved while Clippy was on the
+        // free desktop may sit outside Writer's bounds.
+        const aw = el.offsetWidth || 90;
+        const ah = el.offsetHeight || 93;
+        const localX = clamp(r.left - hr.left, 0, Math.max(0, hr.width - aw));
+        const localY = clamp(r.top - hr.top, 0, Math.max(0, hr.height - ah));
+        el.style.left = localX + 'px';
+        el.style.top = localY + 'px';
+    }
+
+    function setHost(hostEl) {
+        if (!hostEl) return;
+        if (host === hostEl) return;
+        if (!agentReady || !agent?._el) {
+            pendingHost = hostEl;
+            return;
+        }
+        applyHost(hostEl);
+    }
+
+    function clearHost(hostEl) {
+        if (hostEl && host !== hostEl) return; // not our current host
+        if (pendingHost === hostEl) pendingHost = null;
+        if (!host) return;
+        const prev = host;
+        host = null;
+        if (!agent?._el) return;
+        // Move back to body, converting local→viewport so Clippy doesn't snap
+        // to (0,0) of the document.
+        const el = agent._el;
+        const r = el.getBoundingClientRect();
+        document.body.appendChild(el);
+        el.style.left = r.left + 'px';
+        el.style.top = r.top + 'px';
+        if (prev._babelPrevPosition != null) {
+            prev.style.position = prev._babelPrevPosition;
+            delete prev._babelPrevPosition;
+        }
+    }
+
     function attach(agentInstance) {
         agent = agentInstance;
         agent.show();
@@ -222,6 +299,10 @@ const Clippy = (() => {
             restoreHome();
             trackDrag();
             agentReady = true;
+            if (pendingHost) {
+                applyHost(pendingHost);
+                pendingHost = null;
+            }
             if (greetRequested) doGreet();
         }, 1500);
 
@@ -268,7 +349,7 @@ const Clippy = (() => {
         const cy = hit.rect.top + hit.rect.height / 2;
         const pos = parkPositionFor(hit.rect);
 
-        agent.moveTo(pos.x, pos.y);
+        moveAgentTo(pos.x, pos.y);
         pointAndTalk(cx, cy, text);
 
         // When done, settle in the bottom-right corner of the Writer window
@@ -281,9 +362,9 @@ const Clippy = (() => {
             const restX = clamp(wrect.right - aw - 6, 0, window.innerWidth - aw);
             // ~50px up from the bottom edge of the window.
             const restY = clamp(wrect.bottom - ah - 30, 0, window.innerHeight - ah - 50);
-            agent.moveTo(restX, restY);
+            moveAgentTo(restX, restY);
         } else if (homeX != null) {
-            agent.moveTo(homeX, homeY);
+            moveAgentTo(homeX, homeY);
         }
 
         setTimeout(() => hit.clear(), 10_000);
@@ -292,7 +373,9 @@ const Clippy = (() => {
     // Park Clippy to the right of, left of, or above the highlight (never
     // below — the speech bubble renders above him, so below would cover the
     // very text he's pointing at). Picks randomly among whichever placements
-    // fit the viewport, so the 4-way gesture animation lines up.
+    // fit, so the 4-way gesture animation lines up. Returns viewport coords;
+    // caller converts to host-local via moveAgentTo. Bounds the candidates to
+    // the host's rect when set so Clippy can't park outside Writer.
     function parkPositionFor(rect) {
         const aw = agent._el?.offsetWidth || 90;
         const ah = agent._el?.offsetHeight || 93;
@@ -300,14 +383,18 @@ const Clippy = (() => {
         const cx = rect.left + rect.width / 2;
         const cy = rect.top + rect.height / 2;
 
+        const bounds = host
+            ? host.getBoundingClientRect()
+            : { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight };
+
         const candidates = [];
-        if (rect.right + gap + aw <= window.innerWidth) {
+        if (rect.right + gap + aw <= bounds.right) {
             candidates.push({ x: rect.right + gap, y: cy - ah / 2 });           // right → points left
         }
-        if (rect.left - gap - aw >= 0) {
+        if (rect.left - gap - aw >= bounds.left) {
             candidates.push({ x: rect.left - gap - aw, y: cy - ah / 2 });       // left → points right
         }
-        if (rect.top - gap - ah >= 0) {
+        if (rect.top - gap - ah >= bounds.top) {
             candidates.push({ x: cx - aw / 2, y: rect.top - gap - ah });        // above → points down
         }
 
@@ -316,8 +403,8 @@ const Clippy = (() => {
             : { x: cx - aw / 2, y: rect.top - gap - ah }; // nothing fit — above, clamped
 
         return {
-            x: clamp(pick.x, 0, window.innerWidth - aw),
-            y: clamp(pick.y, 0, window.innerHeight - ah),
+            x: clamp(pick.x, bounds.left, bounds.right - aw),
+            y: clamp(pick.y, bounds.top, bounds.bottom - ah),
         };
     }
 
@@ -328,15 +415,20 @@ const Clippy = (() => {
     // completion callback drives the queue forward (e.g. to the walk home),
     // so the timing of subsequent steps is preserved.
     function pointAndTalk(x, y, text) {
+        // x/y are viewport coords; clippyjs internals compare against
+        // _el.offsetLeft/Top, which are offsetParent-relative — so when Clippy
+        // is reparented into the Writer's WinBox we must convert first.
+        const lx = toLocalX(x);
+        const ly = toLocalY(y);
         const canOverlap = agent._addToQueue && agent._balloon && agent._playInternal;
         if (!canOverlap) {
             // Older/different build — fall back to sequential.
-            agent.gestureAt(x, y);
+            agent.gestureAt(lx, ly);
             agent.speak(text);
             return;
         }
         agent._addToQueue((complete) => {
-            const dir = agent._getDirection ? agent._getDirection(x, y) : 'Right';
+            const dir = agent._getDirection ? agent._getDirection(lx, ly) : 'Right';
             const gesture = 'Gesture' + dir;
             const anim = (agent.hasAnimation && agent.hasAnimation(gesture)) ? gesture : 'Look' + dir;
             try { agent._playInternal(anim, () => {}); } catch (e) {}
@@ -446,7 +538,7 @@ const Clippy = (() => {
         try { localStorage.removeItem(CLIPPY_POS_KEY); } catch (e) {}
     }
 
-    return { registerProfile, attach, pushApp, popApp, comment, clearSavedPosition, greet };
+    return { registerProfile, attach, pushApp, popApp, comment, clearSavedPosition, greet, setHost, clearHost };
 })();
 
 window.BabelcomClippy = Clippy;

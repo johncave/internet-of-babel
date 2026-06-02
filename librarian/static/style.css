@@ -1011,75 +1011,79 @@ a:hover {
     color: rgba(var(--primary-rgb), 0.6);
 }
 
+/* === SEARCH RESULTS PAGE === */
 .search-page {
-    padding: 20px 0;
+    padding: 0;
 }
 
-.search-header {
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid rgba(var(--primary-rgb), 0.3);
-}
-
-.search-header h2 {
-    margin-bottom: 20px;
+.search-page-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.95em;
     color: var(--primary);
-    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 2px;
+    margin: 0 0 24px;
+    padding: 0 0 10px;
+    border-bottom: 1px solid rgba(var(--primary-rgb), 0.2);
+    text-shadow: none;
+    font-weight: normal;
+    text-transform: uppercase;
+    line-height: 1.6;
+}
+
+.search-page-meta {
+    color: rgba(var(--text-body-rgb), 0.5);
+    margin-left: 14px;
+    text-transform: none;
+    letter-spacing: 1px;
+    font-size: 0.9em;
 }
 
 .search-results {
-    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
-.results-count {
-    color: rgba(var(--primary-rgb), 0.75);
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 14px;
-    margin-bottom: 20px;
-    padding: 10px;
-    background: rgba(var(--primary-rgb), 0.05);
-    border: 1px solid rgba(var(--primary-rgb), 0.25);
-    border-radius: 4px;
-}
-
+/* Result rows — match dashboard recent-articles treatment, no card chrome */
 .search-result {
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(var(--primary-rgb), 0.2);
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 15px;
-    transition: all 0.3s ease;
+    background: rgba(0, 0, 0, 0.3);
+    border-left: 2px solid transparent;
+    padding: 12px 16px;
+    transition: background 0.15s ease, border-left-color 0.15s ease;
 }
 
 .search-result:hover {
-    background: rgba(var(--primary-rgb), 0.1);
-    border-color: rgba(var(--primary-rgb), 0.4);
-    transform: translateX(5px);
+    background: rgba(var(--primary-rgb), 0.08);
+    border-left-color: var(--state);
+}
+
+.search-result-head {
+    margin: 0;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1em;
+    font-weight: normal;
+    line-height: 1.4;
 }
 
 .result-title {
     color: var(--primary);
     text-decoration: none;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 1.3em;
-    font-weight: bold;
-    margin-bottom: 10px;
-    display: block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.05em;
+    text-shadow: none;
 }
 
 .result-title:hover {
     color: var(--state);
-    text-shadow: 0 0 10px rgba(var(--state-rgb), 0.5);
+    text-shadow: 0 0 6px rgba(var(--state-rgb), 0.5);
+    transform: none;
 }
 
-/* Wiki search hits — green accent + small inline badge */
-.search-result-wiki .result-title {
-    color: var(--accent);
-}
-
+/* Wiki hits — green accent */
+.search-result-wiki .result-title { color: var(--accent); }
 .search-result-wiki .result-title:hover {
     color: var(--accent-bright);
-    text-shadow: 0 0 10px rgba(var(--accent-rgb), 0.5);
+    text-shadow: 0 0 6px rgba(var(--accent-rgb), 0.5);
 }
 
 .result-badge {
@@ -1089,7 +1093,7 @@ a:hover {
     letter-spacing: 2px;
     color: var(--accent);
     border: 1px solid rgba(var(--accent-rgb), 0.4);
-    padding: 2px 8px;
+    padding: 1px 7px;
     margin-left: 10px;
     vertical-align: middle;
     background: rgba(var(--accent-rgb), 0.05);
@@ -1097,61 +1101,45 @@ a:hover {
 }
 
 .result-highlights {
-    margin: 15px 0;
+    margin: 8px 0 0;
 }
 
 .highlight {
-    background: rgba(var(--state-rgb), 0.1);
-    border-left: 3px solid var(--state);
-    padding: 10px 15px;
-    margin: 8px 0;
-    border-radius: 0 4px 4px 0;
-    color: var(--text-body);
+    background: transparent;
+    border-left: 2px solid rgba(var(--state-rgb), 0.5);
+    padding: 4px 12px;
+    margin: 4px 0;
+    border-radius: 0;
+    color: rgba(var(--text-body-rgb), 0.65);
     font-family: 'Share Tech Mono', monospace;
-    font-size: 13px;
-    line-height: 1.4;
+    font-size: 0.85em;
+    line-height: 1.5;
 }
 
-.result-meta {
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid rgba(var(--primary-rgb), 0.2);
-}
-
-.result-score {
-    color: #00ff00;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 12px;
-    font-weight: bold;
-}
-
+/* No-results — console voice + escape-hatch buttons */
 .no-results {
-    text-align: center;
-    padding: 40px 20px;
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(var(--primary-rgb), 0.25);
-    border-radius: 8px;
-}
-
-.no-results h3 {
-    color: var(--primary);
-    margin-bottom: 20px;
-}
-
-.no-results p {
-    color: var(--text-body);
-    margin-bottom: 15px;
-}
-
-.no-results ul {
+    padding: 32px 24px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(var(--primary-rgb), 0.2);
     text-align: left;
-    display: inline-block;
-    color: var(--primary);
+    font-family: 'Share Tech Mono', monospace;
 }
 
-.no-results li {
-    margin: 8px 0;
-    font-family: 'Share Tech Mono', monospace;
+.no-results-line {
+    margin: 4px 0;
+    color: var(--primary);
+    letter-spacing: 1px;
+}
+
+.no-results-line-muted {
+    color: rgba(var(--text-body-rgb), 0.5);
+}
+
+.no-results-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    flex-wrap: wrap;
 }
 
 /* ===========================================================================
@@ -1479,5 +1467,210 @@ a:hover {
 
     .dashboard-actions {
         flex-direction: column;
+    }
+}
+/* ===========================================================================
+   Cmd+K SEARCH OVERLAY
+   =========================================================================== */
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: none;
+    font-family: 'Share Tech Mono', monospace;
+}
+.overlay[data-open] { display: block; }
+
+/* `display: grid/flex/etc.` on a hidden element overrides the user-agent
+   [hidden] { display: none } rule. Force it back so toggling the JS
+   .hidden attribute actually hides the section. */
+.overlay [hidden] { display: none !important; }
+
+body.overlay-open { overflow: hidden; }
+
+.overlay-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.82);
+    backdrop-filter: blur(4px);
+}
+
+.overlay-panel {
+    position: relative;
+    max-width: 900px;
+    width: calc(100% - 32px);
+    margin: 80px auto 0;
+    background: rgba(8, 8, 12, 0.98);
+    border: 1px solid var(--primary);
+    box-shadow: 0 0 24px rgba(var(--primary-rgb), 0.35);
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 120px);
+}
+
+/* Top search bar inside the overlay */
+.overlay-search {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(var(--primary-rgb), 0.25);
+    flex-shrink: 0;
+}
+.overlay-search-prompt {
+    color: var(--accent);
+    font-size: 1.4em;
+    font-weight: bold;
+    user-select: none;
+}
+#overlay-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--primary);
+    font-family: inherit;
+    font-size: 1.2em;
+    padding: 4px 0;
+    min-width: 0;
+    text-shadow: none;
+}
+#overlay-input::placeholder { color: rgba(var(--primary-rgb), 0.4); }
+
+.overlay-search-hint {
+    font-family: inherit;
+    font-size: 0.75em;
+    color: rgba(var(--primary-rgb), 0.7);
+    border: 1px solid rgba(var(--primary-rgb), 0.3);
+    padding: 2px 8px;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Body — columns when idle, single list when querying */
+.overlay-columns,
+.overlay-suggestions {
+    overflow-y: auto;
+    flex: 1;
+    padding: 18px;
+}
+.overlay-columns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    align-items: start;
+}
+.overlay-col-title {
+    font-size: 0.8em;
+    color: var(--primary);
+    letter-spacing: 2px;
+    margin: 0 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(var(--primary-rgb), 0.2);
+    text-transform: uppercase;
+    text-shadow: none;
+    font-weight: normal;
+}
+
+.overlay-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.overlay-item {
+    padding: 0;
+    margin: 0;
+}
+.overlay-item-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 10px;
+    color: var(--primary);
+    text-decoration: none;
+    text-shadow: none;
+    border-left: 2px solid transparent;
+    transition: background 0.1s ease, border-left-color 0.1s ease;
+}
+.overlay-item.selected .overlay-item-link {
+    background: rgba(var(--state-rgb), 0.12);
+    border-left-color: var(--state);
+    color: var(--state);
+}
+.overlay-item:hover .overlay-item-link { transform: none; }
+.overlay-item-title {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.overlay-item-wiki .overlay-item-link { color: var(--accent); }
+.overlay-item-wiki.selected .overlay-item-link { color: var(--state); }
+.overlay-item-badge {
+    font-size: 0.65em;
+    letter-spacing: 1px;
+    color: var(--accent);
+    border: 1px solid rgba(var(--accent-rgb), 0.4);
+    padding: 1px 6px;
+    flex-shrink: 0;
+}
+
+/* Suggestion mode pieces */
+.overlay-empty {
+    padding: 24px 12px;
+    text-align: center;
+    color: rgba(var(--text-body-rgb), 0.5);
+}
+.overlay-empty p { margin: 4px 0; }
+.overlay-fallback {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(var(--primary-rgb), 0.15);
+    text-align: center;
+}
+.overlay-fallback-link {
+    color: var(--accent);
+    text-decoration: none;
+    text-shadow: none;
+    font-size: 0.9em;
+    letter-spacing: 1px;
+}
+.overlay-fallback-link:hover {
+    color: var(--state);
+    text-shadow: 0 0 6px rgba(var(--state-rgb), 0.5);
+    transform: none;
+}
+
+/* Footer with keyboard hints */
+.overlay-footer {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    padding: 10px 18px;
+    border-top: 1px solid rgba(var(--primary-rgb), 0.2);
+    font-size: 0.75em;
+    color: rgba(var(--text-body-rgb), 0.5);
+    flex-shrink: 0;
+}
+.overlay-footer kbd {
+    border: 1px solid rgba(var(--primary-rgb), 0.3);
+    padding: 1px 6px;
+    margin-right: 4px;
+    color: rgba(var(--primary-rgb), 0.8);
+    font-family: inherit;
+}
+
+@media (max-width: 700px) {
+    .overlay-panel { margin: 24px 16px 0; }
+    .overlay-columns {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    .overlay-footer {
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
     }
 }

@@ -200,6 +200,11 @@ func Setup(r *gin.Engine) error {
 		log.Printf("librarian: search index init failed, search disabled: %v", err)
 	}
 
+	// Warm the popular-articles cache for the Cmd+K overlay. Async because
+	// it walks the whole keywords directory; we don't want it blocking
+	// startup on a large corpus.
+	go refreshPopular(20)
+
 	r.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
 		timestamp := param.TimeStamp.Format("02/Jan/2006:15:04:05 -0700")
 		clientIP := param.ClientIP
@@ -231,6 +236,9 @@ func Setup(r *gin.Engine) error {
 	r.GET("/favicon.ico", faviconHandler)
 
 	r.POST("/api/upload", uploadArticleHandler)
+	r.POST("/api/clippy-comments", clippyCommentsHandler)
+	r.GET("/api/v1/suggest", suggestHandler)
+	r.GET("/api/v1/overlay", overlayHandler)
 
 	r.GET("/", indexHandler)
 	r.GET("/search", searchHandler)

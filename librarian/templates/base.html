@@ -26,6 +26,7 @@
                     placeholder="search the web of babel…"
                     class="topbar-search-input"
                     autocomplete="off"
+                    data-overlay-trigger
                     data-tianji-event="click-topbar-search">
                 <span class="topbar-search-hint" aria-hidden="true">⌘K</span>
             </form>
@@ -86,28 +87,270 @@
         </div>
     </footer>
 
+    <!-- === Cmd+K SEARCH OVERLAY === -->
+    <div id="overlay" class="overlay" aria-hidden="true">
+        <div class="overlay-backdrop" data-overlay-close></div>
+        <div class="overlay-panel" role="dialog" aria-label="Search">
+            <div class="overlay-search">
+                <span class="overlay-search-prompt" aria-hidden="true">&gt;</span>
+                <input id="overlay-input" type="text" placeholder="search the web of babel…" autocomplete="off" spellcheck="false" aria-label="Search">
+                <kbd class="overlay-search-hint" data-overlay-close>esc</kbd>
+            </div>
+
+            <div class="overlay-columns" data-overlay-section="columns">
+                <section class="overlay-col" data-col-for="similar" hidden>
+                    <h3 class="overlay-col-title">&gt; SIMILAR</h3>
+                    <ul class="overlay-list" data-col="similar"></ul>
+                </section>
+                <section class="overlay-col" data-col-for="random">
+                    <h3 class="overlay-col-title">&gt; RANDOM</h3>
+                    <ul class="overlay-list" data-col="random"></ul>
+                </section>
+                <section class="overlay-col" data-col-for="recent">
+                    <h3 class="overlay-col-title">&gt; RECENT</h3>
+                    <ul class="overlay-list" data-col="recent"></ul>
+                </section>
+            </div>
+
+            <div class="overlay-suggestions" data-overlay-section="suggest" hidden>
+                <div class="overlay-empty" hidden>
+                    <p>&gt; NO EXACT MATCH</p>
+                    <p>// try one of these instead:</p>
+                </div>
+                <ul class="overlay-list" data-col="suggest"></ul>
+                <div class="overlay-fallback" hidden>
+                    <a id="overlay-see-all" href="/search" class="overlay-fallback-link">[ see all results → ]</a>
+                </div>
+            </div>
+
+            <div class="overlay-footer">
+                <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+                <span><kbd>enter</kbd> open</span>
+                <span><kbd>esc</kbd> close</span>
+            </div>
+        </div>
+    </div>
+
     <script>
     (function () {
-        const input = document.getElementById('topbar-search-input');
-        if (!input) return;
+        const overlay = document.getElementById('overlay');
+        if (!overlay) return;
+
+        const input         = document.getElementById('overlay-input');
+        const colsSection   = overlay.querySelector('[data-overlay-section="columns"]');
+        const suggestSect   = overlay.querySelector('[data-overlay-section="suggest"]');
+        const suggestList   = overlay.querySelector('[data-col="suggest"]');
+        const fallback      = overlay.querySelector('.overlay-fallback');
+        const emptyState    = overlay.querySelector('.overlay-empty');
+        const seeAllLink    = overlay.querySelector('#overlay-see-all');
 
         const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform);
 
-        document.addEventListener('keydown', function (e) {
-            const tag = (document.activeElement && document.activeElement.tagName) || '';
-            const inField = tag === 'INPUT' || tag === 'TEXTAREA' || (document.activeElement && document.activeElement.isContentEditable);
+        let selected = 0;
+        let visibleItems = [];
+        let debounceTimer = null;
+        let columnsLoaded = false;
+        let cachedOverlay = null; // stashed so empty /suggest can fall back to random
+        let suggestSeq = 0; // race-guard for out-of-order /suggest responses
 
-            // Cmd+K (mac) / Ctrl+K (others): always works
-            const modK = e.key === 'k' && (isMac ? e.metaKey : e.ctrlKey);
-            // "/" : only when not already typing in a field
-            const slash = e.key === '/' && !inField;
+        function escapeHTML(s) {
+            return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
 
-            if (modK || slash) {
+        function urlFor(hit) {
+            return (hit.kind === 'wiki' ? '/wiki/' : '/') + encodeURIComponent(hit.slug);
+        }
+
+        function makeItem(hit) {
+            const li = document.createElement('li');
+            li.className = 'overlay-item' + (hit.kind === 'wiki' ? ' overlay-item-wiki' : '');
+            li.dataset.url = urlFor(hit);
+            li.innerHTML =
+                '<a href="' + escapeHTML(li.dataset.url) + '" class="overlay-item-link">' +
+                    '<span class="overlay-item-title">' + escapeHTML(hit.title) + '</span>' +
+                    (hit.kind === 'wiki' ? '<span class="overlay-item-badge">BABELCORP</span>' : '') +
+                '</a>';
+            li.addEventListener('mouseenter', () => {
+                const idx = visibleItems.indexOf(li);
+                if (idx >= 0) { selected = idx; updateSelected(); }
+            });
+            li.addEventListener('click', (e) => {
                 e.preventDefault();
-                input.focus();
-                input.select();
+                location.href = li.dataset.url;
+            });
+            return li;
+        }
+
+        function rebuildVisible() {
+            visibleItems = Array.from(overlay.querySelectorAll('.overlay-item'))
+                .filter(li => li.offsetParent !== null);
+            selected = 0;
+            updateSelected();
+        }
+
+        function updateSelected() {
+            visibleItems.forEach((li, i) => li.classList.toggle('selected', i === selected));
+            const cur = visibleItems[selected];
+            if (cur) cur.scrollIntoView({ block: 'nearest' });
+        }
+
+        function currentSlug() {
+            // Only AI article pages have a computable "similar" (via keyword
+            // files). Skip wiki, home, list pages — similar would always be
+            // empty and the column wrapper would just hide pointlessly.
+            const path = location.pathname;
+            if (path.startsWith('/wiki/')) return '';
+            const m = path.match(/^\/([^\/]+)\/?$/);
+            if (!m) return '';
+            const slug = m[1];
+            if (slug === 'search' || slug === 'all' || slug === 'random') return '';
+            return slug;
+        }
+
+        async function loadColumns() {
+            const slug = currentSlug();
+            const url = '/api/v1/overlay' + (slug ? '?slug=' + encodeURIComponent(slug) : '');
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                cachedOverlay = data;
+                renderColumns(data);
+                columnsLoaded = true;
+            } catch (e) { /* ignore */ }
+        }
+
+        function renderColumns(data) {
+            ['similar', 'random', 'recent'].forEach(col => {
+                const list = overlay.querySelector('[data-col="' + col + '"]');
+                const wrap = overlay.querySelector('[data-col-for="' + col + '"]');
+                list.innerHTML = '';
+                const hits = data[col] || [];
+                if (hits.length === 0 && col === 'similar') {
+                    wrap.hidden = true;
+                    return;
+                }
+                wrap.hidden = false;
+                hits.forEach(h => list.appendChild(makeItem(h)));
+            });
+            rebuildVisible();
+        }
+
+        async function loadSuggest(q) {
+            const mySeq = ++suggestSeq;
+            try {
+                const res = await fetch('/api/v1/suggest?q=' + encodeURIComponent(q));
+                const data = await res.json();
+                if (mySeq !== suggestSeq) return; // stale
+                renderSuggest(data.hits || [], q);
+            } catch (e) {
+                if (mySeq !== suggestSeq) return;
+                renderSuggest([], q);
+            }
+        }
+
+        function renderSuggest(hits, q) {
+            suggestList.innerHTML = '';
+            seeAllLink.href = '/search?q=' + encodeURIComponent(q);
+
+            if (hits.length > 0) {
+                // Matches arrived — swap columns out for the suggestion list
+                colsSection.hidden = true;
+                suggestSect.hidden = false;
+                emptyState.hidden = true;
+                fallback.hidden = false;
+                hits.forEach(h => suggestList.appendChild(makeItem(h)));
+            } else {
+                // No matches — leave columns visible. No "no match" state.
+                colsSection.hidden = false;
+                suggestSect.hidden = true;
+            }
+            rebuildVisible();
+        }
+
+        function onInput() {
+            const q = input.value.trim();
+            if (!q) {
+                colsSection.hidden = false;
+                suggestSect.hidden = true;
+                rebuildVisible();
+                return;
+            }
+            // Leave columns visible while we wait for /suggest. If matches
+            // come back we'll swap; if not, columns stay so the user always
+            // has something to click.
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => loadSuggest(q), 80);
+        }
+
+        function open(initial) {
+            overlay.setAttribute('data-open', '');
+            overlay.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('overlay-open');
+            input.value = initial || '';
+            if (!columnsLoaded) loadColumns();
+            onInput();
+            requestAnimationFrame(() => { input.focus(); input.select(); });
+        }
+
+        function close() {
+            overlay.removeAttribute('data-open');
+            overlay.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('overlay-open');
+            input.blur();
+        }
+
+        input.addEventListener('input', onInput);
+
+        overlay.addEventListener('click', (e) => {
+            if (e.target.matches('[data-overlay-close]')) close();
+        });
+
+        overlay.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (visibleItems.length) { selected = (selected + 1) % visibleItems.length; updateSelected(); }
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (visibleItems.length) { selected = (selected - 1 + visibleItems.length) % visibleItems.length; updateSelected(); }
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                const li = visibleItems[selected];
+                if (li && li.dataset.url) {
+                    location.href = li.dataset.url;
+                } else if (input.value.trim()) {
+                    location.href = '/search?q=' + encodeURIComponent(input.value.trim());
+                }
             }
         });
+
+        // Global Cmd+K / Ctrl+K / "/" opens the overlay
+        document.addEventListener('keydown', (e) => {
+            const tag = (document.activeElement && document.activeElement.tagName) || '';
+            const inField = tag === 'INPUT' || tag === 'TEXTAREA' || (document.activeElement && document.activeElement.isContentEditable);
+            const modK = e.key === 'k' && (isMac ? e.metaKey : e.ctrlKey);
+            const slash = e.key === '/' && !inField;
+            if (modK || slash) {
+                e.preventDefault();
+                if (!overlay.hasAttribute('data-open')) open();
+            }
+        });
+
+        // Trigger inputs (topbar search, dashboard giant search) open the overlay
+        // on focus/click and forward their current value as the initial query.
+        document.querySelectorAll('[data-overlay-trigger]').forEach(el => {
+            el.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                open(el.value || '');
+            });
+            el.addEventListener('focus', (e) => {
+                if (overlay.hasAttribute('data-open')) return;
+                el.blur();
+                open(el.value || '');
+            });
+        });
+
+        window.BabelOverlay = { open, close };
     })();
     </script>
 

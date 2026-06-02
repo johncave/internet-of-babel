@@ -1,7 +1,3 @@
-Poynting Vector|1
-Rayleigh|1
-Relativity|1
-Resistance|1
 Rotation|1
 Statistics|1
 Thermodynamics|1
@@ -498,3 +494,7 @@ Objective Lens|2
 momentum|2
 Pressurized Water Reactors|2
 Accelestial motion|2
+Magnetic Field|2
+Acoustic Principle|2
+Albert Einstein|2
+civil rights movement|2
