@@ -1,8 +1,12 @@
 // ESM bootstrap for clippyjs. Loads the agent from CDN and hands it to the
 // shell, which manages everything else. Kept tiny so a CDN miss doesn't take
 // the rest of the desktop with it.
-import { initAgent } from 'https://cdn.jsdelivr.net/npm/clippyjs/dist/index.mjs';
-import { Clippy } from 'https://cdn.jsdelivr.net/npm/clippyjs/dist/agents/index.mjs';
+//
+// Uses esm.sh because the clippyjs package ships an `exports` map and jsdelivr
+// now rejects raw `/dist/*.mjs` paths (HTTP 400, served as text/plain), which
+// the browser refuses to execute as a module.
+import { initAgent } from 'https://esm.sh/clippyjs';
+import { Clippy } from 'https://esm.sh/clippyjs/agents';
 
 (async () => {
     // The shell (app.js) loads as a normal script and synchronously sets

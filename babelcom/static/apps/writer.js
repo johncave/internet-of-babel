@@ -68,14 +68,6 @@ class BabelWriter extends HTMLElement {
 
         const latest = BabelcomAPI.getLatest('system_status');
         if (latest && latest.data) this.updateTitle(latest.data);
-
-        // Make Clippy live inside the Writer window. He'll be reparented under
-        // this WinBox's body, so other apps stacked above Writer occlude him
-        // and his pointing math is bounded by the window's rect.
-        const wb = this.winboxWindow;
-        if (wb?.body && window.BabelcomClippy?.setHost) {
-            window.BabelcomClippy.setHost(wb.body);
-        }
     }
 
     disconnectedCallback() {
@@ -84,10 +76,6 @@ class BabelWriter extends HTMLElement {
         if (this._renderFrame) {
             cancelAnimationFrame(this._renderFrame);
             this._renderFrame = null;
-        }
-        const wb = this.winboxWindow;
-        if (wb?.body && window.BabelcomClippy?.clearHost) {
-            window.BabelcomClippy.clearHost(wb.body);
         }
     }
 

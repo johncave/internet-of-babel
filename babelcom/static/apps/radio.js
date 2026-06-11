@@ -11,6 +11,9 @@ const RadioApp = {
     lastElapsedUpdate: 0,
     currentStreamUrl: null,
     fadeControlsTimer: null, // Add to global state
+    reconnectAttempts: 0,
+    reconnectTimer: null,
+    stallTimer: null,
 
     init: function(container, config, winboxWindow) {
         console.log('📻 Radio App: Initializing...');
@@ -21,6 +24,7 @@ const RadioApp = {
         this.currentStreamUrl = null;
         this.progressInterval = null;
         this.lastElapsedUpdate = 0;
+        this.reconnectAttempts = 0;
         this.render();
         this.connectWebSocket();
         this.addStyles();
@@ -502,8 +506,16 @@ const RadioApp = {
                 this.audio.volume = this.isMuted ? 0 : this.volume;
                 if (this.audioCtx && this.audioCtx.state === 'suspended') this.audioCtx.resume();
             }).catch((error) => {
-                console.warn('📻 Audio: autoplay blocked, waiting for user gesture', error);
-                this.armGesturePlay();
+                if (error && error.name === 'NotAllowedError') {
+                    console.warn('📻 Audio: autoplay blocked, waiting for user gesture', error);
+                    this.armGesturePlay();
+                } else {
+                    // Network/source failure — the element's 'error' event also
+                    // fires for these, but it doesn't for AbortError etc., so
+                    // schedule from here too (scheduleReconnect dedupes).
+                    console.warn('📻 Audio: play() failed', error);
+                    this.scheduleReconnect('play() failed: ' + (error && error.name));
+                }
             });
         }
     },
@@ -549,7 +561,9 @@ const RadioApp = {
             const mainInfo = document.querySelector('.main-info');
             mainInfo.parentNode.insertBefore(this.audio, mainInfo.nextSibling);
         }
-        // Add event listeners for debugging audio issues
+        // Recover from network hiccups: any fatal error schedules a reconnect
+        // with backoff; stalls that don't recover within the watchdog window
+        // are treated the same way.
         this.audio.addEventListener('error', (e) => {
             const err = e.currentTarget.error;
             let msg = 'Unknown error';
@@ -562,13 +576,80 @@ const RadioApp = {
                 }
             }
             console.error('📻 Audio: error event:', msg, err);
+            this.scheduleReconnect('media error');
+        });
+        // A live stream should never end — if it does, the connection dropped.
+        this.audio.addEventListener('ended', () => {
+            this.scheduleReconnect('stream ended');
         });
         this.audio.addEventListener('stalled', () => {
             console.warn('📻 Audio: stalled event - media data is not available.');
+            this.armStallWatchdog();
         });
         this.audio.addEventListener('waiting', () => {
             console.warn('📻 Audio: waiting event - playback has stopped because of a temporary lack of data.');
+            this.armStallWatchdog();
         });
+        this.audio.addEventListener('playing', () => {
+            // Healthy again: reset backoff and cancel any pending watchdog.
+            this.reconnectAttempts = 0;
+            this.clearStallWatchdog();
+        });
+
+        // When connectivity returns, don't wait out the backoff timer.
+        if (!this._onlineHandler) {
+            this._onlineHandler = () => {
+                if (this.reconnectTimer) {
+                    console.log('📻 Audio: network back online, reconnecting now');
+                    clearTimeout(this.reconnectTimer);
+                    this.reconnectTimer = null;
+                    this.reconnectStream();
+                }
+            };
+            window.addEventListener('online', this._onlineHandler);
+        }
+    },
+
+    // --- Stream resilience -------------------------------------------------
+
+    // If the stream stalls and doesn't start playing again within 10s,
+    // assume the connection is dead and reconnect.
+    armStallWatchdog: function() {
+        if (this.stallTimer || !this.currentStreamUrl) return;
+        this.stallTimer = setTimeout(() => {
+            this.stallTimer = null;
+            this.scheduleReconnect('stalled for 10s');
+        }, 10000);
+    },
+
+    clearStallWatchdog: function() {
+        if (this.stallTimer) {
+            clearTimeout(this.stallTimer);
+            this.stallTimer = null;
+        }
+    },
+
+    scheduleReconnect: function(reason) {
+        if (!this.currentStreamUrl || this.reconnectTimer) return;
+        this.clearStallWatchdog();
+        // 1s, 2s, 4s, ... capped at 30s between attempts, forever.
+        const delay = Math.min(30000, 1000 * Math.pow(2, this.reconnectAttempts));
+        this.reconnectAttempts++;
+        console.warn(`📻 Audio: ${reason} — reconnecting in ${delay / 1000}s (attempt ${this.reconnectAttempts})`);
+        this.reconnectTimer = setTimeout(() => {
+            this.reconnectTimer = null;
+            this.reconnectStream();
+        }, delay);
+    },
+
+    reconnectStream: function() {
+        if (!this.audio || !this.currentStreamUrl) return;
+        // Cache-buster forces the browser to open a fresh connection rather
+        // than reviving the dead one.
+        const sep = this.currentStreamUrl.includes('?') ? '&' : '?';
+        this.audio.src = this.currentStreamUrl + sep + '_t=' + Date.now();
+        this.audio.load();
+        this.playAudio();
     },
 
     setVolume: function(volume) {
@@ -1177,7 +1258,19 @@ const RadioApp = {
         
         this.currentTrack = null;
         this.currentStreamUrl = null;
-        
+
+        // Stop any pending stream reconnect / stall watchdog
+        if (this.reconnectTimer) {
+            clearTimeout(this.reconnectTimer);
+            this.reconnectTimer = null;
+        }
+        this.clearStallWatchdog();
+        this.reconnectAttempts = 0;
+        if (this._onlineHandler) {
+            window.removeEventListener('online', this._onlineHandler);
+            this._onlineHandler = null;
+        }
+
         // Destroy audio element if it exists
         if (this.audio) {
             this.audio.pause();

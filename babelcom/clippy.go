@@ -1,12 +1,10 @@
 package babelcom
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"log"
 	"math/rand"
-	"net/http"
 	"os"
 	"regexp"
 	"strings"
@@ -15,6 +13,8 @@ import (
 	"time"
 
 	"github.com/ollama/ollama/api"
+
+	"internet-of-babel/librarian"
 )
 
 // Clippy watches article tokens flowing through babelcom and, at sentence
@@ -30,12 +30,6 @@ type Clippy struct {
 	mu             sync.Mutex
 	inFlight       int32 // 0/1 — at most one Clippy turn at a time
 	triggerPercent int   // probability per new sentence
-
-	// Librarian save target. Both must be set for posts to happen; when
-	// either is empty we silently skip (Clippy still streams to the UI).
-	librarianURL    string
-	librarianAPIKey string
-	httpClient      *http.Client
 }
 
 func NewClippy(server *Server) *Clippy {
@@ -58,26 +52,14 @@ func NewClippy(server *Server) *Clippy {
 		}
 	}
 
-	librarianURL := strings.TrimRight(os.Getenv("LIBRARIAN_BASE_URL"), "/")
-	librarianAPIKey := os.Getenv("LIBRARIAN_API_KEY")
-	if librarianURL == "" || librarianAPIKey == "" {
-		log.Printf("Clippy: not saving comments (LIBRARIAN_BASE_URL=%q, LIBRARIAN_API_KEY set=%v)",
-			librarianURL, librarianAPIKey != "")
-	} else {
-		log.Printf("Clippy: saving comments to %s/api/clippy-comments", librarianURL)
-	}
-
 	log.Printf("Clippy: enabled, model=%s, trigger=%d%%", model, trigger)
 
 	return &Clippy{
-		server:          server,
-		client:          client,
-		model:           model,
-		sentenceRegex:   regexp.MustCompile(`[.!?](\s|$)`),
-		triggerPercent:  trigger,
-		librarianURL:    librarianURL,
-		librarianAPIKey: librarianAPIKey,
-		httpClient:      &http.Client{Timeout: 5 * time.Second},
+		server:         server,
+		client:         client,
+		model:          model,
+		sentenceRegex:  regexp.MustCompile(`[.!?](\s|$)`),
+		triggerPercent: trigger,
 	}
 }
 
@@ -225,50 +207,19 @@ func (c *Clippy) runOne(article string) {
 	c.saveComment(quote, comment)
 }
 
-// saveComment POSTs one Clippy reaction to librarian, tagged with whatever
-// article title babelcom most recently observed on the LLM bus. Best-effort:
-// missing config, empty title, or transport errors are logged and skipped —
-// the UI side keeps working regardless.
+// saveComment persists one Clippy reaction beside the current article via the
+// librarian package (same process — no HTTP). Best-effort: an empty title or a
+// disk error is logged and dropped; the UI side keeps working regardless.
 func (c *Clippy) saveComment(quote, comment string) {
-	if c.librarianURL == "" || c.librarianAPIKey == "" {
-		return
-	}
 	title := c.server.CurrentTitle()
 	if title == "" {
 		log.Printf("Clippy: skipping save, no current_title yet")
 		return
 	}
-
-	payload := map[string]string{
-		"title":     title,
-		"quote":     quote,
-		"comment":   comment,
-		"timestamp": time.Now().UTC().Format(time.RFC3339),
-	}
-	body, err := json.Marshal(payload)
-	if err != nil {
-		log.Printf("Clippy: save marshal error: %v", err)
-		return
-	}
-
+	timestamp := time.Now().UTC().Format(time.RFC3339)
 	go func() {
-		url := c.librarianURL + "/api/clippy-comments"
-		req, err := http.NewRequest("POST", url, bytes.NewReader(body))
-		if err != nil {
-			log.Printf("Clippy: save request build error: %v", err)
-			return
-		}
-		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("X-API-Key", c.librarianAPIKey)
-
-		resp, err := c.httpClient.Do(req)
-		if err != nil {
-			log.Printf("Clippy: save POST error: %v", err)
-			return
-		}
-		defer resp.Body.Close()
-		if resp.StatusCode >= 300 {
-			log.Printf("Clippy: save POST returned %s", resp.Status)
+		if err := librarian.SaveClippyComment(title, quote, comment, timestamp); err != nil {
+			log.Printf("Clippy: save error: %v", err)
 			return
 		}
 		log.Printf("Clippy: saved comment for %q", title)

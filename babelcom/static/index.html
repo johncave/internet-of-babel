@@ -20,10 +20,14 @@
     </div>
 
     <div class="desktop">
-        <!-- Desktop Background Video -->
+        <!-- Desktop Background. Swap which of these is uncommented to switch
+             between the still and the looping video. -->
+        <img class="desktop-background-video" src="/static/asadal_stock_7.jpg" alt="">
+        <!--
         <video class="desktop-background-video" autoplay muted loop playsinline>
             <source src="/static/wallpaper.mp4" type="video/mp4">
         </video>
+        -->
         <div class="desktop-background-overlay"></div>
         
         <!-- Taskbar -->
@@ -61,19 +65,19 @@
             </div>
             <div class="start-menu-apps">
                 <div class="app-item" data-tianji-event="open-system-monitor-from-start-menu" onclick="openApp('system-monitor')">
-                    <div class="app-icon">📊</div>
+                    <img class="app-icon" src="/static/icons/icons8-control-panel-100.png" alt="">
                     <div class="app-name">System Monitor</div>
                 </div>
                 <div class="app-item" data-tianji-event="open-web-browser-from-start-menu" onclick="openApp('library-browser')">
-                    <div class="app-icon">📚</div>
+                    <img class="app-icon" src="/static/icons/icons8-web-94.png" alt="">
                     <div class="app-name">Web of Babel</div>
                 </div>
                 <div class="app-item" data-tianji-event="open-radio-from-start-menu" onclick="openApp('radio')">
-                    <div class="app-icon">📻</div>
+                    <img class="app-icon" src="/static/icons/icons8-radio-94.png" alt="">
                     <div class="app-name">Radio</div>
                 </div>
                 <div class="app-item" data-tianji-event="open-writer-from-start-menu" onclick="openApp('writer')">
-                    <div class="app-icon">📝</div>
+                    <img class="app-icon" src="/static/icons/icon_clippy.png" alt="">
                     <div class="app-name">Writer</div>
                 </div>
 
@@ -89,23 +93,23 @@
         <!-- Desktop Icons -->
         <div class="desktop-icons">
             <div class="desktop-icon" data-tianji-event="open-system-monitor-from-desktop" onclick="openApp('system-monitor')">
-                <div class="icon">📊</div>
+                <img class="icon" src="/static/icons/icons8-control-panel-100.png" alt="">
                 <div class="icon-label">System Monitor</div>
             </div>
             <div class="desktop-icon" data-tianji-event="open-web-browser-from-desktop" onclick="openApp('library-browser')">
-                <div class="icon">📚</div>
+                <img class="icon" src="/static/icons/icons8-web-94.png" alt="">
                 <div class="icon-label">Web of Babel</div>
             </div>
             <div class="desktop-icon" data-tianji-event="open-radio-from-desktop" onclick="openApp('radio')">
-                <div class="icon">📻</div>
+                <img class="icon" src="/static/icons/icons8-radio-94.png" alt="">
                 <div class="icon-label">Radio</div>
             </div>
             <div class="desktop-icon" data-tianji-event="open-writer-from-desktop" onclick="openApp('writer')">
-                <div class="icon">📝</div>
+                <img class="icon" src="/static/icons/icon_clippy.png" alt="">
                 <div class="icon-label">Writer</div>
             </div>
             <div class="desktop-icon" data-tianji-event="open-welcome-from-desktop" onclick="openApp('welcome')">
-                <div class="icon">👋</div>
+                <img class="icon" src="/static/icons/icons8-eyes-94.png" alt="">
                 <div class="icon-label">Start</div>
             </div>
         </div>

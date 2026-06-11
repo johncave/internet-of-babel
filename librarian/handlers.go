@@ -224,64 +224,34 @@ type ClippyComment struct {
 	Timestamp string `json:"timestamp"`
 }
 
-// ClippyCommentUpload is the wire payload accepted by /api/clippy-comments.
-// Title identifies the article (server slug-sanitizes it the same way uploads
-// do, so a comment posted mid-write lands beside the finished article).
-type ClippyCommentUpload struct {
-	Title     string `json:"title"`
-	Quote     string `json:"quote"`
-	Comment   string `json:"comment"`
-	Timestamp string `json:"timestamp,omitempty"`
-}
-
 // clippyCommentsDir returns the directory comments are appended into. Co-located
 // with articles so a finished article and its Clippy chatter ship together.
 func clippyCommentsDir() string {
 	return filepath.Join(articlesDir, "clippy")
 }
 
-// clippyCommentsHandler appends one Clippy reaction to a per-article JSON
-// array on disk. Append-only: babelcom POSTs each comment as it's generated
-// so a crash mid-article doesn't lose what's already been said.
-func clippyCommentsHandler(c *gin.Context) {
-	providedKey := c.GetHeader("X-API-Key")
-	if providedKey == "" {
-		providedKey = c.Query("api_key")
+// SaveClippyComment appends one Clippy reaction to the article's comment file.
+// Called directly from babelcom (same process) — no HTTP, no auth. Title is
+// slug-sanitized the same way uploads are, so a comment saved mid-write lands
+// beside the eventual finished article. Timestamp defaults to now if empty.
+//
+// Returns an error for bad inputs or disk failures; callers typically log and
+// move on (a missed Clippy comment is not worth surfacing to the user).
+func SaveClippyComment(title, quote, comment, timestamp string) error {
+	if strings.TrimSpace(title) == "" || strings.TrimSpace(comment) == "" {
+		return fmt.Errorf("title and comment are required")
 	}
-	if providedKey != apiKey {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid API key"})
-		return
-	}
-
-	var upload ClippyCommentUpload
-	if err := c.ShouldBindJSON(&upload); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON format"})
-		return
-	}
-	if strings.TrimSpace(upload.Title) == "" || strings.TrimSpace(upload.Comment) == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "title and comment are required"})
-		return
-	}
-
-	filename := sanitizeFilename(upload.Title)
+	filename := sanitizeFilename(title)
 	if filename == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "title sanitizes to empty"})
-		return
+		return fmt.Errorf("title sanitizes to empty")
 	}
 
 	dir := clippyCommentsDir()
 	if err := os.MkdirAll(dir, 0755); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create clippy directory"})
-		return
+		return fmt.Errorf("create clippy dir: %w", err)
 	}
 
-	path := filepath.Join(dir, filename+".json")
-
-	entry := ClippyComment{
-		Quote:     upload.Quote,
-		Comment:   upload.Comment,
-		Timestamp: upload.Timestamp,
-	}
+	entry := ClippyComment{Quote: quote, Comment: comment, Timestamp: timestamp}
 	if entry.Timestamp == "" {
 		entry.Timestamp = time.Now().UTC().Format(time.RFC3339)
 	}
@@ -292,6 +262,7 @@ func clippyCommentsHandler(c *gin.Context) {
 	mu.Lock()
 	defer mu.Unlock()
 
+	path := filepath.Join(dir, filename+".json")
 	var existing []ClippyComment
 	if data, err := os.ReadFile(path); err == nil && len(data) > 0 {
 		if err := json.Unmarshal(data, &existing); err != nil {
@@ -305,15 +276,12 @@ func clippyCommentsHandler(c *gin.Context) {
 
 	data, err := json.MarshalIndent(existing, "", "  ")
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to marshal comments"})
-		return
+		return fmt.Errorf("marshal comments: %w", err)
 	}
 	if err := os.WriteFile(path, data, 0644); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to write comments"})
-		return
+		return fmt.Errorf("write comments: %w", err)
 	}
-
-	c.JSON(http.StatusOK, gin.H{"saved": len(existing), "filename": filename})
+	return nil
 }
 
 var (
@@ -553,33 +521,61 @@ func parseKeywordsFile(data []byte) []string {
 	return parseMarkdownList(str)
 }
 
-// computeSimilar returns articles linked from the given slug — the
-// LLM's own judgment of related material via its keyword list.
-func computeSimilar(slug string, limit int) []ArticleInfo {
-	keywordsPath := filepath.Join(articlesDir, "keywords", slug+".md")
-	data, err := os.ReadFile(keywordsPath)
-	if err != nil {
-		keywordsPath = filepath.Join(articlesDir, "keywords", slug+".json")
-		data, err = os.ReadFile(keywordsPath)
-		if err != nil {
-			return nil
-		}
+// computeSimilar returns articles related to the given slug by running a
+// Bleve title-and-content search for the article's own title — wider net
+// than the previous keyword-file approach (which often yielded only 1-2
+// hits because many of the LLM's listed keywords don't resolve to existing
+// articles). Wiki entries can appear too when they share vocabulary.
+//
+// Returns gin.H slice (slug/title/kind) directly — the only consumer is
+// overlayHandler's JSON response, no point round-tripping through ArticleInfo.
+func computeSimilar(slug string, limit int) []gin.H {
+	if searchIndex == nil || slug == "" {
+		return nil
+	}
+	title := desanitizeTitle(slug)
+	if title == "" {
+		return nil
 	}
 
-	seen := make(map[string]bool)
-	var out []ArticleInfo
-	for _, kw := range parseKeywordsFile(data) {
-		target := sanitizeFilename(kw)
-		if target == "" || seen[target] {
+	// Title matches matter more than body mentions, but we want both —
+	// "Relativity" should surface "Special Relativity" AND any article
+	// whose body discusses relativity.
+	titleMatch := bleve.NewMatchQuery(title)
+	titleMatch.SetField("title")
+	titleMatch.SetBoost(2.0)
+
+	contentMatch := bleve.NewMatchQuery(title)
+	contentMatch.SetField("content")
+	contentMatch.SetBoost(1.0)
+
+	combined := bleve.NewDisjunctionQuery(titleMatch, contentMatch)
+	req := bleve.NewSearchRequest(combined)
+	req.Size = limit + 2 // overshoot to absorb self-exclusion
+	req.Fields = []string{"title", "filename", "kind"}
+
+	res, err := searchIndex.Search(req)
+	if err != nil {
+		return nil
+	}
+
+	out := make([]gin.H, 0, limit)
+	for _, hit := range res.Hits {
+		filename, _ := hit.Fields["filename"].(string)
+		hitTitle, _ := hit.Fields["title"].(string)
+		kind, _ := hit.Fields["kind"].(string)
+		if kind == "" {
+			kind = "ai"
+		}
+		// Skip the article itself. Match on both slug-equality and the
+		// natural AI-kind case (wiki slugs prefix differently in the index).
+		if filename == slug && kind == "ai" {
 			continue
 		}
-		seen[target] = true
-		if _, err := os.Stat(filepath.Join(articlesDir, target+".md")); err != nil {
-			continue
-		}
-		out = append(out, ArticleInfo{
-			Filename: target,
-			Title:    desanitizeTitle(target),
+		out = append(out, gin.H{
+			"slug":  filename,
+			"title": hitTitle,
+			"kind":  kind,
 		})
 		if len(out) >= limit {
 			break
@@ -991,15 +987,15 @@ func overlayHandler(c *gin.Context) {
 		recent = recent[:5]
 	}
 	random := getRandomArticles(5)
-	var similar []ArticleInfo
+	var similar []gin.H
 	if slug != "" {
-		similar = computeSimilar(slug, 8)
+		similar = computeSimilar(slug, 5)
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"recent":  articlesToHits(recent),
 		"random":  articlesToHits(random),
-		"similar": articlesToHits(similar),
+		"similar": similar,
 	})
 }
 

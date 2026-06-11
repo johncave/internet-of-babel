@@ -1,6 +1,7 @@
 // Global state
 let runningApps = new Map();
 let appRegistry = new Map();
+let focusedAppId = null; // app whose window is currently frontmost
 
 // ---- Shared WebSocket bus ----
 // One connection to /ws lives in the shell. Apps subscribe to message types
@@ -111,11 +112,6 @@ const Clippy = (() => {
     let hasGreeted = false;
     let agentReady = false;     // set once the agent has settled after show()
     let greetRequested = false; // shell asked to greet (maybe before ready)
-    // Optional containment: when set, agent._el lives inside `host` instead of
-    // document.body, so other WinBox windows can occlude Clippy naturally.
-    // Writer registers itself as host on connect (see writer.js).
-    let host = null;
-    let pendingHost = null;     // setHost called before the agent loaded
 
     // Dev mode: enable via ?clippyDev in the URL or localStorage.clippyDev = '1'
     const DEV_MODE = (() => {
@@ -132,6 +128,49 @@ const Clippy = (() => {
     const IDLE_MAX = 120 * 1000;
     const DEV_IDLE_MIN = 3 * 1000;
     const DEV_IDLE_MAX = 6 * 1000;
+
+    // How long a single Clippy reaction stays on screen. Whichever is longer
+    // of a 10s floor and a per-word allowance applies, so short quips stay
+    // long enough to read and long ones get extra dwell time. Speech is held
+    // open via clippyjs's balloon.speak() hold=true; we close it manually
+    // when the timer fires.
+    const COMMENT_DURATION_MIN_MS = 10 * 1000;
+    const COMMENT_MS_PER_WORD = 330;
+    function commentDurationFor(text) {
+        const words = (text || '').trim().split(/\s+/).filter(Boolean).length;
+        return Math.max(COMMENT_DURATION_MIN_MS, words * COMMENT_MS_PER_WORD);
+    }
+
+    // Pending highlight-clear timer for the active reaction so a new comment
+    // can cancel it before it tears down a freshly-installed highlight.
+    let activeHighlightTimeout = null;
+
+    // Wrap clippyjs's balloon.speak so EVERY speech path (idle phrases, click
+    // pokes, greeting, comment reactions) uses our duration formula instead
+    // of clippyjs's (words × 200ms + 2s). We force hold=true into clippyjs so
+    // it doesn't auto-close, run its show-words animation as usual, then on
+    // our timer call complete() (advances the queue) and hide() (closes the
+    // bubble). A new speak cancels the old timer so timers don't cross.
+    let balloonTimer = null;
+    function patchBalloonTiming() {
+        const balloon = agent?._balloon;
+        if (!balloon || balloon._babelPatched) return;
+        const origSpeak = balloon.speak.bind(balloon);
+        balloon.speak = function (complete, text, _hold) {
+            if (balloonTimer) {
+                clearTimeout(balloonTimer);
+                balloonTimer = null;
+            }
+            origSpeak(complete, text, true);
+            const dur = commentDurationFor(text);
+            balloonTimer = setTimeout(() => {
+                balloonTimer = null;
+                try { complete?.(); } catch (e) {}
+                try { balloon.hide?.(); } catch (e) {}
+            }, dur);
+        };
+        balloon._babelPatched = true;
+    }
 
     if (DEV_MODE) console.log('📎 Clippy: dev mode (fast phrases)');
 
@@ -219,92 +258,34 @@ const Clippy = (() => {
         if (text) agent._balloon.speak(() => {}, text, false);
     }
 
-    // ---- Containment helpers ----
-    // When `host` is set, agent._el is a child of `host` instead of
-    // document.body, so position styles are relative to the host (and other
-    // WinBox windows can stack on top of Clippy). All viewport-coord inputs
-    // (rects from getBoundingClientRect) need to be converted to host-local
-    // before being handed to clippyjs internals.
-    function toLocalX(vx) {
-        if (!host) return vx;
-        return vx - host.getBoundingClientRect().left;
-    }
-    function toLocalY(vy) {
-        if (!host) return vy;
-        return vy - host.getBoundingClientRect().top;
-    }
-    function moveAgentTo(vx, vy) {
-        if (!agent) return;
-        try { agent.moveTo(toLocalX(vx), toLocalY(vy)); } catch (e) {}
-    }
-
-    function applyHost(hostEl) {
-        if (!agent?._el) return;
-        host = hostEl;
-        // agent._el is position:absolute — host needs a non-static position
-        // so it becomes Clippy's offset parent.
-        if (getComputedStyle(host).position === 'static') {
-            host._babelPrevPosition = host.style.position || '';
-            host.style.position = 'relative';
-        }
-        const el = agent._el;
-        const r = el.getBoundingClientRect();
-        const hr = host.getBoundingClientRect();
-        host.appendChild(el);
-        // Clamp to inside the host: a position saved while Clippy was on the
-        // free desktop may sit outside Writer's bounds.
-        const aw = el.offsetWidth || 90;
-        const ah = el.offsetHeight || 93;
-        const localX = clamp(r.left - hr.left, 0, Math.max(0, hr.width - aw));
-        const localY = clamp(r.top - hr.top, 0, Math.max(0, hr.height - ah));
-        el.style.left = localX + 'px';
-        el.style.top = localY + 'px';
-    }
-
-    function setHost(hostEl) {
-        if (!hostEl) return;
-        if (host === hostEl) return;
-        if (!agentReady || !agent?._el) {
-            pendingHost = hostEl;
-            return;
-        }
-        applyHost(hostEl);
-    }
-
-    function clearHost(hostEl) {
-        if (hostEl && host !== hostEl) return; // not our current host
-        if (pendingHost === hostEl) pendingHost = null;
-        if (!host) return;
-        const prev = host;
-        host = null;
-        if (!agent?._el) return;
-        // Move back to body, converting local→viewport so Clippy doesn't snap
-        // to (0,0) of the document.
-        const el = agent._el;
-        const r = el.getBoundingClientRect();
-        document.body.appendChild(el);
-        el.style.left = r.left + 'px';
-        el.style.top = r.top + 'px';
-        if (prev._babelPrevPosition != null) {
-            prev.style.position = prev._babelPrevPosition;
-            delete prev._babelPrevPosition;
-        }
-    }
-
     function attach(agentInstance) {
         agent = agentInstance;
         agent.show();
+        patchBalloonTiming();
         // Brief delay so he settles before he's allowed to speak.
         setTimeout(() => {
             restoreHome();
             trackDrag();
             agentReady = true;
-            if (pendingHost) {
-                applyHost(pendingHost);
-                pendingHost = null;
-            }
             if (greetRequested) doGreet();
         }, 1500);
+
+        // When a WinBox enters real fullscreen (via the Fullscreen API), the
+        // browser hides everything outside that element's subtree. We only
+        // follow Writer in — Clippy is Writer-specific, so when another app
+        // fullscreens (Radio, etc.) he should stay in body and be hidden by
+        // the browser along with the rest of the desktop. Both Clippy and the
+        // balloon are position:fixed, so no coord conversion is needed.
+        document.addEventListener('fullscreenchange', () => {
+            if (!agent?._el) return;
+            const fs = document.fullscreenElement;
+            const writerWin = runningApps.get('writer')?.window;
+            const followingWriter = fs && writerWin && writerWin.contains(fs);
+            const target = followingWriter ? fs : document.body;
+            const bEl = agent._balloon?._balloon;
+            target.appendChild(agent._el);
+            if (bEl) target.appendChild(bEl);
+        });
 
         // LLM-driven comments arrive via the bus.
         BabelcomBus.subscribe('clippy_comment', (msg) => {
@@ -329,13 +310,21 @@ const Clippy = (() => {
         if (!agent || !text) return;
 
         // LLM comments are about the article — only surface them when Writer
-        // is actually open. Otherwise drop the comment entirely.
+        // is actually open and the user can see most of the writing area.
+        // If a higher-z window covers more than 15% of <babel-writer>'s rect,
+        // dropping the reaction is friendlier than showing Clippy reacting to
+        // text the user can't see.
         const writer = document.querySelector('babel-writer');
         if (!writer) return;
+        if (writerOcclusionFraction(writer) > 0.15) return;
 
-        // Cut any in-flight idle animation so the comment starts immediately
-        // instead of waiting for the queue to drain.
+        // Cut any in-flight idle animation, AND clear a pending highlight-
+        // clear timer so the old highlight isn't yanked from under the new one.
         try { agent.stop(); } catch (e) {}
+        if (activeHighlightTimeout) {
+            clearTimeout(activeHighlightTimeout);
+            activeHighlightTimeout = null;
+        }
 
         const hit = writer.findAndHighlight ? writer.findAndHighlight(quote) : null;
 
@@ -349,7 +338,7 @@ const Clippy = (() => {
         const cy = hit.rect.top + hit.rect.height / 2;
         const pos = parkPositionFor(hit.rect);
 
-        moveAgentTo(pos.x, pos.y);
+        agent.moveTo(pos.x, pos.y);
         pointAndTalk(cx, cy, text);
 
         // When done, settle in the bottom-right corner of the Writer window
@@ -362,20 +351,23 @@ const Clippy = (() => {
             const restX = clamp(wrect.right - aw - 6, 0, window.innerWidth - aw);
             // ~50px up from the bottom edge of the window.
             const restY = clamp(wrect.bottom - ah - 30, 0, window.innerHeight - ah - 50);
-            moveAgentTo(restX, restY);
+            agent.moveTo(restX, restY);
         } else if (homeX != null) {
-            moveAgentTo(homeX, homeY);
+            agent.moveTo(homeX, homeY);
         }
 
-        setTimeout(() => hit.clear(), 10_000);
+        // Clear the highlight on the same duration the balloon will use, so
+        // Clippy's reaction and the underlined quote disappear together.
+        activeHighlightTimeout = setTimeout(() => {
+            activeHighlightTimeout = null;
+            hit.clear();
+        }, commentDurationFor(text));
     }
 
     // Park Clippy to the right of, left of, or above the highlight (never
     // below — the speech bubble renders above him, so below would cover the
     // very text he's pointing at). Picks randomly among whichever placements
-    // fit, so the 4-way gesture animation lines up. Returns viewport coords;
-    // caller converts to host-local via moveAgentTo. Bounds the candidates to
-    // the host's rect when set so Clippy can't park outside Writer.
+    // fit the viewport, so the 4-way gesture animation lines up.
     function parkPositionFor(rect) {
         const aw = agent._el?.offsetWidth || 90;
         const ah = agent._el?.offsetHeight || 93;
@@ -383,18 +375,14 @@ const Clippy = (() => {
         const cx = rect.left + rect.width / 2;
         const cy = rect.top + rect.height / 2;
 
-        const bounds = host
-            ? host.getBoundingClientRect()
-            : { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight };
-
         const candidates = [];
-        if (rect.right + gap + aw <= bounds.right) {
+        if (rect.right + gap + aw <= window.innerWidth) {
             candidates.push({ x: rect.right + gap, y: cy - ah / 2 });           // right → points left
         }
-        if (rect.left - gap - aw >= bounds.left) {
+        if (rect.left - gap - aw >= 0) {
             candidates.push({ x: rect.left - gap - aw, y: cy - ah / 2 });       // left → points right
         }
-        if (rect.top - gap - ah >= bounds.top) {
+        if (rect.top - gap - ah >= 0) {
             candidates.push({ x: cx - aw / 2, y: rect.top - gap - ah });        // above → points down
         }
 
@@ -403,9 +391,36 @@ const Clippy = (() => {
             : { x: cx - aw / 2, y: rect.top - gap - ah }; // nothing fit — above, clamped
 
         return {
-            x: clamp(pick.x, bounds.left, bounds.right - aw),
-            y: clamp(pick.y, bounds.top, bounds.bottom - ah),
+            x: clamp(pick.x, 0, window.innerWidth - aw),
+            y: clamp(pick.y, 0, window.innerHeight - ah),
         };
+    }
+
+    // What fraction of <babel-writer>'s rect is covered by WinBox windows
+    // stacked above Writer? Returns 0 when Writer is fully visible, up to 1
+    // when fully obscured. Treats the writing area as fully covered if it has
+    // no visible size (e.g. Writer is minimised). Overlap among occluders is
+    // summed (not unioned) — a slight over-estimate, but cheap and good enough
+    // for the >15% threshold the gate uses.
+    function writerOcclusionFraction(writerEl) {
+        const writerWin = runningApps.get('writer');
+        if (!writerWin?.window) return 0;
+        const wRect = writerEl.getBoundingClientRect();
+        const wArea = wRect.width * wRect.height;
+        if (wArea <= 0) return 1;
+        const writerZ = parseInt(getComputedStyle(writerWin.window).zIndex, 10) || 0;
+        let occluded = 0;
+        for (const [id, wb] of runningApps) {
+            if (id === 'writer' || !wb?.window) continue;
+            if (wb.window.style.display === 'none') continue;
+            const z = parseInt(getComputedStyle(wb.window).zIndex, 10) || 0;
+            if (z <= writerZ) continue;
+            const r = wb.window.getBoundingClientRect();
+            const ix = Math.max(0, Math.min(wRect.right, r.right) - Math.max(wRect.left, r.left));
+            const iy = Math.max(0, Math.min(wRect.bottom, r.bottom) - Math.max(wRect.top, r.top));
+            occluded += ix * iy;
+        }
+        return Math.min(1, occluded / wArea);
     }
 
     // Point at (x,y) AND show the speech balloon at the same time. clippyjs
@@ -415,23 +430,20 @@ const Clippy = (() => {
     // completion callback drives the queue forward (e.g. to the walk home),
     // so the timing of subsequent steps is preserved.
     function pointAndTalk(x, y, text) {
-        // x/y are viewport coords; clippyjs internals compare against
-        // _el.offsetLeft/Top, which are offsetParent-relative — so when Clippy
-        // is reparented into the Writer's WinBox we must convert first.
-        const lx = toLocalX(x);
-        const ly = toLocalY(y);
         const canOverlap = agent._addToQueue && agent._balloon && agent._playInternal;
         if (!canOverlap) {
             // Older/different build — fall back to sequential.
-            agent.gestureAt(lx, ly);
+            agent.gestureAt(x, y);
             agent.speak(text);
             return;
         }
         agent._addToQueue((complete) => {
-            const dir = agent._getDirection ? agent._getDirection(lx, ly) : 'Right';
+            const dir = agent._getDirection ? agent._getDirection(x, y) : 'Right';
             const gesture = 'Gesture' + dir;
             const anim = (agent.hasAnimation && agent.hasAnimation(gesture)) ? gesture : 'Look' + dir;
             try { agent._playInternal(anim, () => {}); } catch (e) {}
+            // Our patchBalloonTiming override controls duration via our formula;
+            // hold is forced to true internally regardless of what we pass.
             agent._balloon.speak(complete, text, false);
         }, agent);
     }
@@ -538,7 +550,7 @@ const Clippy = (() => {
         try { localStorage.removeItem(CLIPPY_POS_KEY); } catch (e) {}
     }
 
-    return { registerProfile, attach, pushApp, popApp, comment, clearSavedPosition, greet, setHost, clearHost };
+    return { registerProfile, attach, pushApp, popApp, comment, clearSavedPosition, greet };
 })();
 
 window.BabelcomClippy = Clippy;
@@ -866,7 +878,7 @@ function initializeDesktop() {
     registerApp('system-monitor', {
         name: 'System Monitor',
         icon: '📊',
-        iconPath: '/static/icons/system-monitor.png',
+        iconPath: '/static/icons/icons8-control-panel-100.png',
         tag: 'babel-system-monitor',
         defaultWidth: 600,
         defaultHeight: 800
@@ -875,7 +887,7 @@ function initializeDesktop() {
     registerApp('library-browser', {
         name: 'Web of Babel',
         icon: '📖',
-        iconPath: '/static/icons/web-browser.png',
+        iconPath: '/static/icons/icons8-web-94.png',
         tag: 'babel-library-browser'
     });
 
@@ -883,7 +895,7 @@ function initializeDesktop() {
     registerApp('radio', {
         name: 'Radio',
         icon: '📻',
-        iconPath: '/static/icons/radio.png',
+        iconPath: '/static/icons/icons8-radio-94.png',
         component: RadioApp,
         defaultWidth: 450,
         defaultHeight: 450
@@ -892,7 +904,7 @@ function initializeDesktop() {
     registerApp('writer', {
         name: 'Writer',
         icon: '📝',
-        iconPath: '/static/icons/system-monitor.png',
+        iconPath: '/static/icons/icon_clippy.png',
         tag: 'babel-writer',
         defaultWidth: 900,
         defaultHeight: 720
@@ -901,13 +913,17 @@ function initializeDesktop() {
     registerApp('welcome', {
         name: 'Start',
         icon: '👋',
-        iconPath: '/static/icons/start.svg',
+        iconPath: '/static/icons/icons8-eyes-94.png',
         tag: 'babel-welcome',
         defaultWidth: 450,
         defaultHeight: 485
     });
 
     registerClippyProfiles();
+    // Populate the dock with all registered apps now so it's not empty during
+    // the boot/picker phase, then wire up the magnifier.
+    updateTaskbar();
+    setupDockMagnifier();
 
     console.log('✅ Desktop initialized with', appRegistry.size, 'apps');
 }
@@ -970,7 +986,7 @@ function registerClippyProfiles() {
             "A mouse is named after a small animal.",
             "Pixels make up the picture you are seeing.",
             "Software is the part that isn't hardware.",
-            "Would you like to print a crisp $100 bill? I can't help with that.",
+            "Would you like to print a $100 bill? I can't help with that.",
         ],
         greetingAnimations: ['Wave', 'Greeting', 'GetAttention'],
         animations: ['LookLeft', 'LookRight', 'LookUp', 'LookDown', 'Acknowledge', 'Explain'],
@@ -979,7 +995,7 @@ function registerClippyProfiles() {
     Clippy.registerProfile('writer', {
         canned: [
             "It looks like you're writing about $title$! Would you like help with mail merge?",
-            "Have you considered getting another job?",
+            "Wait so you actually like this job?",
             "This document is currently being written.",
             "Writing is like art.",
             "Words are individual units of language.",
@@ -1245,9 +1261,16 @@ function openApp(appId, opts) {
         }
     }
     
-    // Tell Clippy this app is now active
+    // Tell Clippy this app is now active and mark it as the focused app for
+    // the dock's highlight.
     Clippy.pushApp(appId);
-    winboxWindow.onfocus = () => { Clippy.pushApp(appId); scheduleSave(); };
+    focusedAppId = appId;
+    winboxWindow.onfocus = () => {
+        focusedAppId = appId;
+        Clippy.pushApp(appId);
+        updateTaskbar();
+        scheduleSave();
+    };
     winboxWindow.onmove = () => scheduleSave();
     winboxWindow.onresize = () => scheduleSave();
 
@@ -1263,6 +1286,7 @@ function openApp(appId, opts) {
 
         Clippy.popApp(appId);
         runningApps.delete(appId);
+        if (focusedAppId === appId) focusedAppId = null;
         updateTaskbar();
         saveSession();
         console.log(`🔒 Closed ${appConfig.name}`);
@@ -1321,42 +1345,114 @@ openApp = function(appId) {
     return originalOpenApp.apply(this, arguments);
 };
 
-// Update taskbar with running apps
+// Render the dock — every registered app gets a tile; running apps get the
+// indicator dot, the frontmost app gets a glow. Click a non-running app to
+// launch it, a running app to focus/restore it.
 function updateTaskbar() {
-    const runningAppsContainer = document.getElementById('runningApps');
-    runningAppsContainer.innerHTML = '';
-    
-    runningApps.forEach((window, appId) => {
-        const appConfig = appRegistry.get(appId);
-        if (appConfig) {
-            const appButton = document.createElement('div');
-            appButton.className = 'taskbar-app';
-            appButton.innerHTML = `
-                <span class="taskbar-app-icon"><img src="${appConfig.iconPath}" alt="${appConfig.name}" style="width: 16px; height: 16px; vertical-align: middle;"></span>
-                <span class="taskbar-app-name">${appConfig.name}</span>
-            `;
-            appButton.onclick = () => {
-                // Debug: log window properties
-                console.log('Window properties:', {
-                    window
-                });
-                
-                // Check if window is minimized and restore it
-                if (window.min) {
-                    // Try to restore using WinBox.js methods
-                    window.minimize(false);
-                    window.focus();
-                    return;
-                } else {
-                    window.focus();
+    const container = document.getElementById('runningApps');
+    container.innerHTML = '';
+
+    appRegistry.forEach((appConfig, appId) => {
+        if (!appConfig.iconPath) return;
+        const tile = document.createElement('div');
+        tile.className = 'taskbar-app';
+        tile.title = appConfig.name;
+        tile.innerHTML = `<img src="${appConfig.iconPath}" alt="${appConfig.name}">`;
+        const win = runningApps.get(appId);
+        if (win) tile.classList.add('running');
+        if (win && appId === focusedAppId) tile.classList.add('focused');
+        tile.onclick = win
+            ? () => { if (win.min) win.minimize(false); win.focus(); }
+            : () => openApp(appId);
+        container.appendChild(tile);
+    });
+    // New tile DOM, no inline sizing — re-run magnifier so the hovered tile
+    // doesn't flash back to default size between click and next mousemove.
+    applyDockMagnifier();
+}
+
+// Module-scope hook so updateTaskbar() can re-run the magnifier after it
+// rebuilds the tile DOM (clicks recreate tiles with no inline sizing — without
+// this, the dock snaps to default until the next mousemove).
+let applyDockMagnifier = () => {};
+
+// macOS-style dock magnifier. Cosine falloff of cursor horizontal distance,
+// and — crucially — we set each tile's width/height (and the icon's) directly
+// instead of using transform: scale, so the flex row re-flows and neighbours
+// physically push out to make room. Listens on `document` so the magnifier
+// keeps tracking as icons grow upward beyond the taskbar's hit box.
+function setupDockMagnifier() {
+    const dock = document.getElementById('runningApps');
+    if (!dock) return;
+
+    const PEAK = 2.0;            // max scale right under the cursor
+    const SPREAD = 110;          // horizontal reach in px before falloff hits 0
+    const UP_SLACK = 20;         // px above tile top before magnifier activates
+    const TILE_W = 52, TILE_H = 50, ICON_SIZE = 40; // CSS base sizes
+
+    let cursorX = null, cursorY = null;
+    let rafPending = false;
+
+    const falloff = (d) => {
+        if (d >= SPREAD) return 0;
+        return (Math.cos((d / SPREAD) * Math.PI) + 1) / 2;
+    };
+
+    function resetTile(tile) {
+        tile.style.width = tile.style.height = '';
+        const img = tile.querySelector('img');
+        if (img) img.style.width = img.style.height = '';
+    }
+
+    function apply() {
+        rafPending = false;
+        if (cursorX === null) return;
+        const tiles = dock.querySelectorAll('.taskbar-app');
+        for (const tile of tiles) {
+            const r = tile.getBoundingClientRect();
+            const cx = r.left + r.width / 2;
+            const cy = r.top + r.height / 2;
+            const dy = cursorY - cy;
+            // Activate only when the cursor is at/below the current tile's
+            // top (with UP_SLACK headroom). As tiles grow, the band grows
+            // with them, so cursor tracking keeps up — but on first approach
+            // from above, the cursor has to actually reach the dock.
+            const inBand = dy > -(r.height / 2 + UP_SLACK);
+            let scale = 1;
+            if (inBand) {
+                const dx = Math.abs(cursorX - cx);
+                scale = 1 + (PEAK - 1) * falloff(dx);
+            }
+            if (scale > 1.001) {
+                tile.style.width = (TILE_W * scale).toFixed(1) + 'px';
+                tile.style.height = (TILE_H * scale).toFixed(1) + 'px';
+                const img = tile.querySelector('img');
+                if (img) {
+                    img.style.width = (ICON_SIZE * scale).toFixed(1) + 'px';
+                    img.style.height = (ICON_SIZE * scale).toFixed(1) + 'px';
                 }
-
-                
-
-                console.log("Window properties after:", window)
-            };
-            runningAppsContainer.appendChild(appButton);
+            } else {
+                resetTile(tile);
+            }
         }
+    }
+
+    // Expose so updateTaskbar() can re-apply current cursor to freshly built
+    // tiles immediately (synchronous, no rAF wait).
+    applyDockMagnifier = apply;
+
+    document.addEventListener('mousemove', (e) => {
+        cursorX = e.clientX;
+        cursorY = e.clientY;
+        if (!rafPending) {
+            rafPending = true;
+            requestAnimationFrame(apply);
+        }
+    });
+    // Cursor leaves the document (e.g. into devtools) — reset everything.
+    document.addEventListener('mouseleave', () => {
+        cursorX = cursorY = null;
+        dock.querySelectorAll('.taskbar-app').forEach(resetTile);
     });
 }
 

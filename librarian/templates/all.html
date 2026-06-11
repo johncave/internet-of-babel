@@ -1,25 +1,29 @@
 {{define "content"}}
-<h2>All Articles</h2>
+<h2 class="all-page-title">
+    ALL ARTICLES
+    <span class="all-page-meta">
+        //&nbsp;page&nbsp;{{.Pagination.CurrentPage}}&nbsp;of&nbsp;{{.Pagination.TotalPages}}
+        //&nbsp;{{.Count}}&nbsp;total
+    </span>
+</h2>
 
-<div class="pagination-controls">
+<nav class="pagination-controls" aria-label="Pagination top">
     {{if .Pagination.HasPrev}}
-        <a href="/all/{{.Pagination.PrevPage}}" class="btn btn-secondary pagination-btn">← Previous</a>
+        <a href="/all/{{.Pagination.PrevPage}}" class="pagination-link">&larr; PREV</a>
     {{else}}
-        <span class="btn btn-secondary pagination-btn disabled">← Previous</span>
+        <span class="pagination-link disabled">&larr; PREV</span>
     {{end}}
-    
-    <span class="page-info">Page {{.Pagination.CurrentPage}} of {{.Pagination.TotalPages}}</span>
-    
-    <a href="/all/{{.Pagination.RandomPage}}" class="btn btn-secondary pagination-btn">🔀 Random</a>
+
+    <span class="page-info">page {{.Pagination.CurrentPage}} / {{.Pagination.TotalPages}}</span>
+
+    <a href="/all/{{.Pagination.RandomPage}}" class="pagination-link">🔀 SHUFFLE</a>
 
     {{if .Pagination.HasNext}}
-        <a href="/all/{{.Pagination.NextPage}}" class="btn btn-secondary pagination-btn">Next →</a>
+        <a href="/all/{{.Pagination.NextPage}}" class="pagination-link">NEXT &rarr;</a>
     {{else}}
-        <span class="btn btn-secondary pagination-btn disabled">Next →</span>
+        <span class="pagination-link disabled">NEXT &rarr;</span>
     {{end}}
-    
-    
-</div>
+</nav>
 
 <div class="all-articles-list">
     {{range .PageArticles}}
@@ -30,25 +34,21 @@
     {{end}}
 </div>
 
-<div class="pagination-controls">
+<nav class="pagination-controls" aria-label="Pagination bottom">
     {{if .Pagination.HasPrev}}
-        <a href="/all/{{.Pagination.PrevPage}}" class="btn btn-secondary pagination-btn">← Previous</a>
+        <a href="/all/{{.Pagination.PrevPage}}" class="pagination-link">&larr; PREV</a>
     {{else}}
-        <span class="btn btn-secondary pagination-btn disabled">← Previous</span>
+        <span class="pagination-link disabled">&larr; PREV</span>
     {{end}}
-    
-    <span class="page-info">Page {{.Pagination.CurrentPage}} of {{.Pagination.TotalPages}}</span>
 
-    <a href="/all/{{.Pagination.RandomPage}}" class="btn btn-secondary pagination-btn">🔀 Random</a>
-    
+    <span class="page-info">page {{.Pagination.CurrentPage}} / {{.Pagination.TotalPages}}</span>
+
+    <a href="/all/{{.Pagination.RandomPage}}" class="pagination-link">🔀 SHUFFLE</a>
+
     {{if .Pagination.HasNext}}
-        <a href="/all/{{.Pagination.NextPage}}" class="btn btn-secondary pagination-btn">Next →</a>
+        <a href="/all/{{.Pagination.NextPage}}" class="pagination-link">NEXT &rarr;</a>
     {{else}}
-        <span class="btn btn-secondary pagination-btn disabled">Next →</span>
+        <span class="pagination-link disabled">NEXT &rarr;</span>
     {{end}}
-    
-    
-</div>
-
-
-{{end}} 
+</nav>
+{{end}}

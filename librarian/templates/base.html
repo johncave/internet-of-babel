@@ -11,9 +11,9 @@
 <body>
     <header class="topbar">
         <div class="topbar-inner">
-            <a href="/" class="topbar-brand" aria-label="Web of Babel home">
-                <span class="glitch-title" data-text="Web of Babel">Web of Babel</span>
-                <span class="tagline">an encyclopedia that writes itself</span>
+            <a href="/" class="topbar-brand" aria-label="Wikibabel home">
+                <span class="glitch-title" data-text="Wikibabel">Wikibabel</span>
+                <span class="tagline">the wiki that never ends</span>
             </a>
 
             <form action="/search" method="GET" class="topbar-search" role="search">
@@ -32,11 +32,11 @@
             </form>
 
             <nav class="topbar-links" aria-label="Site">
-                <a href="/wiki/babelcorp" class="topbar-link" data-tianji-event="click-topbar-about">[ ABOUT ]</a>
-                <a href="/all/1" class="topbar-link" data-tianji-event="click-topbar-all">[ ALL ]</a>
-                <a href="/random" class="topbar-link topbar-link-random" data-tianji-event="click-topbar-random" title="Random article">[ 🎲 ]</a>
+                <a href="/wiki/babelcorp" class="topbar-link" data-tianji-event="click-topbar-about">ABOUT</a>
+                <a href="/all/1" class="topbar-link" data-tianji-event="click-topbar-all">ALL</a>
+                <a href="/random" class="topbar-link topbar-link-random" data-tianji-event="click-topbar-random" title="Random article">🎲</a>
                 {{if not .Embedded}}
-                <a href="https://babelcom.johncave.co.nz" class="topbar-link topbar-link-babelcom" data-tianji-event="click-topbar-babelcom" target="_top">[ BABELCOM&nbsp;↗ ]</a>
+                <a href="https://babelcom.johncave.co.nz" class="topbar-link topbar-link-babelcom" data-tianji-event="click-topbar-babelcom" target="_top">BABELCOM&nbsp;↗</a>
                 {{end}}
             </nav>
         </div>
@@ -52,7 +52,7 @@
         <div class="site-footer-inner">
             <div class="footer-cols">
                 <section class="footer-col">
-                    <h4 class="footer-col-title">&gt; NAVIGATE</h4>
+                    <h4 class="footer-col-title">NAVIGATE</h4>
                     <ul class="footer-list">
                         <li><a href="/">Home</a></li>
                         <li><a href="/all/1">All articles</a></li>
@@ -61,7 +61,7 @@
                 </section>
 
                 <section class="footer-col">
-                    <h4 class="footer-col-title">&gt; ABOUT</h4>
+                    <h4 class="footer-col-title">ABOUT</h4>
                     <ul class="footer-list">
                         <li><a href="/wiki/babelcorp">About Babelcorp</a></li>
                         <li><a href="/wiki/the_web_of_babel">The Web of Babel</a></li>
@@ -72,7 +72,7 @@
                 </section>
 
                 <section class="footer-col">
-                    <h4 class="footer-col-title">&gt; CONNECT</h4>
+                    <h4 class="footer-col-title">CONNECT</h4>
                     <ul class="footer-list">
                         <li><a href="https://github.com/johncave/internet-of-babel" target="_blank" rel="noopener">Source ↗</a></li>
                         <li><a href="https://johncave.co.nz" target="_blank" rel="noopener">johncave.co.nz ↗</a></li>
@@ -99,15 +99,15 @@
 
             <div class="overlay-columns" data-overlay-section="columns">
                 <section class="overlay-col" data-col-for="similar" hidden>
-                    <h3 class="overlay-col-title">&gt; SIMILAR</h3>
+                    <h3 class="overlay-col-title">SIMILAR</h3>
                     <ul class="overlay-list" data-col="similar"></ul>
                 </section>
                 <section class="overlay-col" data-col-for="random">
-                    <h3 class="overlay-col-title">&gt; RANDOM</h3>
+                    <h3 class="overlay-col-title">RANDOM</h3>
                     <ul class="overlay-list" data-col="random"></ul>
                 </section>
                 <section class="overlay-col" data-col-for="recent">
-                    <h3 class="overlay-col-title">&gt; RECENT</h3>
+                    <h3 class="overlay-col-title">RECENT</h3>
                     <ul class="overlay-list" data-col="recent"></ul>
                 </section>
             </div>
@@ -119,7 +119,7 @@
                 </div>
                 <ul class="overlay-list" data-col="suggest"></ul>
                 <div class="overlay-fallback" hidden>
-                    <a id="overlay-see-all" href="/search" class="overlay-fallback-link">[ see all results → ]</a>
+                    <a id="overlay-see-all" href="/search" class="overlay-fallback-link">see all results →</a>
                 </div>
             </div>
 
@@ -347,6 +347,16 @@
                 if (overlay.hasAttribute('data-open')) return;
                 el.blur();
                 open(el.value || '');
+            });
+        });
+
+        // Anchors that open the overlay pre-filled with a query — used by the
+        // 404 "SEARCH" link and anywhere else we want to hand off a query.
+        // The href stays as a /search?q=… fallback for no-JS contexts.
+        document.querySelectorAll('[data-overlay-search]').forEach(el => {
+            el.addEventListener('click', (e) => {
+                e.preventDefault();
+                open(el.getAttribute('data-overlay-search') || '');
             });
         });
 

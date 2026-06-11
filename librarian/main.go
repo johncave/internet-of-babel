@@ -236,7 +236,6 @@ func Setup(r *gin.Engine) error {
 	r.GET("/favicon.ico", faviconHandler)
 
 	r.POST("/api/upload", uploadArticleHandler)
-	r.POST("/api/clippy-comments", clippyCommentsHandler)
 	r.GET("/api/v1/suggest", suggestHandler)
 	r.GET("/api/v1/overlay", overlayHandler)
 

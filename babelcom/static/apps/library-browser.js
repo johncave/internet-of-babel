@@ -1,5 +1,9 @@
-// Web of Babel — shadow DOM custom element
-const LIBRARY_HOME_URL = 'https://web4.johncave.co.nz/';
+// Web of Babel — shadow DOM custom element. Wiki lives on the wiki.* sibling
+// host of whatever babelcom.* host we're on; falls back to prod if unparsed.
+const LIBRARY_HOME_URL = (() => {
+    const m = /^babelcom\.(.+)$/i.exec(location.host);
+    return m ? `${location.protocol}//wiki.${m[1]}/` : 'https://web4.johncave.co.nz/';
+})();
 
 class BabelLibraryBrowser extends HTMLElement {
     constructor() {

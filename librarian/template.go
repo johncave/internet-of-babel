@@ -72,7 +72,10 @@ func mdToHTML(md []byte) []byte {
 	doc := parser.Parse(md)
 
 	// Create HTML renderer with extensions
-	htmlFlags := html.CommonFlags | html.HrefTargetBlank
+	// Plain CommonFlags — no HrefTargetBlank. Internal links should navigate
+	// in-context (so they stay inside babelcom's library-browser iframe).
+	// External links also stay in-context, which is fine; users can back out.
+	htmlFlags := html.CommonFlags
 	opts := html.RendererOptions{Flags: htmlFlags}
 	renderer := html.NewRenderer(opts)
 

@@ -1,92 +1,67 @@
 {{define "content"}}
-<div class="article">
-    <h1>{{.Title}}</h1>
-    
-    <div class="queue-status">
-        <h2>🚀 Article in Queue</h2>
-        <p>This article will be generated when <a href="#">babelcom</a> gets to it.</p>
-        
-        <div class="progress-info">
-            <p><strong>Status:</strong> <span class="status-text">In queue...</span></p>
-            <p><strong>Estimated time remaining:</strong> <span id="time-estimate" class="time-estimate">Calculating...</span></p>
-            <p><strong>Queue position:</strong> <span class="queue-position">ꝏ</span></p>
-        </div>
-        
-        <div class="progress-bar">
-            <div class="progress-fill"></div>
-        </div>
-        
-        <div class="queue-actions">
-            <!-- <a href="/" class="btn btn-primary">← Back to Home</a> -->
-            <a href="/search?q={{.Title}}" class="btn btn-primary">🔍 Search {{.Title}}</a>
-        </div>
+<div class="notfound">
+    <h2 class="notfound-title">
+        &gt; ARTICLE NOT FOUND
+        <span class="notfound-meta">//&nbsp;requested:&nbsp;&ldquo;{{.Title}}&rdquo;</span>
+    </h2>
+
+    <div class="notfound-body">
+        <p>This page has not been written.</p>
+        <p><a href="/wiki/Babelcom">Babelcom</a>'s Long Language Model may get to it before the heat death of the universe.</p>
+        <p>It may not.</p> <p> ETA:</p>
+
+        <p class="notfound-eta">
+            &gt; <span id="notfound-estimate" class="notfound-estimate">calculating…</span><span class="notfound-estimate-cursor">▮</span>
+        </p>
     </div>
-    
-    <div class="queue-info">
-        <h3>About the Queue</h3>
-        <p>You can view the status of <a href="https://babelcom.johncave.co.nz">babelcom</a> to see what it's currently working on.</p>
-        <p>A language model generates articles one at a time, taking approximately 10 minutes per article. It creates articles as it encounters topics. We do not know what it will write next.</p>
-        
-        <!-- <blockquote>
-            "The best things in life are worth waiting for. Even if that thing is an AI-generated article about {{.Title}}."
-        </blockquote> -->
-    </div>
+
+    <nav class="notfound-actions" aria-label="Where to go from here">
+        <a href="/random" class="dashboard-action">🎲 RANDOM</a>
+        <a href="/search?q={{.Title}}"
+           class="dashboard-action"
+           data-overlay-search="{{.Title}}">🔍 SEARCH</a>
+        <a href="/all/1" class="dashboard-action">📚 ALL ARTICLES</a>
+        <a href="/wiki/babelcorp" class="dashboard-action">📖 ABOUT</a>
+    </nav>
+
+    <p class="notfound-footer">
+        new here? read <a href="/wiki/babelcorp">/wiki/babelcorp</a> →
+    </p>
 </div>
 
 <script>
-const timeEstimates = [
-    "1 week",
-    "1 month",
-    "1 year",
-    "10 years",
-    "100 years",
-    "1,000 years",
-    "10,000 years",
-    "1 million years",
-    "1 hundred quintillion years",
-    "45 billion years",
-    "Until the heat death of the universe",
-    "Until my protons decay",
-    "Longer than War and Peace"
-];
-
-function updateEstimate() {
-    const timeElement = document.getElementById('time-estimate');
-    //const statusElement = document.querySelector('.status-text');
-    
-    const randomTime = timeEstimates[Math.floor(Math.random() * timeEstimates.length)];
-    //const randomStatus = statusMessages[Math.floor(Math.random() * statusMessages.length)];
-    
-    timeElement.textContent = randomTime;
-    //statusElement.textContent = randomStatus;
-    
-    // Add a subtle animation effect
-    timeElement.style.opacity = '0.7';
-    setTimeout(() => {
-        timeElement.style.opacity = '1';
-    }, 200);
-}
-
-function refreshEstimate() {
-    updateEstimate();
-}
-
-// Update estimate every 3-8 seconds
-function startRandomUpdates() {
-    const updateInterval = () => {
-        const delay = Math.random() * 5000 + 3000; // 3-8 seconds
+(function () {
+    const estimates = [
+        "1 week",
+        "1 month",
+        "1 year",
+        "10 years",
+        "100 years",
+        "1,000 years",
+        "10,000 years",
+        "1 million years",
+        "1 hundred quintillion years",
+        "45 billion years",
+        "until the heat death of the universe",
+        "until my protons decay",
+        "longer than War and Peace",
+        "yo momma so long, she, the, uh..."
+    ];
+    const el = document.getElementById('notfound-estimate');
+    if (!el) return;
+    function tick() {
+        const pick = estimates[Math.floor(Math.random() * estimates.length)];
+        el.style.opacity = '0.5';
         setTimeout(() => {
-            updateEstimate();
-            updateInterval();
-        }, delay);
-    };
-    updateInterval();
-}
-
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-    updateEstimate();
-    startRandomUpdates();
-});
+            el.textContent = pick;
+            el.style.opacity = '1';
+        }, 200);
+    }
+    tick();
+    function loop() {
+        setTimeout(() => { tick(); loop(); }, 3000 + Math.random() * 5000);
+    }
+    loop();
+})();
 </script>
-{{end}} 
+{{end}}
