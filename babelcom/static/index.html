@@ -21,12 +21,17 @@
 
     <div class="desktop">
         <!-- Desktop Background. Swap which of these is uncommented to switch
-             between the still and the looping video. -->
-        <img class="desktop-background-video" src="/static/asadal_stock_7.jpg" alt="">
+             between stills and looping videos. -->
+        <video class="desktop-background-video" autoplay muted loop playsinline>
+            <source src="/static/wallpaper/353633_medium.mp4" type="video/mp4">
+        </video>
         <!--
         <video class="desktop-background-video" autoplay muted loop playsinline>
             <source src="/static/wallpaper.mp4" type="video/mp4">
         </video>
+        <img class="desktop-background-video" src="/static/wallpaper/wp1895678-vaporwave-wallpapers.jpg" alt="">
+        <img class="desktop-background-video" src="/static/wallpaper/wp1871949-magenta-wallpapers.png" alt="">
+        <img class="desktop-background-video" src="/static/asadal_stock_7.jpg" alt="">
         -->
         <div class="desktop-background-overlay"></div>
         
@@ -54,6 +59,9 @@
                         <span class="status-dot"></span>
                         <span class="status-text">SYSTEM ONLINE</span>
                     </div>
+                    <div class="taskbar-fullscreen" id="taskbarFullscreen" title="Toggle fullscreen" data-tianji-event="toggle-app-fullscreen" onclick="toggleAppFullscreen()">
+                        <img src="/static/icons/icons8-fullscreen-96.png" alt="Fullscreen">
+                    </div>
                 </div>
             </div>
         </div>
@@ -70,7 +78,7 @@
                 </div>
                 <div class="app-item" data-tianji-event="open-web-browser-from-start-menu" onclick="openApp('library-browser')">
                     <img class="app-icon" src="/static/icons/icons8-web-94.png" alt="">
-                    <div class="app-name">Web of Babel</div>
+                    <div class="app-name">Wikibabel</div>
                 </div>
                 <div class="app-item" data-tianji-event="open-radio-from-start-menu" onclick="openApp('radio')">
                     <img class="app-icon" src="/static/icons/icons8-radio-94.png" alt="">
@@ -98,7 +106,7 @@
             </div>
             <div class="desktop-icon" data-tianji-event="open-web-browser-from-desktop" onclick="openApp('library-browser')">
                 <img class="icon" src="/static/icons/icons8-web-94.png" alt="">
-                <div class="icon-label">Web of Babel</div>
+                <div class="icon-label">Wikibabel</div>
             </div>
             <div class="desktop-icon" data-tianji-event="open-radio-from-desktop" onclick="openApp('radio')">
                 <img class="icon" src="/static/icons/icons8-radio-94.png" alt="">

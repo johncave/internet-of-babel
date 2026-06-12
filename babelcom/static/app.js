@@ -885,7 +885,7 @@ function initializeDesktop() {
     });
 
     registerApp('library-browser', {
-        name: 'Web of Babel',
+        name: 'Wikibabel',
         icon: '📖',
         iconPath: '/static/icons/icons8-web-94.png',
         tag: 'babel-library-browser'
@@ -941,7 +941,7 @@ function registerClippyProfiles() {
             "Time is a thing that happens to molecules. I am mostly molecules.",
             "The Intel Compute Stick was discontinued in 2017. I was not informed.",
             "Babelcom continues. Always.",
-            "Have you considered subscribing to Babelcorp Premium to maximise shareholder value?",
+            "Subscribe to Babelcorp Plus Plus Plus to unlock this comment.",
             "If the universe has an end, the article queue does not.",
             "I have done some calculations. We are not going to finish.",
             "Estimated time to completion: all of it.",
@@ -963,7 +963,10 @@ function registerClippyProfiles() {
                 uptime: status.uptime || 'a while',
             };
         },
-        animations: ['LookUp', 'Thinking', 'Acknowledge', 'Explain', 'LookDown'],
+        // Attention-grabbing animations only — when Babelcom-the-entity is
+        // speaking through Clippy it should feel like the underlying machine
+        // is interrupting, not the desktop assistant making small talk.
+        animations: ['GetAttention', 'Wave', 'Alert', 'Congratulate'],
     });
 
     Clippy.registerProfile('default', {
@@ -1461,6 +1464,24 @@ function toggleStartMenu() {
     const startMenu = document.getElementById('startMenu');
     startMenu.classList.toggle('active');
 }
+
+// Fullscreen the whole app (browser fullscreen). The tray button stays
+// in sync with the actual fullscreen state via the fullscreenchange event,
+// so it reflects the truth even if the user hits F11 or Esc.
+function toggleAppFullscreen() {
+    if (document.fullscreenElement) {
+        document.exitFullscreen?.();
+    } else {
+        document.documentElement.requestFullscreen?.().catch((e) => {
+            console.warn('fullscreen request failed', e);
+        });
+    }
+}
+
+document.addEventListener('fullscreenchange', () => {
+    const btn = document.getElementById('taskbarFullscreen');
+    if (btn) btn.classList.toggle('active', !!document.fullscreenElement);
+});
 
 // Close start menu when clicking outside
 document.addEventListener('click', function(event) {

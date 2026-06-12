@@ -6,3 +6,5 @@ articles/
 
 worker/process.log
 worker/queue.txt
+
+.DS_Store
