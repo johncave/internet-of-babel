@@ -34,7 +34,7 @@ const RadioApp = {
         if (!window.butterchurn) {
             console.log('📻 Radio App: Loading Butterchurn from CDN...');
             const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/butterchurn@2.6.7/lib/butterchurn.js';
+            script.src = '/static/vendor/butterchurn.min.js';
             script.onload = () => this.initVisualizer();
             document.head.appendChild(script);
         } else {
@@ -48,7 +48,7 @@ const RadioApp = {
         if (!window.butterchurnPresets) {
             console.log('📻 Visualizer: Loading Butterchurn presets from CDN...');
             const presetScript = document.createElement('script');
-            presetScript.src = 'https://cdn.jsdelivr.net/npm/butterchurn-presets@2.4.7/lib/butterchurnPresets.min.js';
+            presetScript.src = '/static/vendor/butterchurnPresets.min.js';
             presetScript.onload = () => this.setupVisualizer();
             document.head.appendChild(presetScript);
         } else {

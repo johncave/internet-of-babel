@@ -711,8 +711,8 @@ function initPickerVisualizer(canvas) {
             s.src = src; s.onload = done; s.onerror = done;
             document.head.appendChild(s);
         };
-        if (needBC) add('https://cdn.jsdelivr.net/npm/butterchurn@2.6.7/lib/butterchurn.js');
-        if (needPresets) add('https://cdn.jsdelivr.net/npm/butterchurn-presets@2.4.7/lib/butterchurnPresets.min.js');
+        if (needBC) add('/static/vendor/butterchurn.min.js');
+        if (needPresets) add('/static/vendor/butterchurnPresets.min.js');
     };
 
     ensureLib(() => {
@@ -965,8 +965,10 @@ function registerClippyProfiles() {
         },
         // Attention-grabbing animations only — when Babelcom-the-entity is
         // speaking through Clippy it should feel like the underlying machine
-        // is interrupting, not the desktop assistant making small talk.
-        animations: ['GetAttention', 'Wave', 'Alert', 'Congratulate'],
+        // is interrupting, not the desktop assistant making small talk. Names
+        // verified against the Clippy agent's animations map in pithings/clippy
+        // (src/agents/clippy/agent.ts).
+        animations: ['GetAttention', 'Alert', 'Wave', 'Greeting'],
     });
 
     Clippy.registerProfile('default', {
@@ -1392,9 +1394,19 @@ function setupDockMagnifier() {
     const SPREAD = 110;          // horizontal reach in px before falloff hits 0
     const UP_SLACK = 20;         // px above tile top before magnifier activates
     const TILE_W = 52, TILE_H = 50, ICON_SIZE = 40; // CSS base sizes
+    // Per-frame interpolation factor. Each tile's displayed scale moves this
+    // fraction of the way toward its target. 0.18 gets ~90% of the motion
+    // done in ~200ms (12 frames at 60fps) with a soft tail — feels closer to
+    // a CSS ease-out than a snap. Interior cursor motion still tracks
+    // closely because each frame's target delta is tiny.
+    const SMOOTH = 0.18;
+    const SNAP_THRESHOLD = 0.005;
 
     let cursorX = null, cursorY = null;
     let rafPending = false;
+    // Per-tile current displayed scale. WeakMap so recreated tiles (after
+    // updateTaskbar wipes the DOM) drop out automatically.
+    const scaleState = new WeakMap();
 
     const falloff = (d) => {
         if (d >= SPREAD) return 0;
@@ -1405,57 +1417,82 @@ function setupDockMagnifier() {
         tile.style.width = tile.style.height = '';
         const img = tile.querySelector('img');
         if (img) img.style.width = img.style.height = '';
+        scaleState.set(tile, 1);
+    }
+
+    function schedule() {
+        if (!rafPending) {
+            rafPending = true;
+            requestAnimationFrame(apply);
+        }
     }
 
     function apply() {
         rafPending = false;
-        if (cursorX === null) return;
         const tiles = dock.querySelectorAll('.taskbar-app');
+        let stillAnimating = false;
         for (const tile of tiles) {
             const r = tile.getBoundingClientRect();
             const cx = r.left + r.width / 2;
             const cy = r.top + r.height / 2;
-            const dy = cursorY - cy;
-            // Activate only when the cursor is at/below the current tile's
-            // top (with UP_SLACK headroom). As tiles grow, the band grows
-            // with them, so cursor tracking keeps up — but on first approach
-            // from above, the cursor has to actually reach the dock.
-            const inBand = dy > -(r.height / 2 + UP_SLACK);
-            let scale = 1;
-            if (inBand) {
-                const dx = Math.abs(cursorX - cx);
-                scale = 1 + (PEAK - 1) * falloff(dx);
+            // Compute the target scale this frame. If the cursor's gone or
+            // out of band, target is 1 — but unlike before, we don't bail;
+            // we still ease tiles toward 1 so they shrink smoothly.
+            let target = 1;
+            if (cursorX !== null) {
+                const dy = cursorY - cy;
+                const inBand = dy > -(r.height / 2 + UP_SLACK);
+                if (inBand) {
+                    const dx = Math.abs(cursorX - cx);
+                    target = 1 + (PEAK - 1) * falloff(dx);
+                }
             }
-            if (scale > 1.001) {
-                tile.style.width = (TILE_W * scale).toFixed(1) + 'px';
-                tile.style.height = (TILE_H * scale).toFixed(1) + 'px';
+            const current = scaleState.get(tile) ?? 1;
+            let next = current + (target - current) * SMOOTH;
+            if (Math.abs(next - target) < SNAP_THRESHOLD) {
+                next = target;
+            } else {
+                stillAnimating = true;
+            }
+            scaleState.set(tile, next);
+
+            if (next > 1.001) {
+                tile.style.width = (TILE_W * next).toFixed(1) + 'px';
+                tile.style.height = (TILE_H * next).toFixed(1) + 'px';
                 const img = tile.querySelector('img');
                 if (img) {
-                    img.style.width = (ICON_SIZE * scale).toFixed(1) + 'px';
-                    img.style.height = (ICON_SIZE * scale).toFixed(1) + 'px';
+                    img.style.width = (ICON_SIZE * next).toFixed(1) + 'px';
+                    img.style.height = (ICON_SIZE * next).toFixed(1) + 'px';
                 }
             } else {
-                resetTile(tile);
+                tile.style.width = tile.style.height = '';
+                const img = tile.querySelector('img');
+                if (img) img.style.width = img.style.height = '';
             }
         }
+        // Keep the rAF loop going while any tile is mid-ease — covers the
+        // case where the cursor stops moving but tiles haven't reached
+        // target yet (esp. on hover-out: cursor leaves, no more mousemoves,
+        // but tiles still need to ease back down).
+        if (stillAnimating) schedule();
     }
 
     // Expose so updateTaskbar() can re-apply current cursor to freshly built
-    // tiles immediately (synchronous, no rAF wait).
+    // tiles immediately. Synchronous one-frame step; the rAF self-loops if
+    // more frames are needed to reach target.
     applyDockMagnifier = apply;
 
     document.addEventListener('mousemove', (e) => {
         cursorX = e.clientX;
         cursorY = e.clientY;
-        if (!rafPending) {
-            rafPending = true;
-            requestAnimationFrame(apply);
-        }
+        schedule();
     });
-    // Cursor leaves the document (e.g. into devtools) — reset everything.
+    // Cursor leaves the document (e.g. into devtools) — let tiles ease back
+    // to 1 rather than snapping; the apply loop will retire itself once they
+    // arrive thanks to the stillAnimating flag.
     document.addEventListener('mouseleave', () => {
         cursorX = cursorY = null;
-        dock.querySelectorAll('.taskbar-app').forEach(resetTile);
+        schedule();
     });
 }
 

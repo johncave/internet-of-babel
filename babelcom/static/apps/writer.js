@@ -216,7 +216,7 @@ class BabelWriter extends HTMLElement {
             .join('');
 
         this.root.innerHTML = `
-            <link rel="stylesheet" href="https://unpkg.com/98.css">
+            <link rel="stylesheet" href="/static/vendor/98.css">
             <style>
                 :host {
                     display: flex;
