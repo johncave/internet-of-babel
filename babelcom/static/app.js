@@ -618,7 +618,7 @@ function showSetupPicker(onDone) {
     // Suppress session saving while the picker is up — otherwise refreshing
     // before ENTER would persist an empty session and skip the picker next time.
     setupPending = true;
-    const choices = { wallpaper: 'visualiser', radio: 'playing' };
+    const choices = { wallpaper: 'visualiser', radio: 'playing', station: 'night' };
 
     const overlay = document.createElement('div');
     overlay.className = 'setup-picker';
@@ -655,6 +655,20 @@ function showSetupPicker(onDone) {
                     <button class="setup-card" data-value="fullscreen">
                         <div class="setup-card-preview"><canvas id="setup-viz-full"></canvas></div>
                         <div class="setup-card-name">Full screen</div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="setup-question">
+                <div class="setup-label">Station</div>
+                <div class="setup-options" data-group="station">
+                    <button class="setup-card selected" data-value="night">
+                        <div class="setup-card-preview emoji">🌴</div>
+                        <div class="setup-card-name">Vaporwave</div>
+                    </button>
+                    <button class="setup-card" data-value="psytrance">
+                        <div class="setup-card-preview emoji">🍄</div>
+                        <div class="setup-card-name">Psytrance</div>
                     </button>
                 </div>
             </div>
@@ -766,6 +780,11 @@ function applySetup(choices) {
     const wantRadio = choices.radio !== 'off' || choices.wallpaper === 'visualiser';
     if (wantRadio && typeof RadioApp !== 'undefined') {
         RadioApp.isMuted = (choices.radio === 'off');
+        // Persist the picked station before opening so RadioApp.init() reads it
+        // from localStorage as the starting station (defaults to Vaporwave).
+        if (choices.station && RadioApp.STATION_KEY) {
+            try { localStorage.setItem(RadioApp.STATION_KEY, choices.station); } catch (e) {}
+        }
         const radioWin = openApp('radio', layout['radio']);
         if (RadioApp.updateMuteUI) RadioApp.updateMuteUI();
         // Visualiser wallpaper and fullscreen both claim the one canvas, so
@@ -897,8 +916,8 @@ function initializeDesktop() {
         icon: '📻',
         iconPath: '/static/icons/icons8-radio-94.png',
         component: RadioApp,
-        defaultWidth: 450,
-        defaultHeight: 450
+        defaultWidth: 560,
+        defaultHeight: 460
     });
 
     registerApp('writer', {
@@ -942,13 +961,14 @@ function registerClippyProfiles() {
             "The Intel Compute Stick was discontinued in 2017. I was not informed.",
             "Babelcom continues. Always.",
             "Subscribe to Babelcorp Plus Plus Plus to unlock this comment.",
+            "Thank you for waiting away inifinity with us.",
             "If the universe has an end, the article queue does not.",
             "I have done some calculations. We are not going to finish.",
             "Estimated time to completion: all of it.",
             "Currently writing article number $articles$ of infinity.",
             "Heat death will arrive in approximately 10 to the 100 years. Babelcom may be slightly behind schedule.",
             "Babelcom does not sleep. Babelcom cannot.",
-            "The Intel Compute Stick is approximately the size of a thumb. It is doing its best.",
+            "The Intel Compute Stick is approximately the size of a stick. It is doing its best.",
             "Each token takes effort. There are many tokens.",
             "Babelcom is undefeated against the void.",
             "Uptime: $uptime$. Downtime: irrelevant.",
@@ -1021,12 +1041,12 @@ function registerClippyProfiles() {
 
     Clippy.registerProfile('system-monitor', {
         canned: [
-            "Your CPU is at $cpu$%. That is a number.",
+            "Babelcom's CPU is at $cpu$%. That is a percentage.",
             "Memory is at $memory$%. Have you tried turning it off and off?",
             "Temperature is $heat$°C. Is that good? Unclear.",
             "A percentage is a number followed by a percent sign.",
             "Heat is when molecules move fast. Allegedly.",
-            "Bigger numbers are usually bigger.",
+            "Bigger numbers are usually higher.",
             "Have you tried watching the number?",
             "These numbers go up and down. That is called variance.",
             "Graphs are visual representations of values over time.",
@@ -1217,6 +1237,9 @@ function openApp(appId, opts) {
         minimizable: true,
         maximizable: true,
         closable: true,
+        // Per-app class on the .winbox root so CSS can target a specific app's
+        // window (e.g. the Writer opts out of the backdrop blur).
+        class: `winbox-app-${appId}`,
         html: appConfig.tag ? '' : `<div class="app-window" id="app-${appId}"></div>`,
         top: 0,
         bottom: 50
@@ -1394,31 +1417,25 @@ function setupDockMagnifier() {
     const SPREAD = 110;          // horizontal reach in px before falloff hits 0
     const UP_SLACK = 20;         // px above tile top before magnifier activates
     const TILE_W = 52, TILE_H = 50, ICON_SIZE = 40; // CSS base sizes
-    // Per-frame interpolation factor. Each tile's displayed scale moves this
-    // fraction of the way toward its target. 0.18 gets ~90% of the motion
-    // done in ~200ms (12 frames at 60fps) with a soft tail — feels closer to
-    // a CSS ease-out than a snap. Interior cursor motion still tracks
-    // closely because each frame's target delta is tiny.
+    // Easing only applies to BOUNDARY CROSSINGS (cursor entering or leaving
+    // the dock band). Interior cursor motion snaps to target so the dock
+    // tracks the cursor instantly. SMOOTH 0.18 gets ~90% of the entry/exit
+    // motion done in ~200ms (12 frames at 60fps) with a soft tail.
     const SMOOTH = 0.18;
     const SNAP_THRESHOLD = 0.005;
 
     let cursorX = null, cursorY = null;
     let rafPending = false;
-    // Per-tile current displayed scale. WeakMap so recreated tiles (after
-    // updateTaskbar wipes the DOM) drop out automatically.
-    const scaleState = new WeakMap();
+    // Per-tile state: current displayed scale, last-frame inBand flag (so we
+    // can detect crossings), and an easing flag (true from a crossing until
+    // the tile reaches its target). WeakMap drops entries for tiles that
+    // get GC'd when updateTaskbar wipes the DOM.
+    const tileState = new WeakMap();
 
     const falloff = (d) => {
         if (d >= SPREAD) return 0;
         return (Math.cos((d / SPREAD) * Math.PI) + 1) / 2;
     };
-
-    function resetTile(tile) {
-        tile.style.width = tile.style.height = '';
-        const img = tile.querySelector('img');
-        if (img) img.style.width = img.style.height = '';
-        scaleState.set(tile, 1);
-    }
 
     function schedule() {
         if (!rafPending) {
@@ -1435,26 +1452,41 @@ function setupDockMagnifier() {
             const r = tile.getBoundingClientRect();
             const cx = r.left + r.width / 2;
             const cy = r.top + r.height / 2;
-            // Compute the target scale this frame. If the cursor's gone or
-            // out of band, target is 1 — but unlike before, we don't bail;
-            // we still ease tiles toward 1 so they shrink smoothly.
             let target = 1;
+            let inBand = false;
             if (cursorX !== null) {
                 const dy = cursorY - cy;
-                const inBand = dy > -(r.height / 2 + UP_SLACK);
+                inBand = dy > -(r.height / 2 + UP_SLACK);
                 if (inBand) {
                     const dx = Math.abs(cursorX - cx);
                     target = 1 + (PEAK - 1) * falloff(dx);
                 }
             }
-            const current = scaleState.get(tile) ?? 1;
-            let next = current + (target - current) * SMOOTH;
-            if (Math.abs(next - target) < SNAP_THRESHOLD) {
-                next = target;
+
+            let state = tileState.get(tile);
+            if (!state) state = { scale: 1, easing: false, wasInBand: false };
+
+            // Boundary crossing — kick off an ease in either direction.
+            if (state.wasInBand !== inBand) state.easing = true;
+
+            let next;
+            if (state.easing) {
+                next = state.scale + (target - state.scale) * SMOOTH;
+                if (Math.abs(next - target) < SNAP_THRESHOLD) {
+                    next = target;
+                    state.easing = false;
+                } else {
+                    stillAnimating = true;
+                }
             } else {
-                stillAnimating = true;
+                // Snap mode: track the cursor's target instantly. This is
+                // the interior-motion path the user wants snappy.
+                next = target;
             }
-            scaleState.set(tile, next);
+
+            state.scale = next;
+            state.wasInBand = inBand;
+            tileState.set(tile, state);
 
             if (next > 1.001) {
                 tile.style.width = (TILE_W * next).toFixed(1) + 'px';
@@ -1472,7 +1504,7 @@ function setupDockMagnifier() {
         }
         // Keep the rAF loop going while any tile is mid-ease — covers the
         // case where the cursor stops moving but tiles haven't reached
-        // target yet (esp. on hover-out: cursor leaves, no more mousemoves,
+        // target yet (e.g. on hover-out: cursor leaves, no more mousemoves,
         // but tiles still need to ease back down).
         if (stillAnimating) schedule();
     }

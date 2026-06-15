@@ -15,6 +15,185 @@ const RadioApp = {
     reconnectTimer: null,
     stallTimer: null,
 
+    // --- Stations --------------------------------------------------------
+    // The desktop offers two AzuraCast stations. `code` is the AzuraCast
+    // shortcode (matches station:<code> on the upstream socket and the
+    // shortcode carried in each "now playing" payload); `name` is the label
+    // shown on the switcher. The backend subscribes to all of these and
+    // rebroadcasts each; we route incoming messages to the right station by
+    // shortcode and only play/show the selected one.
+    STATIONS: [
+        { code: 'night', name: 'Vaporwave' },
+        { code: 'psytrance', name: 'Psytrance' },
+    ],
+    STATION_KEY: 'babelcom.radio.station',
+    currentStation: 'night',
+    // shortcode -> { streamUrl, track, receivedAt } cached from the bus so a
+    // switch can render instantly instead of waiting for the next push.
+    stationData: {},
+
+    // Cap the visualizer's backing-store resolution on HiDPI/retina displays.
+    // Butterchurn (MilkDrop) presets are soft, low-detail visuals, so rendering
+    // at the full devicePixelRatio (2 on retina = 4x the pixels) is mostly
+    // wasted GPU. Capping the ratio cuts the per-frame shader cost dramatically
+    // with almost no visible difference, especially in full-screen wallpaper
+    // mode. Bump toward devicePixelRatio for crispness, down toward 1 for FPS.
+    VIZ_MAX_PIXEL_RATIO: 1.5,
+
+    // --- Adaptive visualizer quality -------------------------------------
+    // Butterchurn presets vary wildly in cost: on this class of machine most
+    // run ~50fps full-screen, but some are ~10fps. Every preset starts at full
+    // resolution (1.0x, reset on each preset change) and we adapt DOWN a ladder
+    // of scale factors (applied on top of the HiDPI cap) to hold the framerate.
+    // Because a heavy preset can be 5x too slow, we can step down several levels;
+    // if we bottom out and still can't make budget, the preset is blacklisted
+    // and skipped. We never step back up within a preset — the next preset
+    // resets to 1.0x and re-assesses from scratch.
+    VIZ_SCALE_STEPS: [1, 0.75, 0.5, 0.35, 0.25],
+    VIZ_FPS_LOW: 30,    // below this → drop a level (matches the on-screen meter)
+    VIZ_SETTLE_MARGIN_MS: 1500, // extra hold after a crossfade finishes before judging fps
+    VIZ_STEP_SETTLE_MS: 1200,   // re-measure delay after we change a level
+    _vizScaleIdx: 0,
+    _vizSettleUntil: 0,     // performance.now() until which we hold steady (transition)
+
+    vizPixelRatio: function() {
+        const cap = Math.min(window.devicePixelRatio || 1, this.VIZ_MAX_PIXEL_RATIO);
+        return cap * (this.VIZ_SCALE_STEPS[this._vizScaleIdx] || 1);
+    },
+
+    // Resize the live visualizer canvas + renderer to the current pixel ratio.
+    // Finds the canvas in either mode (in-window or desktop wallpaper). Returns
+    // the applied dimensions, or null if there's nothing to resize.
+    applyVizResolution: function() {
+        const canvas = document.getElementById('visualizer-canvas')
+            || document.getElementById('desktop-visualizer');
+        if (!canvas) return null;
+        const r = this.vizPixelRatio();
+        const w = Math.max(1, Math.round(canvas.clientWidth * r));
+        const h = Math.max(1, Math.round(canvas.clientHeight * r));
+        if (canvas.width !== w || canvas.height !== h) {
+            canvas.width = w;
+            canvas.height = h;
+            if (this.visualizer && this.visualizer.setRendererSize) {
+                this.visualizer.setRendererSize(w, h);
+            }
+        }
+        return { w, h, r };
+    },
+
+    // Called whenever a new preset is loaded. Every preset starts fresh at full
+    // resolution (1.0x) and adapts DOWN from there, rather than inheriting the
+    // previous preset's scale — a light preset shouldn't be stuck at the low
+    // resolution a previous heavy one forced. Opens a settle window covering the
+    // crossfade (during which fps is unrepresentative) before judging begins.
+    onVizPresetChanged: function(blendSeconds) {
+        this._vizScaleIdx = 0;
+        this.applyVizResolution();
+        this._vizSettleUntil = performance.now() + (blendSeconds * 1000) + this.VIZ_SETTLE_MARGIN_MS;
+    },
+
+    // Adaptive controller, fed the latest 1-second fps sample from the render
+    // loop. Each preset starts at full resolution (reset in onVizPresetChanged),
+    // so we only ever adapt DOWNWARD: drop a level while under budget, and once
+    // we bottom out and still can't make budget, blacklist + skip the preset.
+    adaptVizQuality: function(fps) {
+        // Never act on a hidden-tab sample — rAF is throttled there, so fps reads
+        // near-zero and would wrongly downscale/blacklist. (Blacklisting persists,
+        // so this guard matters even though the caller also checks.)
+        if (document.hidden) return;
+        if (performance.now() < this._vizSettleUntil) return; // mid-transition: hold steady
+        if (fps >= this.VIZ_FPS_LOW) return; // making budget — leave it alone
+        const steps = this.VIZ_SCALE_STEPS;
+        if (this._vizScaleIdx < steps.length - 1) {
+            // Too heavy — drop a level and re-measure after a short settle.
+            this._vizScaleIdx++;
+            const d = this.applyVizResolution();
+            this._vizSettleUntil = performance.now() + this.VIZ_STEP_SETTLE_MS;
+            console.warn(`📻 Visualizer: ${fps}fps < ${this.VIZ_FPS_LOW} — dropping to scale ${steps[this._vizScaleIdx]}x`
+                + (d ? ` (${d.w}×${d.h})` : ''));
+        } else {
+            // Already at the lowest resolution and STILL under budget — this
+            // preset is too heavy for this machine (often a GPU-choking effect).
+            // Blacklist it so it never loads again here, and skip to another.
+            this._skipHeavyPreset(fps);
+        }
+    },
+
+    // --- Heavy-preset blacklist ------------------------------------------
+    // Some presets use effects that can't reach a usable framerate on a given
+    // machine even at the lowest resolution. When the adaptive controller bottoms
+    // out and is still under budget, we blacklist that preset (persisted in
+    // localStorage) and skip on, so it never wastes time again on this machine.
+    VIZ_BLACKLIST_KEY: 'babelcom.viz.blacklist',
+    _vizBlacklist: null, // Set<presetName>, lazily loaded from localStorage
+
+    _loadVizBlacklist: function() {
+        try {
+            const arr = JSON.parse(localStorage.getItem(this.VIZ_BLACKLIST_KEY) || '[]');
+            return new Set(Array.isArray(arr) ? arr : []);
+        } catch (e) { return new Set(); }
+    },
+    _blacklistPreset: function(name) {
+        if (!name) return;
+        if (!this._vizBlacklist) this._vizBlacklist = this._loadVizBlacklist();
+        if (this._vizBlacklist.has(name)) return;
+        this._vizBlacklist.add(name);
+        try {
+            localStorage.setItem(this.VIZ_BLACKLIST_KEY, JSON.stringify([...this._vizBlacklist]));
+        } catch (e) {}
+        console.warn(`📻 Visualizer: blacklisted heavy preset "${name}" (won't load again on this machine)`);
+    },
+    // Pick a random preset index whose name isn't blacklisted. Falls back to the
+    // full set if every preset has somehow been blacklisted.
+    pickRandomPresetIndex: function() {
+        if (!this.presetNames || !this.presetNames.length) return 0;
+        if (!this._vizBlacklist) this._vizBlacklist = this._loadVizBlacklist();
+        const allowed = [];
+        for (let i = 0; i < this.presetNames.length; i++) {
+            if (!this._vizBlacklist.has(this.presetNames[i])) allowed.push(i);
+        }
+        const pool = allowed.length ? allowed : this.presetNames.map((_, i) => i);
+        return pool[Math.floor(Math.random() * pool.length)];
+    },
+    // Current preset can't sustain framerate even at min resolution: blacklist it
+    // and jump straight to another. Short blend (0s) so the heavy preset stops
+    // rendering immediately rather than cross-fading for 5s and dragging longer.
+    _skipHeavyPreset: function(fps) {
+        if (!this.visualizer || !this.presetNames || !this.presets) return;
+        const deadName = this.presetNames[this.currentPresetIndex];
+        this._blacklistPreset(deadName);
+        const idx = this.pickRandomPresetIndex();
+        this.currentPresetIndex = idx;
+        this.visualizer.loadPreset(this.presets[this.presetNames[idx]], 0.0);
+        this.onVizPresetChanged(0.0); // arm adaptive quality for the replacement
+        console.warn(`📻 Visualizer: ${fps}fps at min resolution — skipped to "${this.presetNames[idx]}"`);
+    },
+
+    // --- Global listener bookkeeping -------------------------------------
+    // Listeners on persistent targets (window/document) outlive the radio
+    // window, so without tracking them each open→close cycle leaked a handler.
+    // setupVisualizer/destroy clear these so they don't accumulate.
+    _globalListeners: [],
+    _addGlobalListener: function(target, type, fn) {
+        target.addEventListener(type, fn);
+        this._globalListeners.push({ target, type, fn });
+    },
+    _removeGlobalListeners: function() {
+        for (const { target, type, fn } of this._globalListeners) {
+            target.removeEventListener(type, fn);
+        }
+        this._globalListeners = [];
+    },
+    // The visualizer's window-resize handler differs between window and
+    // wallpaper modes; setAsWallpaper toggles between them. Keep a single slot
+    // so toggling swaps the handler instead of stacking a new one each time.
+    _modeResizeHandler: null,
+    _setModeResize: function(fn) {
+        if (this._modeResizeHandler) window.removeEventListener('resize', this._modeResizeHandler);
+        this._modeResizeHandler = fn;
+        if (fn) window.addEventListener('resize', fn);
+    },
+
     init: function(container, config, winboxWindow) {
         console.log('📻 Radio App: Initializing...');
         this.container = container;
@@ -25,6 +204,13 @@ const RadioApp = {
         this.progressInterval = null;
         this.lastElapsedUpdate = 0;
         this.reconnectAttempts = 0;
+        this.stationData = {};
+        // Restore the last-picked station (validated against the known list so a
+        // removed station can't strand the switcher on a dead shortcode).
+        try {
+            const saved = localStorage.getItem(this.STATION_KEY);
+            if (saved && this.STATIONS.some(s => s.code === saved)) this.currentStation = saved;
+        } catch (e) {}
         this.render();
         this.connectWebSocket();
         this.addStyles();
@@ -60,6 +246,10 @@ const RadioApp = {
     setupVisualizer: function() {
         this._setupCount = (this._setupCount || 0) + 1;
         console.log('📻 setupVisualizer call #' + this._setupCount);
+        // Drop any global listeners from a previous setup so re-init doesn't
+        // stack duplicate window-resize / document-click handlers.
+        this._removeGlobalListeners();
+        this._setModeResize(null);
         // Clean up any existing visualizer first
         if (this.visualizer) {
             console.log('📻 Visualizer: Cleaning up existing visualizer before reinitializing');
@@ -115,7 +305,7 @@ const RadioApp = {
         this.visualizer = api.createVisualizer(this.audioCtx, canvas, {
             width: canvas.width,
             height: canvas.height,
-            pixelRatio: window.devicePixelRatio || 1
+            pixelRatio: this.vizPixelRatio()
         });
 
         // Feed audio into the visualizer so presets actually react to the music
@@ -125,26 +315,39 @@ const RadioApp = {
         const presets = window.butterchurnPresets.getPresets();
         const presetNames = Object.keys(presets);
         
-        // Initialize preset cycling variables
-        this.currentPresetIndex = Math.floor(Math.random() * presetNames.length);
+        // Initialize preset cycling variables (blacklist must be loaded before
+        // picking so a known-heavy preset isn't chosen as the opener).
         this.presetNames = presetNames;
         this.presets = presets;
-        
+        this._vizBlacklist = this._loadVizBlacklist();
+        this.currentPresetIndex = this.pickRandomPresetIndex();
+
         // Log the initial random preset
         const initialPresetName = presetNames[this.currentPresetIndex];
         console.log('📻 Visualizer: Initial random preset selected:', initialPresetName);
         
         // Load initial random preset
         this.visualizer.loadPreset(presets[initialPresetName], 0.0);
-        
+        this.onVizPresetChanged(0.0); // arm adaptive quality for the first preset
+
         // Start preset cycling
         this.startPresetCycling();
         
-        // Animate
+        // Animate (scale already reset to 1.0x by onVizPresetChanged above)
         this.visualizerEnabled = true;
         let fpsFrames = 0;
         let fpsLastT = performance.now();
         const fpsEl = document.getElementById('visualizer-fps');
+        // When the tab becomes visible again, rAF resumes and the first window
+        // would otherwise span the whole hidden period (fps ≈ 0). Reset the
+        // measurement baseline and re-settle so we judge the preset fresh.
+        const onVizVisible = () => {
+            if (document.hidden) return;
+            fpsFrames = 0;
+            fpsLastT = performance.now();
+            this._vizSettleUntil = performance.now() + this.VIZ_STEP_SETTLE_MS;
+        };
+        this._addGlobalListener(document, 'visibilitychange', onVizVisible);
         const renderFrame = () => {
             if (!this.visualizerEnabled) {
                 this.visualizerFrame = null;
@@ -153,8 +356,20 @@ const RadioApp = {
             if (this.visualizer) this.visualizer.render();
             fpsFrames++;
             const now = performance.now();
-            if (now - fpsLastT >= 1000) {
-                if (fpsEl) fpsEl.textContent = `${Math.round(fpsFrames * 1000 / (now - fpsLastT))} fps`;
+            const elapsed = now - fpsLastT;
+            if (elapsed >= 1000) {
+                const fps = Math.round(fpsFrames * 1000 / elapsed);
+                if (fpsEl) fpsEl.textContent = `${fps} fps`;
+                // Only adapt on a TRUSTWORTHY sample. When the tab is hidden the
+                // browser throttles/pauses rAF, so fps reads near-zero — feeding
+                // that to the controller wrongly downscales and blacklists healthy
+                // presets. A stretched window (elapsed ≫ 1s) means rAF was
+                // throttled even if visibility didn't flip, so skip those too.
+                // A genuinely heavy preset still ticks rAF every frame, so its
+                // window stays ~1s and remains trustworthy.
+                if (!document.hidden && elapsed < 1500) {
+                    this.adaptVizQuality(fps);
+                }
                 fpsFrames = 0;
                 fpsLastT = now;
             }
@@ -168,8 +383,9 @@ const RadioApp = {
         const handleResize = () => {
             if (!canvas) return;
 
-            const newWidth = canvas.clientWidth * window.devicePixelRatio;
-            const newHeight = canvas.clientHeight * window.devicePixelRatio;
+            const ratio = this.vizPixelRatio();
+            const newWidth = canvas.clientWidth * ratio;
+            const newHeight = canvas.clientHeight * ratio;
 
             // Skip if size hasn't actually changed — ResizeObserver fires on many layout changes
             if (canvas.width === newWidth && canvas.height === newHeight) return;
@@ -192,8 +408,8 @@ const RadioApp = {
             }
         };
         
-        // Listen for window resize
-        window.addEventListener('resize', handleResize);
+        // Listen for window resize (tracked so destroy()/re-init can remove it)
+        this._addGlobalListener(window, 'resize', handleResize);
         
         // Listen for container resize using ResizeObserver if available
         if (window.ResizeObserver && this.container) {
@@ -211,18 +427,6 @@ const RadioApp = {
             this.toggleFullscreen();
         });
         
-        // Add click handler to close visualizer menu when clicking outside
-        document.addEventListener('click', (event) => {
-            const menu = document.getElementById('visualizer-menu');
-            const visualizerBtn = document.getElementById('visualizer-btn');
-            
-            if (menu && menu.classList.contains('active') && 
-                !menu.contains(event.target) && 
-                !visualizerBtn.contains(event.target)) {
-                menu.classList.remove('active');
-            }
-        });
-        
         // Add event listeners for mousemove/touchstart on the radio window
         this.container.addEventListener('mousemove', this.handleUserInteraction.bind(this));
         this.container.addEventListener('touchstart', this.handleUserInteraction.bind(this));
@@ -237,8 +441,6 @@ const RadioApp = {
         if (this._pendingWallpaper) {
             this._pendingWallpaper = false;
             this.setAsWallpaper();
-            const menu = document.getElementById('visualizer-menu');
-            if (menu) menu.classList.remove('active');
         }
     },
 
@@ -249,8 +451,6 @@ const RadioApp = {
         const canvas = document.getElementById('visualizer-canvas');
         if (canvas && this.visualizer) {
             this.setAsWallpaper();
-            const menu = document.getElementById('visualizer-menu');
-            if (menu) menu.classList.remove('active');
         } else {
             this._pendingWallpaper = true;
         }
@@ -259,12 +459,20 @@ const RadioApp = {
     handleUserInteraction: function() {
         const fadeControls = document.querySelector('.fade-controls');
         const fadeProgress = document.querySelector('.progress-container');
+        const stationSwitcher = document.querySelector('.station-switcher');
+        const volumeContainer = document.querySelector('.volume-container');
         const controlsOverlay = document.querySelector('.radio-controls-overlay');
         if (fadeControls) {
             fadeControls.classList.remove('faded');
         }
         if (fadeProgress) {
             fadeProgress.classList.remove('faded');
+        }
+        if (stationSwitcher) {
+            stationSwitcher.classList.remove('faded');
+        }
+        if (volumeContainer) {
+            volumeContainer.classList.remove('faded');
         }
         if (controlsOverlay) {
             controlsOverlay.classList.remove('controls-faded');
@@ -278,6 +486,9 @@ const RadioApp = {
             if (document.getElementById('visualizer-canvas')) {
                 if (fadeControls) fadeControls.classList.add('faded');
                 if (fadeProgress) fadeProgress.classList.add('faded');
+                if (stationSwitcher) stationSwitcher.classList.add('faded');
+                // Volume fades too — only the mute button stays on the bottom line.
+                if (volumeContainer) volumeContainer.classList.add('faded');
                 if (controlsOverlay) controlsOverlay.classList.add('controls-faded');
             }
         }, 5000);
@@ -289,49 +500,15 @@ const RadioApp = {
                 <audio id="radio-audio" preload="none" crossorigin="anonymous"></audio>
                 <canvas id="visualizer-canvas" width="800" height="600" style="width:100%;height:100%;display:block;position:absolute;top:0;left:0;"></canvas>
                 <div id="visualizer-fps" style="position:absolute;top:4px;right:8px;z-index:30;color:#0f0;font:11px monospace;text-shadow:0 0 2px #000;pointer-events:none;">— fps</div>
+                <div class="station-bar">
+                    <div class="station-switcher" id="station-switcher"></div>
+                </div>
                 <div class="radio-controls-overlay">
-                    <div class="main-controls-row">
-                        <div class="track-info-overlay">
-                            <div class="cover-art-container">
-                                <img id="cover-art" src="/static/icons/radio.png" alt="Cover Art" class="cover-art">
-                            </div>
-                            <div class="track-info">
-                                <div class="track-title" id="track-title">Loading...</div>
-                                <a href="https://kratzwerk.bandcamp.com/" target="_blank"><div class="track-artist" id="track-artist">Loading...</div></a>
-                            </div>
-                        </div>
-                        <div class="controls-overlay">
-                            <div class="fade-controls">
-                                <div class="volume-container">
-                                    <input type="range" id="volume-slider" min="0" max="100" value="85" 
-                                           oninput="RadioApp.setVolume(this.value / 100)">
-                                </div>
-                                <button class="control-btn visualizer-btn" id="visualizer-btn" onclick="RadioApp.toggleVisualizerMenu()">
-                                    <span class="visualizer-icon">🎨</span>
-                                </button>
-                            </div>
-                            <button class="control-btn mute-btn" id="mute-btn" onclick="RadioApp.toggleMute()">
-                                <span class="mute-icon">🔊</span>
-                            </button>
-                        </div>
-                        <div class="visualizer-menu" id="visualizer-menu">
-                            <div class="menu-item" onclick="RadioApp.changeToRandomPreset()">
-                                <span class="menu-icon">🔀</span>
-                                <span class="menu-text">Next Visual</span>
-                            </div>
-                            <div class="menu-item" onclick="RadioApp.toggleVisualizer()">
-                                <span class="menu-icon">👁️</span>
-                                <span class="menu-text" id="visualizer-toggle-text">Disable visual</span>
-                            </div>
-                            <div class="menu-item" onclick="RadioApp.setAsWallpaper()">
-                                <span class="menu-icon">🖼️</span>
-                                <span class="menu-text" id="visualizer-wallpaper-text">Wallpaper</span>
-                            </div>
-                            <div class="menu-item" onclick="RadioApp.toggleFullscreen()">
-                                <span class="menu-icon">🖥️</span>
-                                <span class="menu-text" id="visualizer-fullscreen-text">Full screen</span>
-                            </div>
-                        </div>
+                    <div class="fade-controls viz-controls">
+                        <button class="control-btn viz-btn" data-tooltip="Next visual" onclick="RadioApp.changeToRandomPreset()">🔀</button>
+                        <button class="control-btn viz-btn" id="viz-toggle-btn" data-tooltip="Hide visual" onclick="RadioApp.toggleVisualizer()">👁️</button>
+                        <button class="control-btn viz-btn" id="viz-wallpaper-btn" data-tooltip="Set as wallpaper" onclick="RadioApp.setAsWallpaper()">🖼️</button>
+                        <button class="control-btn viz-btn" id="viz-fullscreen-btn" data-tooltip="Full screen" onclick="RadioApp.toggleFullscreen()">🖥️</button>
                     </div>
                     <div class="progress-container">
                         <div class="time-display">
@@ -342,11 +519,103 @@ const RadioApp = {
                             <div class="progress-fill" id="progress-fill"></div>
                         </div>
                     </div>
+                    <div class="now-playing-row">
+                        <div class="track-info-overlay">
+                            <div class="cover-art-container">
+                                <img id="cover-art" src="/static/icons/radio.png" alt="Cover Art" class="cover-art">
+                            </div>
+                            <div class="track-info">
+                                <div class="track-title" id="track-title">Loading...</div>
+                                <a id="track-artist-link" href="https://duckduckgo.com/" target="_blank" rel="noopener"><div class="track-artist" id="track-artist">Loading...</div></a>
+                            </div>
+                        </div>
+                        <div class="audio-controls">
+                            <div class="volume-container">
+                                <input type="range" id="volume-slider" min="0" max="100" value="85"
+                                       oninput="RadioApp.setVolume(this.value / 100)">
+                            </div>
+                            <button class="control-btn mute-btn" id="mute-btn" data-tooltip="Mute" onclick="RadioApp.toggleMute()">
+                                <span class="mute-icon">🔊</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
         // Create audio element
         this.createAudioElement();
+        // Populate the station switcher buttons.
+        this.renderStationSwitcher();
+    },
+
+    // Build the segmented station toggle from STATIONS, highlighting the
+    // selected one. Re-run cheaply; switchStation just flips the .active class.
+    renderStationSwitcher: function() {
+        const el = document.getElementById('station-switcher');
+        if (!el) return;
+        el.innerHTML = this.STATIONS.map(s =>
+            `<button class="station-tab${s.code === this.currentStation ? ' active' : ''}"`
+            + ` data-station="${s.code}" onclick="RadioApp.switchStation('${s.code}')">${s.name}</button>`
+        ).join('');
+    },
+
+    updateStationUI: function() {
+        const el = document.getElementById('station-switcher');
+        if (!el) return;
+        el.querySelectorAll('.station-tab').forEach(b => {
+            b.classList.toggle('active', b.dataset.station === this.currentStation);
+        });
+    },
+
+    // Switch the playing station. Re-points the audio at the new mount and
+    // repaints track info from the cached payload (or shows "Loading..." until
+    // the next push for that station arrives). Persists the choice.
+    switchStation: function(code) {
+        if (code === this.currentStation) return;
+        if (!this.STATIONS.some(s => s.code === code)) return;
+        this.currentStation = code;
+        try { localStorage.setItem(this.STATION_KEY, code); } catch (e) {}
+        this.updateStationUI();
+        // Force applyStationData to re-point the audio even if the URL test
+        // would otherwise short-circuit.
+        this.currentStreamUrl = null;
+        const data = this.stationData[code];
+        if (data) {
+            this.applyStationData(data);
+            this.handleUserInteraction();
+        } else {
+            // No payload yet — keep the previous audio playing and show a
+            // placeholder; the next bus message for this station fills it in.
+            const t = document.getElementById('track-title');
+            const a = document.getElementById('track-artist');
+            if (t) t.textContent = 'Loading...';
+            if (a) a.textContent = 'Loading...';
+            this.handleUserInteraction();
+        }
+    },
+
+    // Apply a station's cached payload to the audio element + UI. Shared by the
+    // live message path (data just arrived) and switchStation (data may be a
+    // few seconds old — receivedAt keeps the progress bar honest).
+    applyStationData: function(data) {
+        if (!data) return;
+        if (data.streamUrl && this.currentStreamUrl !== data.streamUrl) {
+            this.currentStreamUrl = data.streamUrl;
+            this.audio.src = data.streamUrl;
+            // Always play; muting is volume 0, so the stream keeps feeding
+            // the visualiser even when silent.
+            this.playAudio();
+        }
+        if (data.track) {
+            this.updateTrackInfo(data.track);
+            if (data.track.elapsed !== undefined) {
+                // Anchor progress to when this payload was received so the
+                // 1s timer extrapolates correctly even for cached data.
+                this.lastElapsedUpdate = data.receivedAt || (Date.now() / 1000);
+                this.updateProgress(data.track.elapsed, data.track.duration);
+            }
+            this.startProgressTimer();
+        }
     },
 
     connectWebSocket: function() {
@@ -377,7 +646,12 @@ const RadioApp = {
             }
             
             if (!np) return;
-            
+
+            // Every station's "now playing" rides the one bus; route by the
+            // shortcode in the payload. Ignore stations we don't offer.
+            const code = np.station && np.station.shortcode;
+            if (!code || !this.STATIONS.some(s => s.code === code)) return;
+
             // Get stream URL from first mp3 mount
             let streamUrl = null;
             if (np.station && np.station.mounts) {
@@ -387,24 +661,12 @@ const RadioApp = {
                     //console.log('📻 Stream URL:', streamUrl);
                 }
             }
-            
-            if (streamUrl && this.currentStreamUrl !== streamUrl) {
-                this.currentStreamUrl = streamUrl;
-                this.audio.src = streamUrl;
-                // Always play; muting is volume 0, so the stream keeps feeding
-                // the visualiser even when silent.
-                this.playAudio();
-            }
-            
-            // Update now playing info
+
+            // Build the track record (if a song is present).
+            let track = null;
             const nowPlaying = np.now_playing;
             if (nowPlaying && nowPlaying.song) {
-                //console.log('📻 Current song:', nowPlaying.song);
-                
-                // Check if this is a new song
-                const isNewSong = !this.currentTrack || this.currentTrack.song_id !== nowPlaying.song.id;
-                
-                this.currentTrack = {
+                track = {
                     song_id: nowPlaying.song.id,
                     title: nowPlaying.song.title,
                     artist: nowPlaying.song.artist,
@@ -413,17 +675,14 @@ const RadioApp = {
                     elapsed: nowPlaying.elapsed,
                     is_playing: true
                 };
-                
-                this.updateTrackInfo(this.currentTrack);
-                
-                // Update progress immediately with the elapsed time from the message
-                if (this.currentTrack.elapsed !== undefined) {
-                    this.lastElapsedUpdate = Date.now() / 1000;
-                    this.updateProgress(this.currentTrack.elapsed, this.currentTrack.duration);
-                }
-                
-                // Start progress timer for smooth updates between WebSocket messages
-                this.startProgressTimer();
+            }
+
+            // Cache for this station so a later switch renders instantly.
+            this.stationData[code] = { streamUrl, track, receivedAt: Date.now() / 1000 };
+
+            // Only the selected station drives the audio + UI.
+            if (code === this.currentStation) {
+                this.applyStationData(this.stationData[code]);
             }
         } catch (error) {
             console.error('📻 Parse error:', error);
@@ -441,8 +700,17 @@ const RadioApp = {
             coverArt.src = '/static/icons/radio.png';
         }
         // Update title and artist
-        document.getElementById('track-title').textContent = trackData.title || 'Unknown Title';
-        document.getElementById('track-artist').textContent = trackData.artist || 'Unknown Artist';
+        const title = trackData.title || 'Unknown Title';
+        const artist = trackData.artist || 'Unknown Artist';
+        document.getElementById('track-title').textContent = title;
+        document.getElementById('track-artist').textContent = artist;
+        // Point the artist link at a DuckDuckGo search scoped to Bandcamp so it
+        // lands on the track/artist's page when it exists.
+        const artistLink = document.getElementById('track-artist-link');
+        if (artistLink) {
+            const query = `${title} (${artist}) site:bandcamp.com`;
+            artistLink.href = `https://duckduckgo.com/?q=${encodeURIComponent(query)}`;
+        }
         // Update total time display
         if (trackData.duration) {
             document.getElementById('total-time').textContent = this.formatTime(trackData.duration);
@@ -464,6 +732,7 @@ const RadioApp = {
             const muteIcon = muteBtn.querySelector('.mute-icon');
             if (muteIcon) muteIcon.textContent = icon;
             muteBtn.classList.toggle('muted', this.isMuted);
+            muteBtn.setAttribute('data-tooltip', this.isMuted ? 'Unmute' : 'Mute');
         }
         const taskbarMute = document.getElementById('taskbar-mute');
         if (taskbarMute) {
@@ -728,12 +997,15 @@ const RadioApp = {
         this.presetInterval = setInterval(() => {
             if (!this.visualizer || !this.presetNames || !this.presets) return;
             
-            // Select next random preset
-            const nextPresetIndex = Math.floor(Math.random() * this.presetNames.length);
-            
+            // Select next random preset (skipping blacklisted heavy ones)
+            const nextPresetIndex = this.pickRandomPresetIndex();
+
             // Load new preset with 5-second cross-fade
             this.visualizer.loadPreset(this.presets[this.presetNames[nextPresetIndex]], 5.0);
-            
+            // Re-arm adaptive quality: hold through the 5s crossfade, then let
+            // the (possibly lighter) new preset reclaim resolution.
+            this.onVizPresetChanged(5.0);
+
             // Update current preset index
             this.currentPresetIndex = nextPresetIndex;
         }, 25000); // 25 seconds
@@ -753,79 +1025,70 @@ const RadioApp = {
             this.setAsWallpaper();
         }
         this.winboxWindow.fullscreen(goFull);
-        const text = document.getElementById('visualizer-fullscreen-text');
-        if (text) text.textContent = goFull ? 'Exit full screen' : 'Full screen';
-        const menu = document.getElementById('visualizer-menu');
-        if (menu) menu.classList.remove('active');
+        const btn = document.getElementById('viz-fullscreen-btn');
+        if (btn) btn.setAttribute('data-tooltip', goFull ? 'Exit full screen' : 'Full screen');
         console.log(goFull ? '📻 Radio: Entered fullscreen' : '📻 Radio: Exited fullscreen');
-    },
-
-    toggleVisualizerMenu: function() {
-        const menu = document.getElementById('visualizer-menu');
-        if (menu) {
-            menu.classList.toggle('active');
-            console.log('📻 Visualizer: Menu toggled');
-        }
     },
 
     changeToRandomPreset: function() {
         if (this.visualizer && this.presetNames && this.presets) {
-            // Select next random preset
-            const nextPresetIndex = Math.floor(Math.random() * this.presetNames.length);
-            
+            // Select next random preset (skipping blacklisted heavy ones)
+            const nextPresetIndex = this.pickRandomPresetIndex();
+
             // Load new preset with 5-second cross-fade
             this.visualizer.loadPreset(this.presets[this.presetNames[nextPresetIndex]], 5.0);
-            
+            // Re-arm adaptive quality for the new (possibly lighter) preset.
+            this.onVizPresetChanged(5.0);
+
             // Update current preset index
             this.currentPresetIndex = nextPresetIndex;
-            
+
             console.log('📻 Visualizer: Changed to random preset:', this.presetNames[nextPresetIndex]);
         }
-        
-        // Close the menu
-        this.toggleVisualizerMenu();
     },
 
     toggleVisualizer: function() {
         const canvas = document.getElementById('visualizer-canvas');
-        const toggleText = document.getElementById('visualizer-toggle-text');
+        const btn = document.getElementById('viz-toggle-btn');
+        if (!canvas) return;
 
-        if (canvas && toggleText) {
-            if (canvas.style.display === 'none') {
-                // Enable visualizer
-                canvas.style.display = 'block';
-                toggleText.textContent = 'Disable Visualizer';
-                this.visualizerEnabled = true;
-                if (!this.visualizerFrame && this.renderFrame) {
-                    this.renderFrame();
-                }
-                this.startPresetCycling();
-                console.log('📻 Visualizer: Enabled');
-            } else {
-                // Disable visualizer
-                canvas.style.display = 'none';
-                toggleText.textContent = 'Enable Visualizer';
-                this.visualizerEnabled = false;
-                if (this.visualizerFrame) {
-                    cancelAnimationFrame(this.visualizerFrame);
-                    this.visualizerFrame = null;
-                }
-                if (this.presetInterval) {
-                    clearInterval(this.presetInterval);
-                    this.presetInterval = null;
-                }
-                console.log('📻 Visualizer: Disabled');
+        if (canvas.style.display === 'none') {
+            // Enable visualizer
+            canvas.style.display = 'block';
+            if (btn) {
+                btn.setAttribute('data-tooltip', 'Hide visual');
+                btn.classList.remove('viz-off');
             }
+            this.visualizerEnabled = true;
+            if (!this.visualizerFrame && this.renderFrame) {
+                this.renderFrame();
+            }
+            this.startPresetCycling();
+            console.log('📻 Visualizer: Enabled');
+        } else {
+            // Disable visualizer
+            canvas.style.display = 'none';
+            if (btn) {
+                btn.setAttribute('data-tooltip', 'Show visual');
+                btn.classList.add('viz-off');
+            }
+            this.visualizerEnabled = false;
+            if (this.visualizerFrame) {
+                cancelAnimationFrame(this.visualizerFrame);
+                this.visualizerFrame = null;
+            }
+            if (this.presetInterval) {
+                clearInterval(this.presetInterval);
+                this.presetInterval = null;
+            }
+            console.log('📻 Visualizer: Disabled');
         }
-
-        // Close the menu
-        this.toggleVisualizerMenu();
     },
 
     setAsWallpaper: function() {
         const canvas = document.getElementById('desktop-visualizer') || document.getElementById('visualizer-canvas');
         const radioApp = this.container.querySelector('.radio-app');
-        const wallpaperMenuText = document.getElementById('visualizer-wallpaper-text');
+        const wallpaperBtn = document.getElementById('viz-wallpaper-btn');
 
         // If the visualizer is already on the desktop, move it back to the radio window
         if (canvas && canvas.id === 'desktop-visualizer' && radioApp) {
@@ -843,23 +1106,24 @@ const RadioApp = {
             radioApp.insertBefore(canvas, radioApp.children[1]);
             // Resize for radio window
             const resizeRadio = () => {
-                canvas.width = canvas.clientWidth * window.devicePixelRatio;
-                canvas.height = canvas.clientHeight * window.devicePixelRatio;
+                const ratio = this.vizPixelRatio();
+                canvas.width = canvas.clientWidth * ratio;
+                canvas.height = canvas.clientHeight * ratio;
                 if (this.visualizer && this.visualizer.setRendererSize) {
                     this.visualizer.setRendererSize(canvas.width, canvas.height);
                 }
             };
             resizeRadio();
-            window.addEventListener('resize', resizeRadio);
-            if (wallpaperMenuText) wallpaperMenuText.textContent = 'Wallpaper';
+            this._setModeResize(resizeRadio);
+            if (wallpaperBtn) wallpaperBtn.setAttribute('data-tooltip', 'Set as wallpaper');
             console.log('📻 Visualizer: Restored to radio window');
         } else if (canvas) {
             // Going to wallpaper — the canvas is leaving the window, so a
             // fullscreen radio window would be empty. Exit fullscreen first.
             if (this.winboxWindow && this.winboxWindow.full) {
                 this.winboxWindow.fullscreen(false);
-                const ft = document.getElementById('visualizer-fullscreen-text');
-                if (ft) ft.textContent = 'Full screen';
+                const ft = document.getElementById('viz-fullscreen-btn');
+                if (ft) ft.setAttribute('data-tooltip', 'Full screen');
             }
             // Move the canvas to the body as a desktop wallpaper
             canvas.parentNode.removeChild(canvas);
@@ -875,76 +1139,26 @@ const RadioApp = {
             document.body.appendChild(canvas);
             // Resize the canvas to fill the screen
             const resizeWallpaper = () => {
-                canvas.width = window.innerWidth * window.devicePixelRatio;
-                canvas.height = window.innerHeight * window.devicePixelRatio;
+                const ratio = this.vizPixelRatio();
+                canvas.width = window.innerWidth * ratio;
+                canvas.height = window.innerHeight * ratio;
                 if (this.visualizer && this.visualizer.setRendererSize) {
                     this.visualizer.setRendererSize(canvas.width, canvas.height);
                 }
             };
             resizeWallpaper();
-            window.addEventListener('resize', resizeWallpaper);
-            if (wallpaperMenuText) wallpaperMenuText.textContent = 'Window';
+            this._setModeResize(resizeWallpaper);
+            if (wallpaperBtn) wallpaperBtn.setAttribute('data-tooltip', 'Back to window');
             console.log('📻 Visualizer: Moved to desktop wallpaper');
         }
-        this.toggleVisualizerMenu();
-        // Always remove .faded from .fade-controls when setting as wallpaper
+        // Always reveal the fading controls when setting as wallpaper.
         const fadeControls = document.querySelector('.fade-controls');
         if (fadeControls) fadeControls.classList.remove('faded');
+        const stationSwitcher = document.querySelector('.station-switcher');
+        if (stationSwitcher) stationSwitcher.classList.remove('faded');
+        const volumeContainer = document.querySelector('.volume-container');
+        if (volumeContainer) volumeContainer.classList.remove('faded');
         if (this.fadeControlsTimer) { clearTimeout(this.fadeControlsTimer); this.fadeControlsTimer = null; }
-    },
-
-    initDesktopVisualizer: function(canvas) {
-        // Create new audio context for desktop visualizer
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const audio = document.getElementById('radio-audio');
-        
-        if (!audio) {
-            console.error('📻 Desktop Visualizer: No audio element found');
-            return;
-        }
-        
-        // Create media source
-        const source = audioCtx.createMediaElementSource(audio);
-        source.connect(audioCtx.destination);
-        
-        // Set canvas size
-        canvas.width = window.innerWidth * window.devicePixelRatio;
-        canvas.height = window.innerHeight * window.devicePixelRatio;
-        
-        // Create visualizer
-        const api = window.butterchurn && window.butterchurn.default ? window.butterchurn.default : window.butterchurn;
-        if (!api || !api.createVisualizer) {
-            console.error('📻 Desktop Visualizer: Butterchurn API not available');
-            return;
-        }
-        
-        const visualizer = api.createVisualizer(audioCtx, canvas, {
-            width: canvas.width,
-            height: canvas.height,
-            pixelRatio: window.devicePixelRatio || 1
-        });
-        
-        // Load random preset
-        if (this.presets && this.presetNames) {
-            const presetIndex = Math.floor(Math.random() * this.presetNames.length);
-            visualizer.loadPreset(this.presets[this.presetNames[presetIndex]], 0.0);
-        }
-        
-        // Animate
-        const renderFrame = () => {
-            if (visualizer) visualizer.render();
-            requestAnimationFrame(renderFrame);
-        };
-        renderFrame();
-        
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth * window.devicePixelRatio;
-            canvas.height = window.innerHeight * window.devicePixelRatio;
-            visualizer.setRendererSize(canvas.width, canvas.height);
-        });
-        
-        console.log('📻 Desktop Visualizer: Initialized');
     },
 
     addStyles: function() {
@@ -982,19 +1196,43 @@ const RadioApp = {
                 z-index: 10;
                 display: flex;
                 flex-direction: column;
-                gap: 15px;
+                gap: 12px;
                 transition: background 0.5s;
             }
             .radio-controls-overlay.controls-faded {
                 background: none;
             }
             
-            .main-controls-row {
+            /* Station switcher sits as tabs at the top-center of the radio. It
+               floats above the visualizer and fades on idle like the controls. */
+            .station-bar {
+                position: absolute;
+                top: 12px;
+                left: 0;
+                right: 0;
+                display: flex;
+                justify-content: center;
+                z-index: 15;
+                pointer-events: none; /* only the pill itself is interactive */
+            }
+            .station-bar .station-switcher {
+                pointer-events: auto;
+            }
+
+            /* The persistent bottom line: now-playing info on the left, audio
+               controls (volume + mute) on the right. Stays put when the fading
+               controls above it disappear. */
+            .now-playing-row {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                gap: 20px;
+                gap: 12px;
                 min-width: 0;
+            }
+
+            /* Visual controls — their own right-aligned row above, fading on idle. */
+            .viz-controls {
+                justify-content: flex-end;
             }
             
             .track-info-overlay {
@@ -1048,13 +1286,13 @@ const RadioApp = {
                 text-overflow: ellipsis;
             }
             
-            .controls-overlay {
+            /* Audio controls (volume + mute), right-aligned, always visible. */
+            .audio-controls {
                 display: flex;
                 align-items: center;
-                
-                justify-content: center;
+                gap: 6px;
             }
-            
+
             .control-btn {
                 background: linear-gradient(45deg, rgba(0, 255, 255, 0.0), rgba(255, 107, 157, 0.0));
                 border: none;
@@ -1089,11 +1327,17 @@ const RadioApp = {
                 display: flex;
                 align-items: center;
                 gap: 8px;
-                min-width: 80px;
+                min-width: 60px;
+                transition: opacity 0.5s;
             }
-            
+            .volume-container.faded {
+                opacity: 0;
+                pointer-events: none;
+                display: none !important;
+            }
+
             .volume-container input[type="range"] {
-                width: 80px;
+                width: 60px;
                 height: 6px;
                 background: rgba(0, 255, 255, 0.3);
                 border-radius: 3px;
@@ -1151,59 +1395,65 @@ const RadioApp = {
                 text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
             }
             
-            .visualizer-menu {
-                position: absolute;
-                bottom: 100%;
-                right: 0;
-                background: rgba(0, 0, 0, 0.95);
-                backdrop-filter: blur(15px);
-                border: 2px solid #00ffff;
-                border-radius: 10px;
-                padding: 10px;
-                margin-bottom: 10px;
-                z-index: 20;
-                display: none;
-                min-width: 200px;
-                box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            /* Surfaced visualiser controls — compact so the four icons + volume
+               fit alongside the track info in the narrow radio window. */
+            .viz-btn {
+                min-width: 38px;
+                width: 38px;
+                height: 38px;
+                padding: 0;
+                font-size: 1em;
             }
-            
-            .visualizer-menu.active {
-                display: block;
+            .viz-btn.viz-off {
+                opacity: 0.5;
             }
-            
-            .menu-item {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                padding: 12px;
-                cursor: pointer;
-                border-radius: 6px;
-                transition: all 0.3s ease;
-                color: #00ffff;
+
+            /* Station switcher: a segmented pill that lives with the track info
+               (so it stays visible while the action controls fade on idle). */
+            .station-switcher {
+                display: inline-flex;
+                flex-shrink: 0;
+                border: 1px solid rgba(0, 255, 255, 0.4);
+                border-radius: 999px;
+                overflow: hidden;
+                background: rgba(0, 0, 0, 0.35);
+                backdrop-filter: blur(8px);
+                max-width: 100%;
+                transition: opacity 0.5s;
+            }
+            .station-switcher.faded {
+                opacity: 0;
+                pointer-events: none;
+            }
+            .station-tab {
+                border: none;
+                background: transparent;
+                color: rgba(0, 255, 255, 0.55);
                 font-family: 'Orbitron', sans-serif;
-                font-size: 0.9em;
+                font-size: 0.7em;
+                letter-spacing: 0.04em;
+                text-transform: uppercase;
+                padding: 4px 12px;
+                cursor: pointer;
+                white-space: nowrap;
+                transition: all 0.25s ease;
             }
-            
-            .menu-item:hover {
-                background: rgba(0, 255, 255, 0.1);
-                transform: translateX(5px);
+            .station-tab:hover {
+                color: #00ffff;
+                background: rgba(0, 255, 255, 0.12);
             }
-            
-            .menu-icon {
-                font-size: 1.2em;
-                width: 20px;
-                text-align: center;
-            }
-            
-            .menu-text {
-                flex: 1;
+            .station-tab.active {
+                color: #0a0a14;
+                background: linear-gradient(90deg, #00ffff, #ff6b9d);
+                text-shadow: none;
+                font-weight: bold;
             }
 
             .fade-controls {
                 display: flex;
                 flex-direction: row;
                 align-items: center;
-                gap: 8px;
+                gap: 6px;
                 transition: opacity 0.5s;
             }
             .fade-controls.faded {
@@ -1240,16 +1490,25 @@ const RadioApp = {
         if (this.visualizer) {
             this.visualizer = null;
         }
-        if (this.audioCtx) {
-            this.audioCtx = null;
-        }
+        // Disconnect the media source, then close the context. Previously the
+        // AudioContext was only nulled, leaking a live context every close —
+        // browsers cap these at ~6, so repeated open/close would eventually fail.
         if (this.source) {
+            try { this.source.disconnect(); } catch (e) {}
             this.source = null;
+        }
+        if (this.audioCtx) {
+            try { this.audioCtx.close(); } catch (e) {}
+            this.audioCtx = null;
         }
         if (this.resizeObserver) {
             this.resizeObserver.disconnect();
             this.resizeObserver = null;
         }
+        // Remove the window/document listeners + mode-resize handler the
+        // visualizer attached, so they don't pile up across open/close cycles.
+        this._removeGlobalListeners();
+        this._setModeResize(null);
         
         // Reset visualizer state
         this.currentPresetIndex = null;
@@ -1258,6 +1517,7 @@ const RadioApp = {
         
         this.currentTrack = null;
         this.currentStreamUrl = null;
+        this.stationData = {};
 
         // Stop any pending stream reconnect / stall watchdog
         if (this.reconnectTimer) {

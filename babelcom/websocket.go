@@ -25,7 +25,11 @@ type Server struct {
 	broadcastConnections map[*Connection]bool
 	llmConnections       map[*Connection]bool
 	upstreamRadioConn    *websocket.Conn
-	lastRadioMessage     []byte
+	// Last "now playing" payload per station shortcode (e.g. "night",
+	// "psytrance"). We subscribe to several stations at once and replay the
+	// latest of each to a freshly-connecting client so its station switcher is
+	// populated immediately, not after the next upstream push.
+	lastRadioMessages map[string][]byte
 	mu                   sync.RWMutex
 	upgrader             websocket.Upgrader
 	apiKey               string
@@ -58,6 +62,7 @@ func NewServer() *Server {
 		broadcastConnections: make(map[*Connection]bool),
 		llmConnections:       make(map[*Connection]bool),
 		apiKey:               apiKey,
+		lastRadioMessages:    make(map[string][]byte),
 		upgrader: websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
 				return true // Allow all origins for development
@@ -136,12 +141,16 @@ func (s *Server) handleBroadcastWebSocket(c *gin.Context) {
 		connection.mu.Unlock()
 	}
 
-	// Cached upstream-radio "now playing" wrapped as {type:"radio", payload:...}
-	// so it rides the same connection as everything else.
+	// Cached upstream-radio "now playing" per station, each wrapped as
+	// {type:"radio", payload:...} so it rides the same connection as everything
+	// else. One message per station the client could switch to.
 	s.mu.RLock()
-	lastRadio := s.lastRadioMessage
+	cachedRadio := make([][]byte, 0, len(s.lastRadioMessages))
+	for _, msg := range s.lastRadioMessages {
+		cachedRadio = append(cachedRadio, msg)
+	}
 	s.mu.RUnlock()
-	if lastRadio != nil {
+	for _, lastRadio := range cachedRadio {
 		wrapped := map[string]interface{}{
 			"type":    "radio",
 			"payload": json.RawMessage(lastRadio),
@@ -279,6 +288,27 @@ func extractCurrentTitle(msg map[string]interface{}) string {
 	return title
 }
 
+// radioStationShortcode pulls the AzuraCast station shortcode (e.g. "night",
+// "psytrance") out of an upstream "now playing" payload, or "" if the message
+// isn't a station update (the upstream also sends connect/keepalive frames).
+func radioStationShortcode(message []byte) string {
+	var probe struct {
+		Pub struct {
+			Data struct {
+				Np struct {
+					Station struct {
+						Shortcode string `json:"shortcode"`
+					} `json:"station"`
+				} `json:"np"`
+			} `json:"data"`
+		} `json:"pub"`
+	}
+	if err := json.Unmarshal(message, &probe); err != nil {
+		return ""
+	}
+	return probe.Pub.Data.Np.Station.Shortcode
+}
+
 // Connect to upstream radio WebSocket
 func (s *Server) connectUpstreamRadio(upstreamURL string) error {
 	if s.upstreamRadioConn != nil {
@@ -293,8 +323,11 @@ func (s *Server) connectUpstreamRadio(upstreamURL string) error {
 	s.upstreamRadioConn = conn
 	log.Printf("Connected to upstream radio WebSocket: %s", upstreamURL)
 
-	// Send subscription message
-	subscriptionMsg := `{"subs":{"station:night":{"recover":true}}}`
+	// Send subscription message. We subscribe to every station the desktop's
+	// radio switcher offers; each station's "now playing" arrives on its own
+	// channel and is rebroadcast verbatim (the frontend routes by the
+	// shortcode carried in the payload). "night" is the Vaporwave station.
+	subscriptionMsg := `{"subs":{"station:night":{"recover":true},"station:psytrance":{"recover":true}}}`
 	err = conn.WriteMessage(websocket.TextMessage, []byte(subscriptionMsg))
 	if err != nil {
 		log.Printf("Failed to send subscription message: %v", err)
@@ -312,12 +345,17 @@ func (s *Server) connectUpstreamRadio(upstreamURL string) error {
 				break
 			}
 
-			// Store the last message
-			s.mu.Lock()
+			// Cache the last message per station so a new client can be
+			// seeded for whichever station it switches to. The station
+			// shortcode lives in the payload; messages without one (e.g.
+			// keepalives) are still rebroadcast but not cached.
 			if len(message) > 4 {
-				s.lastRadioMessage = message
+				if code := radioStationShortcode(message); code != "" {
+					s.mu.Lock()
+					s.lastRadioMessages[code] = message
+					s.mu.Unlock()
+				}
 			}
-			s.mu.Unlock()
 
 			// Rebroadcast to all radio clients
 			s.broadcastRadio(message)

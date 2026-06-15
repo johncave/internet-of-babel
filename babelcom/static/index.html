@@ -21,11 +21,15 @@
 
     <div class="desktop">
         <!-- Desktop Background. Swap which of these is uncommented to switch
-             between stills and looping videos. -->
+             between stills, animated GIF, and looping videos. Now that the
+             window backdrop-filter blur is gone, the looping video no longer
+             forces a per-frame full-window blur recompute; the only blur left
+             over it is the thin taskbar strip (negligible). -->
         <video class="desktop-background-video" autoplay muted loop playsinline>
             <source src="/static/wallpaper/353633_medium.mp4" type="video/mp4">
         </video>
         <!--
+        <img class="desktop-background-video" src="/static/wallpaper/wallpaper.gif" alt="">
         <video class="desktop-background-video" autoplay muted loop playsinline>
             <source src="/static/wallpaper.mp4" type="video/mp4">
         </video>

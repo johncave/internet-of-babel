@@ -335,7 +335,11 @@ body {
     height: 8px;
     background: #00ff00;
     border-radius: 50%;
-    animation: pulse 2s infinite;
+    /* NO infinite animation here. In Firefox/WebRender any continuously-running
+       CSS animation forces a full-window recomposite every frame — even this
+       8px dot pegged the GPU process at ~50%. A static glow gives the same
+       "online/alive" feel for free (painted once, never recomposited). */
+    box-shadow: 0 0 6px rgba(0, 255, 0, 0.9);
 }
 
 @keyframes pulse {
@@ -487,22 +491,32 @@ img.icon {
     pointer-events: none;
 }
 
-/* WinBox Customization — Aero glass on the window chrome only. The app
-   bodies keep their own (mostly opaque) backgrounds, so the blur is only
-   really visible through the titlebar strip + the rounded corners. */
+/* WinBox Customization — Aero glass on the window chrome. The blur is only
+   really visible through the titlebar strip + rounded corners (app bodies are
+   mostly opaque). Note: a backdrop-filter is recomputed over the window's whole
+   footprint every frame while the backdrop animates (the visualizer wallpaper),
+   regardless of opaque content hiding it — so windows that gain nothing visible
+   from it should opt out (see the Writer exception below). */
 .winbox {
     background: rgba(255, 255, 255, 0) !important;
-    backdrop-filter: blur(2px) saturate(150%) !important;
-    -webkit-backdrop-filter: blur(2px) saturate(150%) !important;
+    backdrop-filter: blur(2px) saturate(150%);
+    -webkit-backdrop-filter: blur(2px) saturate(150%);
     border: 1px solid rgba(255, 255, 255, 0.40) !important;
     border-radius: 8px !important;
     box-shadow:
-        0 14px 40px rgba(0, 0, 0, 0.38),
-        0 0 32px rgba(170, 220, 255, 0.28),
-        inset 0 1px 0 rgba(255, 255, 255, 0.50),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.06) !important;
+        0 14px 40px rgba(0, 0, 0, 0.55),
+        0 0 32px rgba(170, 220, 255, 0.42),
+        inset 0 1px 0 rgba(255, 255, 255, 0.60),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.12) !important;
     pointer-events: auto !important;
     animation: winboxOpen 0.33s ease-out;
+}
+
+/* The Writer is fully opaque, so the blur is invisible behind it — pure cost,
+   no benefit. Opt it out (border + box-shadow still define its edge). */
+.winbox.winbox-app-writer {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
 }
 
 /* Fade in while sliding down into place when a window opens. WinBox uses CSS
@@ -571,7 +585,9 @@ img.icon {
 .app-window {
     height: 100%;
     overflow-y: auto;
-    border-radius: 15px;
+    /* Only the bottom corners round — the top meets the flat underside of
+       the titlebar, so any radius there would create a visible mismatch. */
+    border-radius: 0 0 8px 8px;
 }
 
 .app-window h1 {
@@ -793,6 +809,9 @@ img.icon {
     display: flex;
     align-items: center;
     justify-content: center;
+    /* Scroll rather than clip if the questions outgrow a short viewport. */
+    overflow-y: auto;
+    padding: 24px 0;
     font-family: 'Share Tech Mono', monospace;
     color: #00ffff;
     transition: opacity 0.5s ease;
@@ -1017,4 +1036,41 @@ img.icon {
     );
     pointer-events: none;
     z-index: 2;
+}
+
+/* ---------------------------------------------------------------------------
+   Global tooltip — opt in by putting data-tooltip="..." on any element. Shows a
+   themed pill above the element on hover. Preferred over the native title=
+   attribute (which is slow to appear and can't be styled). An empty/absent
+   value renders nothing, so toggling the attribute off hides the tooltip.
+   --------------------------------------------------------------------------- */
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]:not([data-tooltip=""])::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: rgba(0, 0, 0, 0.92);
+    color: #00ffff;
+    border: 1px solid #00ffff;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    line-height: 1;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    box-shadow: 0 0 12px rgba(0, 255, 255, 0.4);
+    z-index: 10000;
+}
+
+[data-tooltip]:not([data-tooltip=""]):hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
 }
