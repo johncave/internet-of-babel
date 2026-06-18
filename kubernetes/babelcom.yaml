@@ -47,6 +47,23 @@ spec:
             secretKeyRef:
               name: babelcom-api-key
               key: api-key
+        # Backend Clippy runs on OpenRouter in prod (no Ollama in-cluster).
+        # If the key below is empty, Clippy simply disables itself.
+        - name: CLIPPY_BACKEND
+          value: "openrouter"
+        - name: OPENROUTER_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: babelcom-api-key
+              key: openrouter-api-key
+        # Attribution header for the OpenRouter dashboard (optional, cosmetic).
+        - name: OPENROUTER_REFERER
+          value: "https://babelcom.johncave.co.nz"
+        # Defaults are fine; uncomment to tune.
+        # - name: CLIPPY_MODEL
+        #   value: "ibm-granite/granite-4.1-8b"
+        # - name: CLIPPY_TRIGGER_PERCENT
+        #   value: "30"
         resources:
           requests:
             memory: "512Mi"

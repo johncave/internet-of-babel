@@ -72,9 +72,9 @@ The backend dials an external AzuraCast WebSocket (`BABELCOM_UPSTREAM_RADIO_URL`
 - Watches tokens as they're appended to the article. On each **new sentence boundary** (regex `[.!?](\s|$)`), it rolls a die: with probability `CLIPPY_TRIGGER_PERCENT` (default 30) it fires.
 - At most **one Clippy turn in flight at a time** (atomic guard).
 - 10% of fired turns are a cheap **existential poke** (`clippy_existential`, no LLM — picks a random phrase from the article); the other 90% call the model.
-- The LLM call goes to **Ollama** (`CLIPPY_MODEL`, default `granite4.1:8b`) with a deliberately absurd system prompt (existential, useless, non-sequitur — *never* real writing advice), `temperature: 1.4`, JSON-forced output `{highlight, comment}`. There's a tolerant fallback parser for when the model returns the wrong shape.
+- The LLM call goes through a pluggable **backend** ([clippy_backends.go](clippy_backends.go)), selected by `CLIPPY_BACKEND`: **Ollama** (local, dev default) or **OpenRouter** (hosted, prod — OpenAI-compatible HTTP). Both send the same deliberately absurd system prompt (existential, useless, non-sequitur — *never* real writing advice) with `temperature: 1.4`, `top_p: 0.95`, capped output, and JSON-forced output `{highlight, comment}`. There's a tolerant fallback parser for when the model returns the wrong shape.
 - Successful comments are persisted by **POSTing to librarian's `/api/clippy-comment`** (`BABELCOM_LIBRARIAN_URL` + `LIBRARIAN_API_KEY`) — babelcom no longer shares the article volume or imports the librarian package. The payload includes the quote's character offset within the article snapshot so the comment can be anchored precisely later. Best-effort; failures (incl. no librarian configured) are logged and dropped.
-- If Ollama is unreachable at startup, `NewClippy` returns `nil` and Clippy is simply disabled — everything else still runs.
+- If the selected backend can't initialize at startup (Ollama unreachable, or `OPENROUTER_API_KEY` unset), `NewClippy` returns `nil` and Clippy is simply disabled — everything else still runs.
 
 ---
 
@@ -153,9 +153,13 @@ go build -o babelcorp ./cmd/babelcorp
 | `BABELCOM_USE_DISK_STATIC` | unset | `true` → serve `static/` from disk instead of the embed. |
 | `BABELCOM_STATIC_PATH` | `./static` | Disk dir to serve when disk mode is on. |
 | `BABELCOM_UPSTREAM_RADIO_URL` | `wss://radio.johncave.co.nz/...` | Upstream AzuraCast "now playing" WebSocket. |
-| `CLIPPY_MODEL` | `granite4.1:8b` | Ollama model for backend Clippy. |
+| `CLIPPY_BACKEND` | `ollama` | LLM transport for backend Clippy: `ollama` (local, dev default) or `openrouter` (hosted, prod). |
+| `CLIPPY_MODEL` | backend-specific | Model override. Defaults to `granite4.1:8b` (Ollama) / `ibm-granite/granite-4.1-8b` (OpenRouter). |
 | `CLIPPY_TRIGGER_PERCENT` | `30` | Probability (0–100) Clippy fires per new sentence. |
-| Ollama env (`OLLAMA_HOST`, …) | — | Standard Ollama client env. If Ollama is unreachable, Clippy disables itself. |
+| `OPENROUTER_API_KEY` | — | Required when `CLIPPY_BACKEND=openrouter`. If unset, Clippy disables itself. |
+| `OPENROUTER_BASE_URL` | `https://openrouter.ai/api/v1` | OpenRouter API base (override for proxies/testing). |
+| `OPENROUTER_REFERER` | — | Optional `HTTP-Referer` header for OpenRouter dashboard attribution. |
+| Ollama env (`OLLAMA_HOST`, …) | — | Standard Ollama client env (used when `CLIPPY_BACKEND=ollama`). If Ollama is unreachable, Clippy disables itself. |
 
 ---
 

@@ -14,9 +14,17 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-
-	"github.com/ollama/ollama/api"
 )
+
+// clippyBackend is the LLM transport behind Clippy. Chat takes the system and
+// user prompts and returns the model's raw reply (parseClippyReply handles the
+// shape). Two implementations exist: ollamaBackend (local, dev default) and
+// openRouterBackend (hosted, prod). Selection happens in newClippyBackend.
+type clippyBackend interface {
+	Chat(ctx context.Context, system, user string) (string, error)
+	// describe returns a short "name model=..." string for startup logging.
+	describe() string
+}
 
 // Clippy watches article tokens flowing through babelcom and, at sentence
 // boundaries, occasionally fires an LLM call asking Clippy to react to the
@@ -24,8 +32,7 @@ import (
 // message: {"type":"clippy_comment","quote":"...","comment":"..."}.
 type Clippy struct {
 	server         *Server
-	client         *api.Client
-	model          string
+	backend        clippyBackend
 	sentenceRegex  *regexp.Regexp
 	lastSentences  int
 	mu             sync.Mutex
@@ -34,15 +41,10 @@ type Clippy struct {
 }
 
 func NewClippy(server *Server) *Clippy {
-	client, err := api.ClientFromEnvironment()
+	backend, err := newClippyBackend()
 	if err != nil {
-		log.Printf("Clippy: ollama client unavailable, disabled: %v", err)
+		log.Printf("Clippy: backend unavailable, disabled: %v", err)
 		return nil
-	}
-
-	model := os.Getenv("CLIPPY_MODEL")
-	if model == "" {
-		model = "granite4.1:8b"
 	}
 
 	trigger := 30
@@ -53,15 +55,26 @@ func NewClippy(server *Server) *Clippy {
 		}
 	}
 
-	log.Printf("Clippy: enabled, model=%s, trigger=%d%%", model, trigger)
+	log.Printf("Clippy: enabled, backend=%s, trigger=%d%%", backend.describe(), trigger)
 
 	return &Clippy{
 		server:         server,
-		client:         client,
-		model:          model,
+		backend:        backend,
 		sentenceRegex:  regexp.MustCompile(`[.!?](\s|$)`),
 		triggerPercent: trigger,
 	}
+}
+
+// newClippyBackend selects and constructs the LLM transport. CLIPPY_BACKEND
+// picks the path: "openrouter" for the hosted API (prod); anything else —
+// including unset — defaults to Ollama (dev), so a developer needs to set
+// nothing. Either path returns an error if it can't initialize, which leaves
+// Clippy disabled without taking the rest of Babelcom down.
+func newClippyBackend() (clippyBackend, error) {
+	if strings.EqualFold(os.Getenv("CLIPPY_BACKEND"), "openrouter") {
+		return newOpenRouterBackend()
+	}
+	return newOllamaBackend()
 }
 
 func jsonNumber(s string, out *int) (int, error) {
@@ -152,38 +165,19 @@ func (c *Clippy) OnReset() {
 
 func (c *Clippy) runOne(article string) {
 	prompt := buildClippyPrompt(article)
-	req := &api.ChatRequest{
-		Model: c.model,
-		Messages: []api.Message{
-			{Role: "system", Content: prompt.system},
-			{Role: "user", Content: prompt.user},
-		},
-		Stream: boolPtr(false),
-		// Force valid JSON output. The model still has to fill in the right
-		// fields, but Ollama guarantees the response is syntactically JSON.
-		Format: json.RawMessage(`"json"`),
-		Options: map[string]interface{}{
-			// High temperature so Clippy strays from "helpful writing advice"
-			// into proper non-sequiturs. Pushing past 1.0 gets surprising.
-			"temperature": 1.4,
-			"top_p":       0.95,
-		},
-	}
 
-	var out strings.Builder
-	respFn := func(resp api.ChatResponse) error {
-		out.WriteString(resp.Message.Content)
-		return nil
-	}
-	log.Printf("Clippy: starting LLM call (model=%s, prompt=%d chars)", c.model, len(prompt.user))
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	log.Printf("Clippy: starting LLM call (backend=%s, prompt=%d chars)", c.backend.describe(), len(prompt.user))
 	start := time.Now()
-	if err := c.client.Chat(context.Background(), req, respFn); err != nil {
+	raw, err := c.backend.Chat(ctx, prompt.system, prompt.user)
+	if err != nil {
 		log.Printf("Clippy: chat error after %s: %v", time.Since(start), err)
 		return
 	}
 	log.Printf("Clippy: LLM call took %s", time.Since(start))
 
-	raw := out.String()
 	log.Printf("Clippy: raw reply:\n%s", raw)
 
 	quote, comment := parseClippyReply(raw)
@@ -369,5 +363,3 @@ var htmlTagRegex = regexp.MustCompile(`<[^>]+>`)
 func stripHTML(s string) string {
 	return htmlTagRegex.ReplaceAllString(s, "")
 }
-
-func boolPtr(b bool) *bool { return &b }
