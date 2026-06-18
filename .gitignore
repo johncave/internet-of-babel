@@ -12,5 +12,10 @@ worker/queue.txt
 # Local backup of original (pre-WebP) wallpapers — never ship/embed these
 babelcom/wallpapers-original/
 
+# Compiled binaries (build artifacts — built in CI / Docker, never committed)
+/babelcorp
+/babelcom/babelcom
+/librarian/librarian
+
 queue.txt
 process.log

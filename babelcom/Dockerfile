@@ -13,12 +13,14 @@ COPY ./go.mod ./go.sum ./
 # Download dependencies
 RUN go mod download
 
-# Copy source code
+# Copy source code (cmd/babelcom is the standalone entrypoint; babelcom is the
+# package it mounts — no librarian dependency, so it isn't copied).
 COPY ./babelcom ./babelcom
+COPY ./cmd ./cmd
 
-# Build the application
-
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o babelcom ./babelcom
+# Build the application. Output to /server so it doesn't collide with the
+# ./babelcom source directory.
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /server ./cmd/babelcom
 
 # Final stage
 FROM alpine:latest
@@ -34,7 +36,7 @@ RUN addgroup -g 1001 -S appgroup && \
 WORKDIR /app
 
 # Copy the binary from builder stage
-COPY --from=builder /app/babelcom .
+COPY --from=builder /server ./babelcom
 
 # Change ownership to non-root user
 RUN chown -R appuser:appgroup /app

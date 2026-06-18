@@ -5,10 +5,16 @@ on:
     branches: [ main ]
     paths:
       - 'babelcom/**'
+      - 'cmd/babelcom/**'
+      - 'go.mod'
+      - 'go.sum'
   pull_request:
     branches: [ main ]
     paths:
       - 'babelcom/**'
+      - 'cmd/babelcom/**'
+      - 'go.mod'
+      - 'go.sum'
 
 jobs:
   build:

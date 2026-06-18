@@ -13,11 +13,14 @@ COPY ./go.mod ./go.sum ./
 # Download dependencies
 RUN go mod download
 
-# Copy source code
+# Copy source code (cmd/librarian is the standalone entrypoint; librarian is the
+# package it mounts).
 COPY ./librarian ./librarian
+COPY ./cmd ./cmd
 
-# Build the application
-RUN cd librarian && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o ../librarian .
+# Build the application. Output to /server so it doesn't collide with the
+# ./librarian source directory.
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /server ./cmd/librarian
 
 # Final stage
 FROM alpine:latest
@@ -33,7 +36,7 @@ RUN addgroup -g 1001 -S appgroup && \
 WORKDIR /app
 
 # Copy the binary from builder stage
-COPY --from=builder /app/librarian .
+COPY --from=builder /server ./librarian
 
 # Copy hand-written wiki content (read from disk at runtime)
 COPY ./librarian/wiki ./wiki

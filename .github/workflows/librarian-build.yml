@@ -5,10 +5,16 @@ on:
     branches: [ main ]
     paths:
       - 'librarian/**'
+      - 'cmd/librarian/**'
+      - 'go.mod'
+      - 'go.sum'
   pull_request:
     branches: [ main ]
     paths:
       - 'librarian/**'
+      - 'cmd/librarian/**'
+      - 'go.mod'
+      - 'go.sum'
 
 jobs:
   build:

@@ -222,12 +222,49 @@ type ClippyComment struct {
 	Quote     string `json:"quote"`
 	Comment   string `json:"comment"`
 	Timestamp string `json:"timestamp"`
+	// Offset is the character index of Quote within the article snapshot at the
+	// moment Clippy reacted, so the rendered article can anchor the comment
+	// precisely instead of fuzzy text-searching. -1 if the quote wasn't an exact
+	// substring (paraphrase / punctuation-stripped phrase); fall back to search.
+	Offset int `json:"offset"`
 }
 
 // clippyCommentsDir returns the directory comments are appended into. Co-located
 // with articles so a finished article and its Clippy chatter ship together.
 func clippyCommentsDir() string {
 	return filepath.Join(articlesDir, "clippy")
+}
+
+// clippyCommentHandler is the HTTP front door for SaveClippyComment, used by the
+// now-separate babelcom service to persist Clippy reactions. Same API-key auth as
+// uploads; the slug/lock/append work is all SaveClippyComment's.
+func clippyCommentHandler(c *gin.Context) {
+	providedKey := c.GetHeader("X-API-Key")
+	if providedKey == "" {
+		providedKey = c.Query("api_key")
+	}
+	if providedKey != apiKey {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid API key"})
+		return
+	}
+
+	var req struct {
+		Title     string `json:"title"`
+		Quote     string `json:"quote"`
+		Comment   string `json:"comment"`
+		Timestamp string `json:"timestamp"`
+		Offset    int    `json:"offset"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON format"})
+		return
+	}
+
+	if err := SaveClippyComment(req.Title, req.Quote, req.Comment, req.Timestamp, req.Offset); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "saved"})
 }
 
 // SaveClippyComment appends one Clippy reaction to the article's comment file.
@@ -237,7 +274,7 @@ func clippyCommentsDir() string {
 //
 // Returns an error for bad inputs or disk failures; callers typically log and
 // move on (a missed Clippy comment is not worth surfacing to the user).
-func SaveClippyComment(title, quote, comment, timestamp string) error {
+func SaveClippyComment(title, quote, comment, timestamp string, offset int) error {
 	if strings.TrimSpace(title) == "" || strings.TrimSpace(comment) == "" {
 		return fmt.Errorf("title and comment are required")
 	}
@@ -251,7 +288,7 @@ func SaveClippyComment(title, quote, comment, timestamp string) error {
 		return fmt.Errorf("create clippy dir: %w", err)
 	}
 
-	entry := ClippyComment{Quote: quote, Comment: comment, Timestamp: timestamp}
+	entry := ClippyComment{Quote: quote, Comment: comment, Timestamp: timestamp, Offset: offset}
 	if entry.Timestamp == "" {
 		entry.Timestamp = time.Now().UTC().Format(time.RFC3339)
 	}

@@ -38,6 +38,15 @@ spec:
             secretKeyRef:
               name: babelcom-api-key
               key: api-key
+        # Clippy persists comments by POSTing to the librarian service; reuses
+        # the shared babelcom-api-key (librarian validates against the same key).
+        - name: BABELCOM_LIBRARIAN_URL
+          value: "http://librarian-service"
+        - name: LIBRARIAN_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: babelcom-api-key
+              key: api-key
         resources:
           requests:
             memory: "512Mi"

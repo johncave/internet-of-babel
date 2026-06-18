@@ -5,7 +5,10 @@ tmp_dir = "tmp"
   cmd = "go build -o ./tmp/babelcorp ./cmd/babelcorp"
   # full_bin runs the binary with the env vars it needs in dev.
   # Paths are relative to the repo root (where you run `air` from).
-  full_bin = "ARTICLES_DIR=./worker/articles WIKI_DIR=./librarian/wiki PORT=18080 ./tmp/babelcorp"
+  # BABELCOM_LIBRARIAN_URL points Clippy's comment POST back at this same merged
+  # process (bare localhost dispatches to the wiki/librarian engine), so dev
+  # persistence works without a separate librarian.
+  full_bin = "ARTICLES_DIR=./worker/articles WIKI_DIR=./librarian/wiki PORT=18080 BABELCOM_LIBRARIAN_URL=http://localhost:18080 ./tmp/babelcorp"
   # Embedded templates/static require a Go rebuild to pick up changes.
   include_ext = ["go", "html", "css", "js", "md"]
   include_dir = ["librarian", "babelcom", "cmd"]

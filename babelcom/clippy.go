@@ -1,10 +1,13 @@
 package babelcom
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"io"
 	"log"
 	"math/rand"
+	"net/http"
 	"os"
 	"regexp"
 	"strings"
@@ -13,8 +16,6 @@ import (
 	"time"
 
 	"github.com/ollama/ollama/api"
-
-	"internet-of-babel/librarian"
 )
 
 // Clippy watches article tokens flowing through babelcom and, at sentence
@@ -204,22 +205,73 @@ func (c *Clippy) runOne(article string) {
 	}
 	c.server.broadcast(data)
 
-	c.saveComment(quote, comment)
+	// Offset of the quote within the article snapshot Clippy reacted to, so the
+	// persisted comment can anchor precisely. -1 when the quote isn't an exact
+	// substring (the model paraphrased, or it's a punctuation-stripped phrase).
+	offset := strings.Index(article, quote)
+	c.saveComment(quote, comment, offset)
 }
 
-// saveComment persists one Clippy reaction beside the current article via the
-// librarian package (same process — no HTTP). Best-effort: an empty title or a
-// disk error is logged and dropped; the UI side keeps working regardless.
-func (c *Clippy) saveComment(quote, comment string) {
+// clippySaveClient is the shared HTTP client for persisting Clippy comments to
+// the (now separate) librarian service. Bounded timeout: a slow librarian must
+// never wedge a Clippy goroutine.
+var clippySaveClient = &http.Client{Timeout: 10 * time.Second}
+
+// saveComment persists one Clippy reaction beside the current article by POSTing
+// it to librarian's /api/clippy-comment endpoint (librarian owns the article
+// volume; babelcom no longer shares it). Best-effort: a missing title, no
+// configured librarian, or an HTTP error is logged and dropped — the UI side
+// keeps working regardless.
+func (c *Clippy) saveComment(quote, comment string, offset int) {
 	title := c.server.CurrentTitle()
 	if title == "" {
 		log.Printf("Clippy: skipping save, no current_title yet")
 		return
 	}
-	timestamp := time.Now().UTC().Format(time.RFC3339)
+
+	base := os.Getenv("BABELCOM_LIBRARIAN_URL")
+	if base == "" {
+		log.Printf("Clippy: BABELCOM_LIBRARIAN_URL unset, not persisting comment")
+		return
+	}
+
+	payload, err := json.Marshal(struct {
+		Title     string `json:"title"`
+		Quote     string `json:"quote"`
+		Comment   string `json:"comment"`
+		Timestamp string `json:"timestamp"`
+		Offset    int    `json:"offset"`
+	}{
+		Title:     title,
+		Quote:     quote,
+		Comment:   comment,
+		Timestamp: time.Now().UTC().Format(time.RFC3339),
+		Offset:    offset,
+	})
+	if err != nil {
+		log.Printf("Clippy: marshal save payload: %v", err)
+		return
+	}
+
 	go func() {
-		if err := librarian.SaveClippyComment(title, quote, comment, timestamp); err != nil {
-			log.Printf("Clippy: save error: %v", err)
+		url := strings.TrimRight(base, "/") + "/api/clippy-comment"
+		req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(payload))
+		if err != nil {
+			log.Printf("Clippy: build save request: %v", err)
+			return
+		}
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("X-API-Key", os.Getenv("LIBRARIAN_API_KEY"))
+
+		resp, err := clippySaveClient.Do(req)
+		if err != nil {
+			log.Printf("Clippy: save POST failed: %v", err)
+			return
+		}
+		defer resp.Body.Close()
+		_, _ = io.Copy(io.Discard, resp.Body)
+		if resp.StatusCode != http.StatusOK {
+			log.Printf("Clippy: save rejected: %s", resp.Status)
 			return
 		}
 		log.Printf("Clippy: saved comment for %q", title)
