@@ -66,6 +66,22 @@ body {
     z-index: -2;
 }
 
+/* Crossfading layers for the server-coordinated mood wallpaper. Each mood
+   change appends a new layer (an <img> or looping <video>) on top and fades it
+   in while the old one fades out, so wallpapers drift rather than cut. Sits at
+   the same depth as the static background. */
+.wallpaper-layer {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+    opacity: 1;
+    transition: opacity 1.4s ease;
+    pointer-events: none;
+}
+
 .desktop-background-overlay {
     position: absolute;
     top: 0;
@@ -901,6 +917,13 @@ img.icon {
     display: block;
 }
 
+/* Square icon previews (radio stations): fit to the box height and keep their
+   aspect ratio instead of cropping to the rectangle's width. */
+.setup-card-preview.icon img {
+    width: auto;
+    object-fit: contain;
+}
+
 .setup-card-name { font-family: 'Orbitron', sans-serif; }
 
 .setup-enter {
@@ -1043,12 +1066,14 @@ img.icon {
    themed pill above the element on hover. Preferred over the native title=
    attribute (which is slow to appear and can't be styled). An empty/absent
    value renders nothing, so toggling the attribute off hides the tooltip.
+   Uses ::before so it never collides with elements that already use ::after
+   (e.g. the dock tiles' running-indicator dot).
    --------------------------------------------------------------------------- */
 [data-tooltip] {
     position: relative;
 }
 
-[data-tooltip]:not([data-tooltip=""])::after {
+[data-tooltip]:not([data-tooltip=""])::before {
     content: attr(data-tooltip);
     position: absolute;
     bottom: calc(100% + 8px);
@@ -1070,7 +1095,7 @@ img.icon {
     z-index: 10000;
 }
 
-[data-tooltip]:not([data-tooltip=""]):hover::after {
+[data-tooltip]:not([data-tooltip=""]):hover::before {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
 }

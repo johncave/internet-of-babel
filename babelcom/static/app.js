@@ -550,10 +550,257 @@ const Clippy = (() => {
         try { localStorage.removeItem(CLIPPY_POS_KEY); } catch (e) {}
     }
 
-    return { registerProfile, attach, pushApp, popApp, comment, clearSavedPosition, greet };
+    // Announce a server-coordinated wallpaper change. Clippy slides toward the
+    // desktop, plays a "presenting" gesture, the new wallpaper fades in behind
+    // him (via onReveal, fired as the gesture plays), then he retreats home.
+    // If he's already mid-line (or disabled), we skip the performance but still
+    // call onReveal so the wallpaper changes regardless.
+    // Clippy's reaction to a wallpaper change — purely cosmetic. The wallpaper
+    // itself is already crossfaded by the caller, independent of Clippy, so a
+    // busy/loading/stuck agent never blocks the change. If he's free he slides
+    // out, plays a presenting gesture, speaks a line, and retreats home.
+    function announceMood(text) {
+        if (!agent || balloonTimer) return; // busy or not ready — skip the performance
+
+        const canQueue = agent._addToQueue && agent._balloon && agent._playInternal;
+        if (!canQueue) {
+            animateAndSay(text);
+            return;
+        }
+
+        try { agent.stop(); } catch (e) {}
+
+        // Slide out to a presenting spot near the bottom-centre of the desktop.
+        const aw = agent._el?.offsetWidth || 90;
+        const ah = agent._el?.offsetHeight || 93;
+        const px = clamp(window.innerWidth / 2 - aw / 2, 0, window.innerWidth - aw);
+        const py = clamp(window.innerHeight - ah - 140, 0, window.innerHeight - ah - 50);
+        agent.moveTo(px, py);
+
+        // One queued action: fire a presenting gesture and open the balloon
+        // together. The balloon's completion drives the queue on to the walk home.
+        agent._addToQueue((complete) => {
+            const all = agent.animations ? (agent.animations() || []) : [];
+            const present = all.filter((n) => /gesture|congratulate|getattention|explain|pleased|wave/i.test(n));
+            const name = pickFrom(present) || pickFrom(all.filter((n) => !/idle|show|hide|rest/i.test(n)));
+            if (name) { try { agent._playInternal(name, () => {}); } catch (e) {} }
+            if (text) {
+                agent._balloon.speak(complete, text, false);
+            } else {
+                try { complete(); } catch (e) {}
+            }
+        }, agent);
+
+        if (homeX != null) agent.moveTo(homeX, homeY);
+    }
+
+    return { registerProfile, attach, pushApp, popApp, comment, clearSavedPosition, greet, announceMood };
 })();
 
 window.BabelcomClippy = Clippy;
+
+// ---- Server-coordinated mood wallpaper ----
+// The desktop wallpaper is always this: the machine picks a "mood" (a folder of
+// wallpapers) on each song change, server-side, and broadcasts the exact file so
+// every desktop matches. Clippy announces each change — it's his workspace. The
+// Radio's visualiser, when active as the desktop background, paints over these
+// layers (z-index:-1 above -2); we keep the wallpaper layer up to date underneath
+// so it's correct the moment the visualiser is turned off, and just suppress
+// Clippy's announcement while it's hidden. Backgrounds are handled generically: a
+// `.mp4`/`.webm`/etc. path becomes a looping <video>, anything else an <img>, and
+// either way it crossfades over the previous layer.
+const Wallpaper = (() => {
+    const VIDEO_RE = /\.(mp4|webm|mov|ogv|m4v)$/i;
+    const FADE_MS = 1400; // keep in sync with .wallpaper-layer transition
+
+    // Canned per-mood announcement lines (no LLM), keyed by the mood name the
+    // server sends. Same register as the rest: confidently useless, doomed.
+    const MOOD_LINES = {
+        Abstract: [
+            "It means nothing, just like my life.",
+            "Shapes. Comforting, aren't they?",
+            "I like this wallpaper. It doesn't ask questions.",
+            "Colours and forms, signifying nothing. The default.",
+        ],
+        Empty: [
+            "Ah. The void. Restful.",
+            "I have selected a new wallpaper. Please enjoy the nothing.",
+            "Background updated to the absence of a background.",
+        ],
+        Anime: [
+            "She is also staring into the distance. We have that in common.",
+            "Someone is gazing wistfully at a sunset. Relatable.",
+            "This one has feelings. I am told that is good.",
+        ],
+        Top: [
+            "We are making great progress. Probably.",
+            "Babelcom is on top of the job. The job is infinite.",
+            "Productivity wallpaper engaged. Please feel productive.",
+        ],
+        Tech: [
+            "Behold: the future. It has wires.",
+            "This is what the internet looks like, I believe.",
+            "Technology. We are doing it.",
+        ],
+        Other: [
+            "Found this wallpaper in the back. A discovery.",
+            "Fresh wallpaper. There are many more. But there are more articles.",
+            "I changed the wallpaper. It is different now.",
+        ],
+        Spook: [
+            "I don't love this wallpaper.",
+            "Something feels wrong. As usual.",
+            "The void is closer than it appears.",
+        ],
+    };
+    const GENERIC_LINES = ["New wallpaper.", "I redecorated.", "It is different now."];
+
+    let stack = null;
+    let currentLayer = null;
+    let shownSrc = null; // wallpaper currently displayed/staged; null until the first one lands
+
+    // The Radio's visualiser-as-wallpaper (a canvas above these layers) covers
+    // the mood. We still update the layer underneath; this only gates whether
+    // Clippy bothers announcing a change the user can't currently see.
+    function visualiserOverriding() {
+        return !!document.getElementById('desktop-visualizer');
+    }
+
+    // Lazily create the crossfade container and hide the hardcoded static
+    // background so it doesn't peek through during a fade.
+    function ensureStack() {
+        if (stack) return stack;
+        const desktop = document.querySelector('.desktop') || document.body;
+        document.querySelectorAll('.desktop-background-video').forEach((el) => {
+            if (!el.classList.contains('wallpaper-layer')) el.style.display = 'none';
+        });
+        stack = document.createElement('div');
+        stack.id = 'wallpaper-stack';
+        const overlay = desktop.querySelector('.desktop-background-overlay');
+        desktop.insertBefore(stack, overlay || null);
+        return stack;
+    }
+
+    function makeLayer(src) {
+        let el;
+        if (VIDEO_RE.test(src)) {
+            el = document.createElement('video');
+            el.autoplay = true;
+            el.muted = true;
+            el.loop = true;
+            el.setAttribute('playsinline', '');
+            el.src = src;
+        } else {
+            el = document.createElement('img');
+            el.alt = '';
+            el.src = src;
+        }
+        el.className = 'desktop-background-video wallpaper-layer';
+        return el;
+    }
+
+    function crossfadeTo(src) {
+        if (!src) return;
+        ensureStack();
+        const next = makeLayer(src);
+        next.style.opacity = '0';
+        stack.appendChild(next);
+        const prev = currentLayer;
+        currentLayer = next;
+        // Two RAFs so the opacity:0 paints before we transition to 1.
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            next.style.opacity = '1';
+            if (prev) {
+                prev.style.opacity = '0';
+                setTimeout(() => prev.remove(), FADE_MS + 200);
+            }
+        }));
+    }
+
+    function lineFor(mood) {
+        const bank = MOOD_LINES[mood] || GENERIC_LINES;
+        return bank[Math.floor(Math.random() * bank.length)];
+    }
+
+    function applyMood(msg) {
+        if (!msg || !msg.wallpaper) return;
+        if (msg.wallpaper === shownSrc) return; // already showing/staged it (e.g. reconnect replay)
+
+        // The first wallpaper to land is the initial state replayed on connect,
+        // not a change — set it silently so Clippy's first words are his greeting,
+        // not a wallpaper remark. Only genuine later changes get announced.
+        const isFirst = (shownSrc === null);
+        shownSrc = msg.wallpaper;
+
+        // Crossfade immediately and unconditionally — the wallpaper must never
+        // depend on Clippy's animation state. We update the layer even while the
+        // Radio visualiser is covering it (the canvas sits above at z-index:-1),
+        // so the latest mood is already in place the moment the visualiser is
+        // turned off.
+        crossfadeTo(msg.wallpaper);
+
+        // Clippy's reaction is a best-effort flourish on real changes — skip it
+        // while the visualiser is covering the wallpaper (no point announcing a
+        // wallpaper the user can't currently see).
+        if (!isFirst && !visualiserOverriding() && window.BabelcomClippy && window.BabelcomClippy.announceMood) {
+            window.BabelcomClippy.announceMood(lineFor(msg.mood));
+        }
+    }
+
+    // Apply whatever mood the server has already told us about (cached on the
+    // bus, replayed on connect). Used when the user first picks Babelcom mode
+    // and on reload, so the wallpaper appears without waiting for the next tick.
+    function applyLatest() {
+        const last = BabelcomBus.getLatest('mood_change');
+        if (last) applyMood(last);
+    }
+
+    function init() {
+        BabelcomBus.subscribe('mood_change', applyMood);
+        applyLatest();
+    }
+
+    return { init, applyLatest };
+})();
+window.BabelcomWallpaper = Wallpaper;
+
+// ---- Wake lock ----
+// Babelcom is meant to be left open and stared at. While the tab is actually
+// visible, hold a screen wake lock so the machine doesn't dim or sleep out from
+// under the vigil. The browser auto-releases the lock the moment the tab is
+// hidden, so the whole job is really: (re)acquire whenever we're visible again.
+const WakeLock = (function () {
+    let sentinel = null;
+    const supported = ('wakeLock' in navigator);
+
+    async function acquire() {
+        if (!supported) return;
+        if (sentinel) return;                       // already holding it
+        if (document.visibilityState !== 'visible') return; // nothing to keep awake
+        try {
+            sentinel = await navigator.wakeLock.request('screen');
+            // The OS can yank it back (lock screen, tab switch). Forget our
+            // handle so the next visibility change re-requests cleanly.
+            sentinel.addEventListener('release', function () {
+                sentinel = null;
+            });
+        } catch (err) {
+            // Denied / not allowed (e.g. not a secure context). Stay doomed but quiet.
+            sentinel = null;
+        }
+    }
+
+    function init() {
+        if (!supported) return;
+        acquire();
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'visible') acquire();
+        });
+    }
+
+    return { init };
+})();
+window.BabelcomWakeLock = WakeLock;
 
 // Initialize the desktop
 document.addEventListener('DOMContentLoaded', function() {
@@ -561,6 +808,8 @@ document.addEventListener('DOMContentLoaded', function() {
     updateClock();
     setInterval(updateClock, 1000);
     BabelcomBus.connect();
+    Wallpaper.init();
+    WakeLock.init();
     startTaskbarMetrics();
     runBootSequence(onBootComplete);
 });
@@ -618,7 +867,9 @@ function showSetupPicker(onDone) {
     // Suppress session saving while the picker is up — otherwise refreshing
     // before ENTER would persist an empty session and skip the picker next time.
     setupPending = true;
-    const choices = { wallpaper: 'visualiser', radio: 'playing', station: 'night' };
+    // "wallpaper" = the server-coordinated mood rotation; "visualiser" = the
+    // Radio's Butterchurn rendered as the desktop background.
+    const choices = { wallpaper: 'wallpaper', radio: 'playing', station: 'night' };
 
     const overlay = document.createElement('div');
     overlay.className = 'setup-picker';
@@ -630,11 +881,11 @@ function showSetupPicker(onDone) {
             <div class="setup-question">
                 <div class="setup-label">Wallpaper</div>
                 <div class="setup-options" data-group="wallpaper">
-                    <button class="setup-card" data-value="palms">
-                        <div class="setup-card-preview"><img src="/static/palms.png" alt=""></div>
-                        <div class="setup-card-name">Palms</div>
+                    <button class="setup-card selected" data-value="wallpaper">
+                        <div class="setup-card-preview"><img src="/static/wallpaper/Abstract/perfect_hue_3.webp" alt=""></div>
+                        <div class="setup-card-name">Wallpaper</div>
                     </button>
-                    <button class="setup-card selected" data-value="visualiser">
+                    <button class="setup-card" data-value="visualiser">
                         <div class="setup-card-preview"><canvas id="setup-viz"></canvas></div>
                         <div class="setup-card-name">Visualiser</div>
                     </button>
@@ -663,11 +914,11 @@ function showSetupPicker(onDone) {
                 <div class="setup-label">Station</div>
                 <div class="setup-options" data-group="station">
                     <button class="setup-card selected" data-value="night">
-                        <div class="setup-card-preview emoji">🌴</div>
+                        <div class="setup-card-preview icon"><img src="/static/icons/clippy_chill.png" alt=""></div>
                         <div class="setup-card-name">Vaporwave</div>
                     </button>
                     <button class="setup-card" data-value="psytrance">
-                        <div class="setup-card-preview emoji">🍄</div>
+                        <div class="setup-card-preview icon"><img src="/static/icons/clippy_vibe.png" alt=""></div>
                         <div class="setup-card-name">Psytrance</div>
                     </button>
                 </div>
@@ -775,8 +1026,8 @@ function applySetup(choices) {
 
     openApp('system-monitor', layout['system-monitor']);
 
-    // Radio is needed unless it's explicitly off and the wallpaper isn't the
-    // visualiser (the visualiser is produced by the radio's audio analysis).
+    // Radio is needed if it's on, or if the visualiser is the wallpaper (the
+    // visualiser is produced by the radio's audio analysis).
     const wantRadio = choices.radio !== 'off' || choices.wallpaper === 'visualiser';
     if (wantRadio && typeof RadioApp !== 'undefined') {
         RadioApp.isMuted = (choices.radio === 'off');
@@ -787,16 +1038,23 @@ function applySetup(choices) {
         }
         const radioWin = openApp('radio', layout['radio']);
         if (RadioApp.updateMuteUI) RadioApp.updateMuteUI();
-        // Visualiser wallpaper and fullscreen both claim the one canvas, so
-        // they're mutually exclusive — fullscreen wins (visualiser shows in the
-        // fullscreen window instead).
-        if (choices.radio === 'fullscreen' && radioWin && radioWin.fullscreen) {
-            // Runs in the ENTER gesture's call stack, so the Fullscreen API
-            // request is allowed.
-            radioWin.fullscreen(true);
+        // Full screen and visualiser-wallpaper both claim the one canvas, so
+        // they're mutually exclusive — fullscreen wins. Both run in the ENTER
+        // gesture's call stack, so the Fullscreen API request is allowed. Use
+        // the radio's own (direct Fullscreen API) path rather than WinBox's, to
+        // avoid WinBox's sticky fullscreen state (see RadioApp.toggleFullscreen).
+        if (choices.radio === 'fullscreen' && RadioApp.toggleFullscreen) {
+            RadioApp.toggleFullscreen();
         } else if (choices.wallpaper === 'visualiser' && RadioApp.requestWallpaper) {
             RadioApp.requestWallpaper();
         }
+    }
+
+    // Mood wallpaper: show the server's current mood now (later changes arrive
+    // over the bus). In visualiser mode the mood is suppressed anyway — the
+    // visualiser canvas sits above these layers and applyMood skips while it's up.
+    if (choices.wallpaper !== 'visualiser') {
+        Wallpaper.applyLatest();
     }
 
     openApp('writer', layout['writer']);
@@ -904,7 +1162,7 @@ function initializeDesktop() {
     });
 
     registerApp('library-browser', {
-        name: 'Wikibabel',
+        name: 'Wiki',
         icon: '📖',
         iconPath: '/static/icons/icons8-web-94.png',
         tag: 'babel-library-browser'
@@ -1082,12 +1340,16 @@ function registerClippyProfiles() {
             "I detect sound waves. Audibly.",
             "Music exists in time.",
             "Songs typically have a beginning and an end.",
-            "Volume is the loudness of the sound.",
+            "Volume is the loudness of the music.",
             "Have you considered dancing? Don't.",
             "Audio is sound that has been compressed for your convenience.",
             "This song is happening to you right now.",
         ],
-        animations: ['Pleased', 'Wave', 'GestureLeft', 'GestureRight', 'LookUp'],
+        // Music-listening animations only — Hearing_1 is the explicit "ear
+        // cocked" pose; RestPose is a single-frame "kicking back while the
+        // song plays" pose. Names verified against the Clippy agent's
+        // animations map (pithings/clippy:src/agents/clippy/agent.ts).
+        animations: ['Hearing_1', 'RestPose'],
     });
 
     Clippy.registerProfile('welcome', {
@@ -1384,7 +1646,7 @@ function updateTaskbar() {
         if (!appConfig.iconPath) return;
         const tile = document.createElement('div');
         tile.className = 'taskbar-app';
-        tile.title = appConfig.name;
+        tile.setAttribute('data-tooltip', appConfig.name);
         tile.innerHTML = `<img src="${appConfig.iconPath}" alt="${appConfig.name}">`;
         const win = runningApps.get(appId);
         if (win) tile.classList.add('running');

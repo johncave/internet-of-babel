@@ -20,14 +20,12 @@
     </div>
 
     <div class="desktop">
-        <!-- Desktop Background. Swap which of these is uncommented to switch
-             between stills, animated GIF, and looping videos. Now that the
-             window backdrop-filter blur is gone, the looping video no longer
-             forces a per-frame full-window blur recompute; the only blur left
-             over it is the thin taskbar strip (negligible). -->
-        <video class="desktop-background-video" autoplay muted loop playsinline>
-            <source src="/static/wallpaper/353633_medium.mp4" type="video/mp4">
-        </video>
+        <!-- Desktop Background. A lightweight still shown only for the split
+             second between first paint and the first /ws mood message, which
+             crossfades to the real wallpaper (and hides this). Kept a cheap
+             image (already fetched for the setup-card preview) rather than a
+             multi-megabyte looping video we'd throw away immediately. -->
+        <img class="desktop-background-video" src="/static/wallpaper/Abstract/perfect_hue_3.webp" alt="">
         <!--
         <img class="desktop-background-video" src="/static/wallpaper/wallpaper.gif" alt="">
         <video class="desktop-background-video" autoplay muted loop playsinline>
@@ -63,7 +61,7 @@
                         <span class="status-dot"></span>
                         <span class="status-text">SYSTEM ONLINE</span>
                     </div>
-                    <div class="taskbar-fullscreen" id="taskbarFullscreen" title="Toggle fullscreen" data-tianji-event="toggle-app-fullscreen" onclick="toggleAppFullscreen()">
+                    <div class="taskbar-fullscreen" id="taskbarFullscreen" data-tooltip="Toggle fullscreen" data-tianji-event="toggle-app-fullscreen" onclick="toggleAppFullscreen()">
                         <img src="/static/icons/icons8-fullscreen-96.png" alt="Fullscreen">
                     </div>
                 </div>
@@ -82,7 +80,7 @@
                 </div>
                 <div class="app-item" data-tianji-event="open-web-browser-from-start-menu" onclick="openApp('library-browser')">
                     <img class="app-icon" src="/static/icons/icons8-web-94.png" alt="">
-                    <div class="app-name">Wikibabel</div>
+                    <div class="app-name">Wiki</div>
                 </div>
                 <div class="app-item" data-tianji-event="open-radio-from-start-menu" onclick="openApp('radio')">
                     <img class="app-icon" src="/static/icons/icons8-radio-94.png" alt="">
@@ -110,7 +108,7 @@
             </div>
             <div class="desktop-icon" data-tianji-event="open-web-browser-from-desktop" onclick="openApp('library-browser')">
                 <img class="icon" src="/static/icons/icons8-web-94.png" alt="">
-                <div class="icon-label">Wikibabel</div>
+                <div class="icon-label">Wiki</div>
             </div>
             <div class="desktop-icon" data-tianji-event="open-radio-from-desktop" onclick="openApp('radio')">
                 <img class="icon" src="/static/icons/icons8-radio-94.png" alt="">

@@ -8,3 +8,9 @@ worker/process.log
 worker/queue.txt
 
 .DS_Store
+
+# Local backup of original (pre-WebP) wallpapers — never ship/embed these
+babelcom/wallpapers-original/
+
+queue.txt
+process.log

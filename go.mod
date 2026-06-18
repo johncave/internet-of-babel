@@ -3,6 +3,7 @@ module internet-of-babel
 go 1.25.0
 
 require (
+	github.com/andybalholm/brotli v1.2.1
 	github.com/blevesearch/bleve/v2 v2.6.0
 	github.com/gertd/go-pluralize v0.2.1
 	github.com/gin-contrib/gzip v1.2.3

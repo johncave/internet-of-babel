@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,7 +23,6 @@ func calculateETag(content []byte) string {
 
 // serveEmbeddedFile serves a file from the embedded filesystem with ETag support
 func serveEmbeddedFile(c *gin.Context, path string, contentType string) {
-	fmt.Println("Serving embedded file:", path)
 	content, err := staticFiles.ReadFile(path)
 	if err != nil {
 		c.String(http.StatusNotFound, "404: File Not Found")
@@ -67,26 +65,6 @@ func serveDiskFile(c *gin.Context, filePath string, contentType string) {
 	c.Data(http.StatusOK, contentType, content)
 }
 
-// Serve static files
-func serveStatic(c *gin.Context) {
-	// Check if we should serve from disk
-	if os.Getenv("BABELCOM_USE_DISK_STATIC") == "true" {
-		staticPath := os.Getenv("BABELCOM_STATIC_PATH")
-		if staticPath == "" {
-			staticPath = "./static"
-		}
-
-		filePath := filepath.Join(staticPath, "index.html")
-		if _, err := os.Stat(filePath); err == nil {
-			serveDiskFile(c, filePath, "text/html")
-			return
-		}
-		// Fall back to embedded if file doesn't exist
-	}
-
-	serveEmbeddedFile(c, "static/index.html", "text/html")
-}
-
 // getContentTypeFromExtension determines the MIME type based on file extension
 func getContentTypeFromExtension(filePath string) string {
 	switch filepath.Ext(filePath) {
@@ -94,7 +72,7 @@ func getContentTypeFromExtension(filePath string) string {
 		return "text/html"
 	case ".css":
 		return "text/css"
-	case ".js":
+	case ".js", ".mjs":
 		return "application/javascript"
 	case ".png":
 		return "image/png"
@@ -123,6 +101,12 @@ func getContentTypeFromExtension(filePath string) string {
 	}
 }
 
+// fileExists reports whether path exists and is statable.
+func fileExists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
+}
+
 // customStaticHandler handles static files with ETag support
 func customStaticHandler(staticPath string) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -139,21 +123,17 @@ func customStaticHandler(staticPath string) gin.HandlerFunc {
 	}
 }
 
-// customEmbeddedStaticHandler handles embedded static files with ETag support
-func customEmbeddedStaticHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		filePath := "static" + c.Param("filepath")
-		contentType := getContentTypeFromExtension(filePath)
-		serveEmbeddedFile(c, filePath, contentType)
-	}
-}
-
 // Setup configures the passed gin engine with babelcom's middleware and routes.
 // Creates the WebSocket server, Clippy, and connects to the upstream radio.
 func Setup(router *gin.Engine) error {
 	log.Println("babelcom: starting WebSocket message bus")
 	server := NewServer()
 	server.clippy = NewClippy(server)
+
+	// Coordinated wallpaper "mood": one rotation, server-side, so every
+	// Babelcom-mode desktop shows the same wallpaper.
+	server.moods = newMoodEngine(server)
+	go server.moods.run()
 
 	upstreamRadioURL := os.Getenv("BABELCOM_UPSTREAM_RADIO_URL")
 	if upstreamRadioURL == "" {
@@ -165,38 +145,54 @@ func Setup(router *gin.Engine) error {
 
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
-	router.Use(gzip.Gzip(gzip.DefaultCompression))
+	// No global compression middleware: embedded assets are precompressed once
+	// at startup (see assets.go) and served directly; disk/dev mode serves
+	// uncompressed for simplicity. This avoids re-gzipping already-compressed
+	// images/video on every request.
 
-	router.GET("/", serveStatic)
-	router.GET("/favicon.ico", func(c *gin.Context) {
-		if os.Getenv("BABELCOM_USE_DISK_STATIC") == "true" {
-			staticPath := os.Getenv("BABELCOM_STATIC_PATH")
-			if staticPath == "" {
-				staticPath = "./static"
-			}
-			filePath := filepath.Join(staticPath, "favicon.ico")
-			if _, err := os.Stat(filePath); err == nil {
-				serveDiskFile(c, filePath, "image/x-icon")
+	diskPath := os.Getenv("BABELCOM_STATIC_PATH")
+	if diskPath == "" {
+		diskPath = "./static"
+	}
+	diskAvailable := false
+	if os.Getenv("BABELCOM_USE_DISK_STATIC") == "true" {
+		if _, err := os.Stat(diskPath); err == nil {
+			diskAvailable = true
+		} else {
+			log.Printf("babelcom: static dir not found at %s, falling back to embedded", diskPath)
+		}
+	}
+
+	if diskAvailable {
+		// Dev: serve from disk for hot-reload, no caching; embed is the fallback.
+		log.Printf("babelcom: serving static from disk: %s", diskPath)
+		router.GET("/", func(c *gin.Context) {
+			if f := filepath.Join(diskPath, "index.html"); fileExists(f) {
+				serveDiskFile(c, f, "text/html")
 				return
 			}
-		}
-		serveEmbeddedFile(c, "static/favicon.ico", "image/x-icon")
-	})
-
-	if os.Getenv("BABELCOM_USE_DISK_STATIC") == "true" {
-		staticPath := os.Getenv("BABELCOM_STATIC_PATH")
-		if staticPath == "" {
-			staticPath = "./static"
-		}
-		if _, err := os.Stat(staticPath); err == nil {
-			log.Printf("babelcom: serving static from disk: %s", staticPath)
-			router.GET("/static/*filepath", customStaticHandler(staticPath))
-		} else {
-			log.Printf("babelcom: static dir not found at %s, falling back to embedded", staticPath)
-			router.GET("/static/*filepath", customEmbeddedStaticHandler())
-		}
+			serveEmbeddedFile(c, "static/index.html", "text/html")
+		})
+		router.GET("/favicon.ico", func(c *gin.Context) {
+			if f := filepath.Join(diskPath, "favicon.ico"); fileExists(f) {
+				serveDiskFile(c, f, "image/x-icon")
+				return
+			}
+			serveEmbeddedFile(c, "static/favicon.ico", "image/x-icon")
+		})
+		router.GET("/static/*filepath", customStaticHandler(diskPath))
 	} else {
-		router.GET("/static/*filepath", customEmbeddedStaticHandler())
+		// Prod: precompressed, content-hashed, immutable embedded assets. The
+		// HTML entry is no-cache (revalidated every load) so deploys appear
+		// instantly while its ?v=-busted assets stay immutable for a year.
+		if err := buildAssetCache(); err != nil {
+			return fmt.Errorf("babelcom: building asset cache: %w", err)
+		}
+		router.GET("/", func(c *gin.Context) { serveAsset(c, "static/index.html", false) })
+		router.GET("/favicon.ico", func(c *gin.Context) { serveAsset(c, "static/favicon.ico", true) })
+		router.GET("/static/*filepath", func(c *gin.Context) {
+			serveAsset(c, "static"+c.Param("filepath"), true)
+		})
 	}
 
 	router.GET("/ws", server.handleBroadcastWebSocket)

@@ -166,6 +166,7 @@ go build -o babelcorp ./cmd/babelcorp
 - **Host-based routing** — `babelcom.localhost` in dev, not bare `localhost`.
 - **Embedded statics** need a Go rebuild unless you're in disk mode.
 - **No frontend build** — plain scripts in dependency order in `index.html`. Prefer shadow-DOM custom elements for new apps.
+- **No JS runtime on this machine** — there's no `node`/`deno`/`bun`, so you can't `node --check` or lint JS from the shell. Verify frontend changes by reading carefully and loading the app in a browser (`air` + `babelcom.localhost:18080`); only the Go side has a compiler to lean on.
 - **Same-process librarian** — Clippy persistence calls `librarian.SaveClippyComment` directly; there's no HTTP hop, so the librarian package is a real Go dependency of babelcom.
 - **CORS / origin checks are wide open** (`CheckOrigin` returns true). Fine for an art piece; note it if that ever matters.
 

@@ -23,14 +23,21 @@ const RadioApp = {
     // rebroadcasts each; we route incoming messages to the right station by
     // shortcode and only play/show the selected one.
     STATIONS: [
-        { code: 'night', name: 'Vaporwave' },
-        { code: 'psytrance', name: 'Psytrance' },
+        { code: 'night', name: 'Vapor' },
+        { code: 'psytrance', name: 'Trance' },
     ],
     STATION_KEY: 'babelcom.radio.station',
     currentStation: 'night',
     // shortcode -> { streamUrl, track, receivedAt } cached from the bus so a
     // switch can render instantly instead of waiting for the next push.
     stationData: {},
+    // shortcode -> last known stream URL, persisted to localStorage. Stream
+    // mounts are effectively static, so remembering them lets the radio start
+    // playing immediately even when no fresh "now playing" message is available
+    // (e.g. the upstream feed is briefly down) — audio no longer depends on
+    // metadata. Authoritative URLs only ever come from a real payload.
+    STREAM_URLS_KEY: 'babelcom.radio.streamurls',
+    streamUrls: {},
 
     // Cap the visualizer's backing-store resolution on HiDPI/retina displays.
     // Butterchurn (MilkDrop) presets are soft, low-detail visuals, so rendering
@@ -50,11 +57,15 @@ const RadioApp = {
     // and skipped. We never step back up within a preset — the next preset
     // resets to 1.0x and re-assesses from scratch.
     VIZ_SCALE_STEPS: [1, 0.75, 0.5, 0.35, 0.25],
-    VIZ_FPS_LOW: 30,    // below this → drop a level (matches the on-screen meter)
+    VIZ_FPS_LOW: 30,        // below this → drop a level (matches the on-screen meter)
+    VIZ_FPS_BLACKLIST: 10,  // below this AT min resolution → blacklist + skip the preset
+    VIZ_DROP_GAIN: 1.15,    // min fps ratio a drop must yield, else it's an external cap
     VIZ_SETTLE_MARGIN_MS: 1500, // extra hold after a crossfade finishes before judging fps
     VIZ_STEP_SETTLE_MS: 1200,   // re-measure delay after we change a level
     _vizScaleIdx: 0,
     _vizSettleUntil: 0,     // performance.now() until which we hold steady (transition)
+    _vizProbeFps: null,     // fps just before the last drop, to judge if the drop helped
+    _vizThrottled: false,   // external frame-rate cap detected — stop adapting this preset
 
     vizPixelRatio: function() {
         const cap = Math.min(window.devicePixelRatio || 1, this.VIZ_MAX_PIXEL_RATIO);
@@ -88,6 +99,8 @@ const RadioApp = {
     // crossfade (during which fps is unrepresentative) before judging begins.
     onVizPresetChanged: function(blendSeconds) {
         this._vizScaleIdx = 0;
+        this._vizProbeFps = null;
+        this._vizThrottled = false; // re-assess GPU vs. external cap for the new preset
         this.applyVizResolution();
         this._vizSettleUntil = performance.now() + (blendSeconds * 1000) + this.VIZ_SETTLE_MARGIN_MS;
     },
@@ -102,21 +115,42 @@ const RadioApp = {
         // so this guard matters even though the caller also checks.)
         if (document.hidden) return;
         if (performance.now() < this._vizSettleUntil) return; // mid-transition: hold steady
+        if (this._vizThrottled) return; // external cap detected for this preset
+
+        // If we dropped a level last cycle, did it actually help? If lowering the
+        // resolution didn't raise fps, we're not GPU-bound — the frame rate is
+        // capped externally (vsync, an inactive/secondary screen, an unfocused
+        // window). Dropping further is pointless and blacklisting would be wrong,
+        // so revert to full res and stop adapting this preset.
+        if (this._vizProbeFps != null) {
+            const helped = fps > this._vizProbeFps * this.VIZ_DROP_GAIN;
+            this._vizProbeFps = null;
+            if (!helped) {
+                this._vizThrottled = true;
+                this._vizScaleIdx = 0;
+                this.applyVizResolution();
+                console.warn(`📻 Visualizer: ${fps}fps unchanged by lowering resolution — external frame-rate cap (throttle/vsync), not GPU load. Holding full res.`);
+                return;
+            }
+        }
+
         if (fps >= this.VIZ_FPS_LOW) return; // making budget — leave it alone
         const steps = this.VIZ_SCALE_STEPS;
         if (this._vizScaleIdx < steps.length - 1) {
-            // Too heavy — drop a level and re-measure after a short settle.
+            // Too heavy — drop a level and re-measure after a short settle. Stash
+            // the pre-drop fps so next cycle can tell if the drop actually helped.
+            this._vizProbeFps = fps;
             this._vizScaleIdx++;
             const d = this.applyVizResolution();
             this._vizSettleUntil = performance.now() + this.VIZ_STEP_SETTLE_MS;
             console.warn(`📻 Visualizer: ${fps}fps < ${this.VIZ_FPS_LOW} — dropping to scale ${steps[this._vizScaleIdx]}x`
                 + (d ? ` (${d.w}×${d.h})` : ''));
-        } else {
-            // Already at the lowest resolution and STILL under budget — this
-            // preset is too heavy for this machine (often a GPU-choking effect).
-            // Blacklist it so it never loads again here, and skip to another.
+        } else if (fps < this.VIZ_FPS_BLACKLIST) {
+            // At the lowest resolution and STILL catastrophically slow (<10fps):
+            // genuinely too heavy for this machine. Blacklist it and skip on.
             this._skipHeavyPreset(fps);
         }
+        // else: at min res and 10–30fps — not great, but not worth blacklisting.
     },
 
     // --- Heavy-preset blacklist ------------------------------------------
@@ -205,6 +239,7 @@ const RadioApp = {
         this.lastElapsedUpdate = 0;
         this.reconnectAttempts = 0;
         this.stationData = {};
+        this.streamUrls = this._loadStreamUrls();
         // Restore the last-picked station (validated against the known list so a
         // removed station can't strand the switcher on a dead shortcode).
         try {
@@ -213,8 +248,13 @@ const RadioApp = {
         } catch (e) {}
         this.render();
         this.connectWebSocket();
+        // If the bus hydration above didn't already start a stream (no cached
+        // message yet), fall back to the remembered URL so audio plays anyway.
+        this.ensureStreamPlaying();
         this.addStyles();
         this.createTaskbarMute();
+        // Let OS/hardware media keys (skip = next/prev station) drive the radio.
+        this.setupMediaSession();
 
         // Butterchurn visualizer integration
         if (!window.butterchurn) {
@@ -268,6 +308,10 @@ const RadioApp = {
             try { this.source.disconnect(); } catch (e) { console.warn('📻 Visualizer: Error disconnecting old source', e); }
             this.source = null;
         }
+        if (this.gainNode) {
+            try { this.gainNode.disconnect(); } catch (e) {}
+            this.gainNode = null;
+        }
         if (this.audioCtx) {
             try { this.audioCtx.close(); } catch (e) { console.warn('📻 Visualizer: Error closing old audioCtx', e); }
             this.audioCtx = null;
@@ -286,15 +330,33 @@ const RadioApp = {
             latencyHint: 'playback'
         });
         
-        // Resume audio context if suspended (required for autoplay policies)
+        // Resume audio context if suspended (required for autoplay policies).
+        // resume() only takes effect after a user gesture, so if it's still
+        // suspended shortly after, arm a gesture to unlock it. Without this the
+        // element buffers silently through the suspended context and drifts far
+        // from live (the play() promise can resolve even while the context is
+        // suspended, so we can't rely on that path alone).
         if (this.audioCtx.state === 'suspended') {
-            this.audioCtx.resume();
+            this.audioCtx.resume().catch(() => {});
+            setTimeout(() => {
+                if (this.audioCtx && this.audioCtx.state === 'suspended') this.armGesturePlay();
+            }, 500);
         }
-        
-        // Create new media source
+
+        // Create new media source. Volume/mute are done with a GainNode in the
+        // graph rather than the element's own volume, because the element's
+        // volume attenuates the signal BEFORE it reaches the source node — so
+        // muting via the element would starve the visualizer's analyser and the
+        // visuals would flatline. Instead the element stays at full volume, the
+        // visualizer taps `source` (pre-gain) so it always sees full-amplitude
+        // audio, and the gain node controls what's actually heard.
         this.source = this.audioCtx.createMediaElementSource(audio);
-        this.source.connect(this.audioCtx.destination);
-        
+        this.gainNode = this.audioCtx.createGain();
+        this.source.connect(this.gainNode);
+        this.gainNode.connect(this.audioCtx.destination);
+        audio.volume = 1;
+        this.applyVolume();
+
         // Butterchurn UMD: use .default if available, fallback to direct
         const api = window.butterchurn && window.butterchurn.default ? window.butterchurn.default : window.butterchurn;
         if (!api || !api.createVisualizer) {
@@ -426,7 +488,11 @@ const RadioApp = {
         canvas.addEventListener('dblclick', () => {
             this.toggleFullscreen();
         });
-        
+
+        // Keep the fullscreen button/cursor in sync however fullscreen ends
+        // (our toggle, Esc, or the OS). Tracked so it's removed on re-init/close.
+        this._addGlobalListener(document, 'fullscreenchange', this.onFullscreenChange.bind(this));
+
         // Add event listeners for mousemove/touchstart on the radio window
         this.container.addEventListener('mousemove', this.handleUserInteraction.bind(this));
         this.container.addEventListener('touchstart', this.handleUserInteraction.bind(this));
@@ -462,6 +528,9 @@ const RadioApp = {
         const stationSwitcher = document.querySelector('.station-switcher');
         const volumeContainer = document.querySelector('.volume-container');
         const controlsOverlay = document.querySelector('.radio-controls-overlay');
+        const radioApp = this.container && this.container.querySelector('.radio-app');
+        // Any interaction brings the cursor back (it's only hidden in fullscreen).
+        if (radioApp) radioApp.classList.remove('cursor-hidden');
         if (fadeControls) {
             fadeControls.classList.remove('faded');
         }
@@ -490,6 +559,11 @@ const RadioApp = {
                 // Volume fades too — only the mute button stays on the bottom line.
                 if (volumeContainer) volumeContainer.classList.add('faded');
                 if (controlsOverlay) controlsOverlay.classList.add('controls-faded');
+                // In fullscreen, also hide the cursor so it doesn't sit over the
+                // visuals. It returns on the next mousemove (handleUserInteraction).
+                if (radioApp && this.isRadioFullscreen()) {
+                    radioApp.classList.add('cursor-hidden');
+                }
             }
         }, 5000);
     },
@@ -507,17 +581,8 @@ const RadioApp = {
                     <div class="fade-controls viz-controls">
                         <button class="control-btn viz-btn" data-tooltip="Next visual" onclick="RadioApp.changeToRandomPreset()">🔀</button>
                         <button class="control-btn viz-btn" id="viz-toggle-btn" data-tooltip="Hide visual" onclick="RadioApp.toggleVisualizer()">👁️</button>
-                        <button class="control-btn viz-btn" id="viz-wallpaper-btn" data-tooltip="Set as wallpaper" onclick="RadioApp.setAsWallpaper()">🖼️</button>
-                        <button class="control-btn viz-btn" id="viz-fullscreen-btn" data-tooltip="Full screen" onclick="RadioApp.toggleFullscreen()">🖥️</button>
-                    </div>
-                    <div class="progress-container">
-                        <div class="time-display">
-                            <span id="current-time">0:00</span>
-                            <span id="total-time">0:00</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="progress-fill"></div>
-                        </div>
+                        <button class="control-btn viz-btn" id="viz-wallpaper-btn" data-tooltip="Set as wallpaper" onclick="RadioApp.setAsWallpaper()">🖥️</button>
+                        <button class="control-btn viz-btn" id="viz-fullscreen-btn" data-tooltip="Full screen" onclick="RadioApp.toggleFullscreen()"><img class="viz-btn-img" src="/static/icons/icons8-fullscreen-96.png" alt="Full screen"></button>
                     </div>
                     <div class="now-playing-row">
                         <div class="track-info-overlay">
@@ -537,6 +602,15 @@ const RadioApp = {
                             <button class="control-btn mute-btn" id="mute-btn" data-tooltip="Mute" onclick="RadioApp.toggleMute()">
                                 <span class="mute-icon">🔊</span>
                             </button>
+                        </div>
+                    </div>
+                    <div class="progress-container">
+                        <div class="time-display">
+                            <span id="current-time">0:00</span>
+                            <span id="total-time">0:00</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
                         </div>
                     </div>
                 </div>
@@ -582,16 +656,104 @@ const RadioApp = {
         const data = this.stationData[code];
         if (data) {
             this.applyStationData(data);
-            this.handleUserInteraction();
         } else {
-            // No payload yet — keep the previous audio playing and show a
-            // placeholder; the next bus message for this station fills it in.
+            // No payload yet — switch the audio to the remembered URL (if any)
+            // so the station still plays, and show a placeholder until the next
+            // bus message for it fills in the track info.
+            const url = this.streamUrls[code];
+            if (url) this.applyStationData({ streamUrl: url });
             const t = document.getElementById('track-title');
             const a = document.getElementById('track-artist');
             if (t) t.textContent = 'Loading...';
             if (a) a.textContent = 'Loading...';
-            this.handleUserInteraction();
         }
+        this.handleUserInteraction();
+    },
+
+    // Cycle to the next/previous station (dir = +1 / -1), wrapping around.
+    cycleStation: function(dir) {
+        const idx = this.STATIONS.findIndex(s => s.code === this.currentStation);
+        if (idx === -1) return;
+        const next = (idx + dir + this.STATIONS.length) % this.STATIONS.length;
+        this.switchStation(this.STATIONS[next].code);
+    },
+
+    // --- OS media controls (Media Session API) ---------------------------
+    // Lets hardware/OS media keys drive the radio: "next/previous track" (the
+    // skip buttons on keyboards, headphones, lock screens, the macOS Now Playing
+    // widget, etc.) switch stations. Play/pause map to mute so the OS pause
+    // button doesn't actually stop the live stream (which would desync the
+    // visualiser); the session always reports "playing".
+    setupMediaSession: function() {
+        if (!('mediaSession' in navigator)) return;
+        const ms = navigator.mediaSession;
+        const set = (action, fn) => {
+            try { ms.setActionHandler(action, fn); } catch (e) { /* unsupported action */ }
+        };
+        set('nexttrack', () => this.cycleStation(1));
+        set('previoustrack', () => this.cycleStation(-1));
+        // A live stream can't really pause — repurpose play/pause as a mute
+        // toggle. Crucially the element never actually pauses (mute = gain 0, so
+        // the visualiser stays fed), so the browser always thinks it's playing
+        // and keeps firing 'pause' — never 'play'. Both actions therefore just
+        // toggle, so every press flips mute regardless of which one the OS sends.
+        const toggle = () => this.toggleMute();
+        set('pause', toggle);
+        set('play', toggle);
+        try { ms.playbackState = 'playing'; } catch (e) {}
+    },
+
+    // Mirror the current track into the OS "now playing" widget.
+    updateMediaMetadata: function(trackData) {
+        if (!('mediaSession' in navigator) || typeof window.MediaMetadata !== 'function') return;
+        const station = this.STATIONS.find(s => s.code === this.currentStation);
+        try {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: (trackData && trackData.title) || 'Babelcom Radio',
+                artist: (trackData && trackData.artist) || '',
+                album: station ? station.name : '',
+                artwork: trackData && trackData.artwork_url
+                    ? [{ src: trackData.artwork_url, sizes: '512x512', type: 'image/png' }]
+                    : [],
+            });
+        } catch (e) { /* best-effort */ }
+    },
+
+    _clearMediaSession: function() {
+        if (!('mediaSession' in navigator)) return;
+        const ms = navigator.mediaSession;
+        ['nexttrack', 'previoustrack', 'play', 'pause'].forEach((a) => {
+            try { ms.setActionHandler(a, null); } catch (e) {}
+        });
+        try { ms.metadata = null; } catch (e) {}
+        try { ms.playbackState = 'none'; } catch (e) {}
+    },
+
+    // --- Stream-URL memory (resilience) ----------------------------------
+    _loadStreamUrls: function() {
+        try {
+            const obj = JSON.parse(localStorage.getItem(this.STREAM_URLS_KEY) || '{}');
+            return (obj && typeof obj === 'object') ? obj : {};
+        } catch (e) { return {}; }
+    },
+    _saveStreamUrl: function(code, url) {
+        if (!code || !url || this.streamUrls[code] === url) return;
+        this.streamUrls[code] = url;
+        try { localStorage.setItem(this.STREAM_URLS_KEY, JSON.stringify(this.streamUrls)); } catch (e) {}
+    },
+    // Best known stream URL for a station: the freshest from the bus, else the
+    // last one we persisted (survives an upstream/now-playing outage).
+    streamUrlFor: function(code) {
+        const d = this.stationData[code];
+        return (d && d.streamUrl) || this.streamUrls[code] || null;
+    },
+    // Make sure the current station is playing even if no "now playing" message
+    // has arrived yet — start from the remembered URL. Track info stays
+    // "Loading..." until a real payload lands; the audio doesn't wait for it.
+    ensureStreamPlaying: function() {
+        if (this.currentStreamUrl) return; // already pointed at a stream
+        const url = this.streamUrlFor(this.currentStation);
+        if (url) this.applyStationData({ streamUrl: url });
     },
 
     // Apply a station's cached payload to the audio element + UI. Shared by the
@@ -607,6 +769,13 @@ const RadioApp = {
             this.playAudio();
         }
         if (data.track) {
+            // Guard against stale/out-of-order now-playing payloads (notably the
+            // backend's cached message replayed on every reconnect) rewinding the
+            // progress bar: for the SAME song, never accept a position that's
+            // behind where we already believe we are. Without this, a refresh can
+            // make the progress jump back to the stale elapsed and then forward
+            // again on the next live update.
+            if (this._isStaleProgress(data.track, data.receivedAt)) return;
             this.updateTrackInfo(data.track);
             if (data.track.elapsed !== undefined) {
                 // Anchor progress to when this payload was received so the
@@ -616,6 +785,23 @@ const RadioApp = {
             }
             this.startProgressTimer();
         }
+    },
+
+    // True when `track` is the same song we're already showing but reports a
+    // position clearly behind our extrapolated one — i.e. a stale replay. A
+    // different song (new track or station switch) is never stale. A few seconds
+    // of slack absorbs normal jitter between updates.
+    _isStaleProgress: function(track, receivedAt) {
+        const cur = this.currentTrack;
+        if (!cur || cur.song_id !== track.song_id) return false;
+        if (track.elapsed === undefined) return false;
+        const now = Date.now() / 1000;
+        const liveElapsed = (cur.elapsed || 0) + (now - (this.lastElapsedUpdate || now));
+        // If we've already extrapolated past the song's end, a smaller position
+        // is a genuine restart of the same track, not a stale replay.
+        if (cur.duration && liveElapsed >= cur.duration) return false;
+        const incoming = track.elapsed + (now - (receivedAt || now));
+        return incoming < liveElapsed - 3;
     },
 
     connectWebSocket: function() {
@@ -661,6 +847,8 @@ const RadioApp = {
                     //console.log('📻 Stream URL:', streamUrl);
                 }
             }
+            // Remember it so this station can start without a fresh message later.
+            this._saveStreamUrl(code, streamUrl);
 
             // Build the track record (if a song is present).
             let track = null;
@@ -715,13 +903,36 @@ const RadioApp = {
         if (trackData.duration) {
             document.getElementById('total-time').textContent = this.formatTime(trackData.duration);
         }
+        // Mirror to the OS "now playing" widget.
+        this.updateMediaMetadata(trackData);
     },
 
     toggleMute: function() {
         this.isMuted = !this.isMuted;
-        // Mute without pausing (keeps the stream/visualizer running).
-        if (this.audio) this.audio.volume = this.isMuted ? 0 : this.volume;
+        // Mute via the gain node (not the element), so the stream keeps feeding
+        // the visualizer's analyser at full strength while silent.
+        this.applyVolume();
         this.updateMuteUI();
+    },
+
+    // Apply the current volume + mute to whatever output path exists. Once the
+    // Web Audio graph is up, the element stays at full volume and the GainNode
+    // does the attenuating — that keeps the pre-gain signal the visualizer taps
+    // at full amplitude even when muted. Before the graph exists (visualizer
+    // still loading), fall back to the element's own volume.
+    applyVolume: function() {
+        if (this.gainNode && this.audioCtx) {
+            if (this.audio) this.audio.volume = 1;
+            const target = this.isMuted ? 0 : this.volume;
+            try {
+                // Short ramp avoids a click on mute/unmute.
+                this.gainNode.gain.setTargetAtTime(target, this.audioCtx.currentTime, 0.015);
+            } catch (e) {
+                this.gainNode.gain.value = target;
+            }
+        } else if (this.audio) {
+            this.audio.volume = this.isMuted ? 0 : this.volume;
+        }
     },
 
     // Keep the in-window mute button and the taskbar toggle in sync.
@@ -738,6 +949,12 @@ const RadioApp = {
         if (taskbarMute) {
             taskbarMute.textContent = icon;
             taskbarMute.classList.toggle('muted', this.isMuted);
+            taskbarMute.setAttribute('data-tooltip', this.isMuted ? 'Unmute radio' : 'Mute radio');
+        }
+        // Reflect mute as the OS play/pause state so its button toggles mute
+        // coherently (paused = muted) instead of getting stuck.
+        if ('mediaSession' in navigator) {
+            try { navigator.mediaSession.playbackState = this.isMuted ? 'paused' : 'playing'; } catch (e) {}
         }
     },
 
@@ -750,7 +967,7 @@ const RadioApp = {
         const el = document.createElement('div');
         el.id = 'taskbar-mute';
         el.className = 'taskbar-mute';
-        el.title = 'Mute / unmute radio';
+        el.setAttribute('data-tooltip', this.isMuted ? 'Unmute radio' : 'Mute radio');
         el.textContent = this.isMuted ? '🔇' : '🔊';
         el.classList.toggle('muted', this.isMuted);
         el.onclick = () => this.toggleMute();
@@ -771,17 +988,24 @@ const RadioApp = {
         const p = this.audio.play();
         if (p && p.then) {
             p.then(() => {
-                // Mute = volume 0 (still streaming), so the visualiser stays fed.
-                this.audio.volume = this.isMuted ? 0 : this.volume;
+                // Apply volume/mute via the gain node (element stays full) so the
+                // visualiser keeps reacting even when muted.
+                this.applyVolume();
                 if (this.audioCtx && this.audioCtx.state === 'suspended') this.audioCtx.resume();
             }).catch((error) => {
                 if (error && error.name === 'NotAllowedError') {
                     console.warn('📻 Audio: autoplay blocked, waiting for user gesture', error);
                     this.armGesturePlay();
+                } else if (error && error.name === 'AbortError') {
+                    // play() was superseded by a newer load()/src change (e.g. our
+                    // own reconnect, or a station switch). Benign — the newer load
+                    // drives playback. Reconnecting here would just abort that one
+                    // too and spin into a loop, so do nothing.
+                    console.warn('📻 Audio: play() aborted by a newer load — ignoring');
                 } else {
-                    // Network/source failure — the element's 'error' event also
-                    // fires for these, but it doesn't for AbortError etc., so
-                    // schedule from here too (scheduleReconnect dedupes).
+                    // Genuine network/source failure. The element's 'error' event
+                    // also fires for these, but not for every case, so schedule
+                    // from here too (scheduleReconnect dedupes).
                     console.warn('📻 Audio: play() failed', error);
                     this.scheduleReconnect('play() failed: ' + (error && error.name));
                 }
@@ -789,6 +1013,13 @@ const RadioApp = {
         }
     },
 
+    // Wait for the first user gesture, then unlock audio. This covers BOTH
+    // autoplay blocks: a rejected element play() AND a suspended AudioContext.
+    // The context case is the nasty one — the element can "play" (not paused)
+    // while routed through a suspended context, producing no sound and a frozen
+    // currentTime while it keeps buffering, so it drifts hundreds of seconds
+    // from live. On unlock we resume the context and reconnect to drop that
+    // stale buffer and rejoin the real live edge.
     armGesturePlay: function() {
         if (this._gestureArmed) return;
         this._gestureArmed = true;
@@ -798,7 +1029,15 @@ const RadioApp = {
             document.removeEventListener('pointerdown', resume);
             document.removeEventListener('keydown', resume);
             this.hideAudioPrompt();
-            this.playAudio();
+            if (this.audioCtx && this.audioCtx.state === 'suspended') {
+                this.audioCtx.resume()
+                    // Reconnect to drop the stale buffer and rejoin live; fall
+                    // back to a plain play() if we don't have a URL to reload.
+                    .then(() => this.currentStreamUrl ? this.reconnectStream() : this.playAudio())
+                    .catch(() => this.playAudio());
+            } else {
+                this.playAudio();
+            }
         };
         document.addEventListener('pointerdown', resume, { once: true });
         document.addEventListener('keydown', resume, { once: true });
@@ -863,7 +1102,17 @@ const RadioApp = {
             // Healthy again: reset backoff and cancel any pending watchdog.
             this.reconnectAttempts = 0;
             this.clearStallWatchdog();
+            // Resuming after a stall leaves us behind by the stall's length —
+            // snap back to the live edge.
+            this.seekToLiveEdge();
         });
+        // As fresh data buffers, keep us pinned to the live edge if we've drifted.
+        this.audio.addEventListener('progress', () => this.seekToLiveEdge());
+
+        // Safety net: some browsers fire 'progress' sparsely, so also poll. The
+        // seek itself is a no-op unless we've actually drifted past the threshold.
+        if (this.livePinTimer) clearInterval(this.livePinTimer);
+        this.livePinTimer = setInterval(() => this.seekToLiveEdge(), 2000);
 
         // When connectivity returns, don't wait out the backoff timer.
         if (!this._onlineHandler) {
@@ -914,18 +1163,71 @@ const RadioApp = {
     reconnectStream: function() {
         if (!this.audio || !this.currentStreamUrl) return;
         // Cache-buster forces the browser to open a fresh connection rather
-        // than reviving the dead one.
+        // than reviving the dead one. Assigning src already triggers a load —
+        // an extra explicit load() here would interrupt the play() below and
+        // reject it with AbortError, which used to schedule another reconnect
+        // and spin into a loop.
         const sep = this.currentStreamUrl.includes('?') ? '&' : '?';
         this.audio.src = this.currentStreamUrl + sep + '_t=' + Date.now();
-        this.audio.load();
         this.playAudio();
+    },
+
+    // --- Live-edge pinning -------------------------------------------------
+    // This is a *live* radio stream: we want to play near the newest audio so we
+    // don't drift minutes behind after stalls. But we must NOT sit on the bleeding
+    // edge — a live stream can't buffer ahead of real time (the server only has
+    // data up to "now"), so a tiny cushion never refills and any jitter past it
+    // underruns → constant waiting/stalled hiccups. So we keep a few seconds of
+    // cushion and only re-sync when latency is clearly excessive (a real fall-
+    // behind, not the normal buffer). The drift IS the cushion: bigger = more
+    // latency but more robust, smaller = closer to live but hiccup-prone.
+    LIVE_EDGE_MAX_DRIFT: 20,       // only re-sync once we're clearly too far behind
+    LIVE_EDGE_TARGET_LAG: 5,       // land here on re-sync — a healthy cushion, not the edge
+    LIVE_EDGE_RECONNECT_DRIFT: 45, // beyond this the buffer is stale — rejoin live
+
+    seekToLiveEdge: function() {
+        const a = this.audio;
+        // While the AudioContext is suspended nothing actually plays (the element
+        // can report not-paused yet produce no sound and a frozen currentTime),
+        // so don't seek or reconnect — armGesturePlay owns resuming + rejoining
+        // live on the next gesture. Acting here would just loop.
+        if (this.audioCtx && this.audioCtx.state === 'suspended') return;
+        // Never touch a paused element: while autoplay is blocked it can amass a
+        // huge stale buffer that we must not seek into — that's what stalled
+        // playback. Once it's actually playing we pin.
+        if (!a || a.paused || a.seeking || !a.buffered || a.buffered.length === 0) return;
+        const liveEdge = a.buffered.end(a.buffered.length - 1);
+        if (!isFinite(liveEdge)) return;
+        const drift = liveEdge - a.currentTime;
+        if (drift <= this.LIVE_EDGE_MAX_DRIFT) return;
+        // A drift far past normal buffer latency means we're on a stale, oversized
+        // buffer (e.g. it filled while the AudioContext was suspended). Seeking
+        // deep into it tends to stall and go silent — reconnect to rejoin the real
+        // live edge instead, the same thing switching stations does. The cooldown
+        // stops the 2s poll from spamming reconnects.
+        if (drift > this.LIVE_EDGE_RECONNECT_DRIFT) {
+            // Don't pile onto a reconnect that's already scheduled/in flight.
+            if (this.reconnectTimer) return;
+            if (!this._lastLiveReconnect || (Date.now() - this._lastLiveReconnect) > 5000) {
+                this._lastLiveReconnect = Date.now();
+                console.warn(`📻 Audio: ${drift.toFixed(0)}s behind live — reconnecting to rejoin live`);
+                this.reconnectStream();
+            }
+            return;
+        }
+        const target = Math.max(0, liveEdge - this.LIVE_EDGE_TARGET_LAG);
+        try {
+            a.currentTime = target;
+            console.log(`📻 Audio: ${drift.toFixed(1)}s behind live — seeking to edge (${target.toFixed(1)}s)`);
+        } catch (e) {
+            // currentTime can throw if the media isn't seekable yet; ignore
+            // and let the next tick retry.
+        }
     },
 
     setVolume: function(volume) {
         this.volume = volume;
-        if (!this.isMuted) {
-            this.audio.volume = volume;
-        }
+        this.applyVolume();
     },
 
 
@@ -1016,18 +1318,51 @@ const RadioApp = {
             console.log('📻 Radio: WinBox window reference not available');
             return;
         }
-        // .full is WinBox's current-state boolean (the .fullscreen method itself
-        // is always truthy, which is the bug the old check had).
-        const goFull = !this.winboxWindow.full;
-        // Fullscreen shows the in-window visualizer, so if it's currently the
-        // desktop wallpaper, recall it into the window first.
-        if (goFull && document.getElementById('desktop-visualizer')) {
-            this.setAsWallpaper();
+        // We drive fullscreen with the Fullscreen API directly rather than
+        // WinBox's .fullscreen(). WinBox tracks the fullscreen window in a module
+        // variable it never clears, and its minimize/restore then call
+        // document.exitFullscreen() on ANY active browser-fullscreen — including
+        // the app-level (taskbar) one it didn't create. Going direct sidesteps
+        // that entirely; the UI state is reconciled in onFullscreenChange.
+        if (this.isRadioFullscreen()) {
+            // Radio is fullscreen → exit.
+            if (document.exitFullscreen) document.exitFullscreen();
+            return;
         }
-        this.winboxWindow.fullscreen(goFull);
+        // Enter radio fullscreen. This works even when the whole page is already
+        // fullscreen (the taskbar button): the radio body is a descendant of the
+        // current fullscreen element, so requesting fullscreen on it just
+        // transitions the fullscreen target from the desktop down to the radio.
+        // Going fullscreen shows the in-window visualizer, so if it's currently
+        // the desktop wallpaper, recall it into the window first.
+        if (document.getElementById('desktop-visualizer')) this.setAsWallpaper();
+        const target = this.winboxWindow.body || this.winboxWindow.window;
+        const req = target.requestFullscreen || target.webkitRequestFullscreen;
+        if (req) {
+            const p = req.call(target);
+            if (p && p.catch) p.catch((e) => console.warn('📻 Radio: fullscreen request failed', e));
+        }
+    },
+
+    // Is the radio window the current browser-fullscreen element (or contains
+    // it)? Distinguishes radio fullscreen from the app-level desktop fullscreen.
+    isRadioFullscreen: function() {
+        const fsEl = document.fullscreenElement;
+        const winEl = this.winboxWindow && this.winboxWindow.window;
+        return !!(fsEl && winEl && (winEl === fsEl || winEl.contains(fsEl)));
+    },
+
+    // Reconcile UI to the actual fullscreen state on every fullscreenchange —
+    // covers our own toggle, the Esc key, and the OS exiting fullscreen.
+    onFullscreenChange: function() {
+        const full = this.isRadioFullscreen();
         const btn = document.getElementById('viz-fullscreen-btn');
-        if (btn) btn.setAttribute('data-tooltip', goFull ? 'Exit full screen' : 'Full screen');
-        console.log(goFull ? '📻 Radio: Entered fullscreen' : '📻 Radio: Exited fullscreen');
+        if (btn) btn.setAttribute('data-tooltip', full ? 'Exit full screen' : 'Full screen');
+        if (!full) {
+            const radioApp = this.container && this.container.querySelector('.radio-app');
+            if (radioApp) radioApp.classList.remove('cursor-hidden');
+        }
+        console.log(full ? '📻 Radio: Entered fullscreen' : '📻 Radio: Exited fullscreen');
     },
 
     changeToRandomPreset: function() {
@@ -1119,11 +1454,10 @@ const RadioApp = {
             console.log('📻 Visualizer: Restored to radio window');
         } else if (canvas) {
             // Going to wallpaper — the canvas is leaving the window, so a
-            // fullscreen radio window would be empty. Exit fullscreen first.
-            if (this.winboxWindow && this.winboxWindow.full) {
-                this.winboxWindow.fullscreen(false);
-                const ft = document.getElementById('viz-fullscreen-btn');
-                if (ft) ft.setAttribute('data-tooltip', 'Full screen');
+            // fullscreen radio window would be empty. Exit fullscreen first
+            // (onFullscreenChange resets the button tooltip).
+            if (this.isRadioFullscreen() && document.exitFullscreen) {
+                document.exitFullscreen();
             }
             // Move the canvas to the body as a desktop wallpaper
             canvas.parentNode.removeChild(canvas);
@@ -1175,6 +1509,13 @@ const RadioApp = {
                 color: #00ffff;
                 font-family: 'Orbitron', sans-serif;
                 overflow: hidden;
+            }
+
+            /* Hide the cursor when idle in fullscreen (toggled from JS). The * +
+               !important is needed because buttons set their own cursor:pointer. */
+            .radio-app.cursor-hidden,
+            .radio-app.cursor-hidden * {
+                cursor: none !important;
             }
             
             #visualizer-canvas {
@@ -1407,6 +1748,14 @@ const RadioApp = {
             .viz-btn.viz-off {
                 opacity: 0.5;
             }
+            /* PNG icon inside a viz button (e.g. the fullscreen icon). Forced to
+               white with a cyan halo so it matches the emoji buttons' glow. */
+            .viz-btn-img {
+                width: 18px;
+                height: 18px;
+                display: block;
+                filter: brightness(0) invert(1) drop-shadow(0 0 5px rgba(0, 255, 255, 0.7));
+            }
 
             /* Station switcher: a segmented pill that lives with the track info
                (so it stays visible while the action controls fade on idle). */
@@ -1467,6 +1816,7 @@ const RadioApp = {
 
     destroy: function() {
         this.removeTaskbarMute();
+        this._clearMediaSession();
         if (this._radioUnsub) { this._radioUnsub(); this._radioUnsub = null; }
         if (this.progressInterval) {
             clearInterval(this.progressInterval);
@@ -1497,6 +1847,10 @@ const RadioApp = {
             try { this.source.disconnect(); } catch (e) {}
             this.source = null;
         }
+        if (this.gainNode) {
+            try { this.gainNode.disconnect(); } catch (e) {}
+            this.gainNode = null;
+        }
         if (this.audioCtx) {
             try { this.audioCtx.close(); } catch (e) {}
             this.audioCtx = null;
@@ -1526,6 +1880,10 @@ const RadioApp = {
         }
         this.clearStallWatchdog();
         this.reconnectAttempts = 0;
+        if (this.livePinTimer) {
+            clearInterval(this.livePinTimer);
+            this.livePinTimer = null;
+        }
         if (this._onlineHandler) {
             window.removeEventListener('online', this._onlineHandler);
             this._onlineHandler = null;

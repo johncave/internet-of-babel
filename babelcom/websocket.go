@@ -5,7 +5,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 	"sync"
+	"time"
 
 	"encoding/json"
 
@@ -29,14 +32,17 @@ type Server struct {
 	// "psytrance"). We subscribe to several stations at once and replay the
 	// latest of each to a freshly-connecting client so its station switcher is
 	// populated immediately, not after the next upstream push.
-	lastRadioMessages map[string][]byte
-	mu                   sync.RWMutex
-	upgrader             websocket.Upgrader
-	apiKey               string
-	latestSystemStatus   []byte
-	currentArticle       []byte // accumulated token stream since the last reset
-	currentTitle         string // latest article title parsed from system_status
-	clippy               *Clippy
+	lastRadioMessages  map[string][]byte
+	mu                 sync.RWMutex
+	upgrader           websocket.Upgrader
+	apiKey             string
+	latestSystemStatus []byte
+	currentArticle     []byte // accumulated token stream since the last reset
+	currentTitle       string // latest article title parsed from system_status
+	currentMood        []byte // last broadcast mood_change message; replayed on connect
+	lastNightSong      string // sh_id of the Vaporwave station's current song; drives mood changes
+	clippy             *Clippy
+	moods              *MoodEngine
 }
 
 // CurrentTitle returns the most recent article title observed on the LLM bus,
@@ -162,6 +168,19 @@ func (s *Server) handleBroadcastWebSocket(c *gin.Context) {
 			}
 			connection.mu.Unlock()
 		}
+	}
+
+	// Current wallpaper mood, so a Babelcom-mode desktop lands on the shared
+	// mood immediately instead of waiting for the next rotation tick.
+	s.mu.RLock()
+	currentMood := s.currentMood
+	s.mu.RUnlock()
+	if currentMood != nil {
+		connection.mu.Lock()
+		if err := connection.conn.WriteMessage(websocket.TextMessage, currentMood); err != nil {
+			log.Printf("Error sending current mood: %v", err)
+		}
+		connection.mu.Unlock()
 	}
 
 	log.Printf("Broadcast client connected. Total connections: %d", len(s.broadcastConnections))
@@ -309,59 +328,174 @@ func radioStationShortcode(message []byte) string {
 	return probe.Pub.Data.Np.Station.Shortcode
 }
 
-// Connect to upstream radio WebSocket
-func (s *Server) connectUpstreamRadio(upstreamURL string) error {
-	if s.upstreamRadioConn != nil {
-		s.upstreamRadioConn.Close()
+// nowPlaying pulls the currently playing track's "song history id" and source
+// playlist out of an upstream payload. sh_id is unique per play, so it changes
+// on every song boundary (unlike song.id, which repeats for the same track);
+// the playlist (e.g. "Stellardrone", "Vaporwave") biases the wallpaper choice.
+// Returns "" id if the message has no now_playing entry.
+func nowPlaying(message []byte) (id, playlist string) {
+	var probe struct {
+		Pub struct {
+			Data struct {
+				Np struct {
+					NowPlaying struct {
+						ShID     int64  `json:"sh_id"`
+						Playlist string `json:"playlist"`
+					} `json:"now_playing"`
+				} `json:"np"`
+			} `json:"data"`
+		} `json:"pub"`
 	}
-
-	conn, _, err := websocket.DefaultDialer.Dial(upstreamURL, nil)
-	if err != nil {
-		return fmt.Errorf("failed to connect to upstream radio: %v", err)
+	if err := json.Unmarshal(message, &probe); err != nil {
+		return "", ""
 	}
-
-	s.upstreamRadioConn = conn
-	log.Printf("Connected to upstream radio WebSocket: %s", upstreamURL)
-
-	// Send subscription message. We subscribe to every station the desktop's
-	// radio switcher offers; each station's "now playing" arrives on its own
-	// channel and is rebroadcast verbatim (the frontend routes by the
-	// shortcode carried in the payload). "night" is the Vaporwave station.
-	subscriptionMsg := `{"subs":{"station:night":{"recover":true},"station:psytrance":{"recover":true}}}`
-	err = conn.WriteMessage(websocket.TextMessage, []byte(subscriptionMsg))
-	if err != nil {
-		log.Printf("Failed to send subscription message: %v", err)
-	} else {
-		log.Printf("Sent subscription message to upstream radio")
+	np := probe.Pub.Data.Np.NowPlaying
+	if np.ShID == 0 {
+		return "", np.Playlist
 	}
-
-	// Start listening for messages from upstream
-	go func() {
-		for {
-			_, message, err := conn.ReadMessage()
-			if err != nil {
-				log.Printf("Upstream radio connection closed: %v", err)
-				s.upstreamRadioConn = nil
-				break
-			}
-
-			// Cache the last message per station so a new client can be
-			// seeded for whichever station it switches to. The station
-			// shortcode lives in the payload; messages without one (e.g.
-			// keepalives) are still rebroadcast but not cached.
-			if len(message) > 4 {
-				if code := radioStationShortcode(message); code != "" {
-					s.mu.Lock()
-					s.lastRadioMessages[code] = message
-					s.mu.Unlock()
-				}
-			}
-
-			// Rebroadcast to all radio clients
-			s.broadcastRadio(message)
-		}
-	}()
-
-	return nil
+	return strconv.FormatInt(np.ShID, 10), np.Playlist
 }
 
+// How long we'll wait for any upstream frame (data or keepalive ping) before
+// declaring the link dead. AzuraCast/Centrifugo pings well inside this, so a
+// silence this long means a half-open connection — which is exactly the failure
+// that previously went undetected and left clients on stale/empty data.
+const upstreamRadioReadTimeout = 60 * time.Second
+
+// connectUpstreamRadio launches the background supervisor that keeps a
+// connection to the upstream radio alive, reconnecting forever with backoff.
+// It returns the result of the *first* connection attempt so startup can log a
+// status; the supervisor keeps retrying regardless of that result.
+func (s *Server) connectUpstreamRadio(upstreamURL string) error {
+	firstErr := make(chan error, 1)
+	go s.superviseUpstreamRadio(upstreamURL, firstErr)
+	return <-firstErr
+}
+
+// superviseUpstreamRadio dials, streams, and on any disconnect reconnects with
+// exponential backoff (capped). A connection that stayed up for a while resets
+// the backoff so a one-off drop recovers fast, while genuine flapping backs off.
+func (s *Server) superviseUpstreamRadio(upstreamURL string, firstErr chan<- error) {
+	const minBackoff, maxBackoff = time.Second, 30 * time.Second
+	backoff := minBackoff
+	notified := false
+
+	for {
+		conn, err := s.dialUpstreamRadio(upstreamURL)
+		if !notified {
+			notified = true
+			firstErr <- err
+		}
+		if err != nil {
+			log.Printf("babelcom: upstream radio connect failed: %v — retrying in %s", err, backoff)
+		} else {
+			start := time.Now()
+			s.streamUpstreamRadio(conn) // blocks until the link drops
+			if time.Since(start) > maxBackoff {
+				backoff = minBackoff // it was healthy for a while — treat next drop as fresh
+			}
+			log.Printf("babelcom: upstream radio disconnected — reconnecting in %s", backoff)
+		}
+
+		time.Sleep(backoff)
+		if backoff < maxBackoff {
+			if backoff *= 2; backoff > maxBackoff {
+				backoff = maxBackoff
+			}
+		}
+	}
+}
+
+// dialUpstreamRadio opens the connection and subscribes to every station the
+// desktop's switcher offers. Each station's "now playing" arrives on its own
+// channel and is rebroadcast verbatim (the frontend routes by the shortcode in
+// the payload). "night" is the Vaporwave station.
+func (s *Server) dialUpstreamRadio(upstreamURL string) (*websocket.Conn, error) {
+	conn, _, err := websocket.DefaultDialer.Dial(upstreamURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("dial: %w", err)
+	}
+	// A protocol-level ping also counts as the link being alive — answer it and
+	// push the read deadline out, so a quiet-but-healthy connection isn't reaped.
+	conn.SetPingHandler(func(appData string) error {
+		conn.SetReadDeadline(time.Now().Add(upstreamRadioReadTimeout))
+		return conn.WriteControl(websocket.PongMessage, []byte(appData), time.Now().Add(10*time.Second))
+	})
+	subscriptionMsg := `{"subs":{"station:night":{"recover":true},"station:psytrance":{"recover":true}}}`
+	if err := conn.WriteMessage(websocket.TextMessage, []byte(subscriptionMsg)); err != nil {
+		conn.Close()
+		return nil, fmt.Errorf("subscribe: %w", err)
+	}
+	s.mu.Lock()
+	s.upstreamRadioConn = conn
+	s.mu.Unlock()
+	log.Printf("Connected to upstream radio WebSocket: %s", upstreamURL)
+	return conn, nil
+}
+
+// streamUpstreamRadio reads from the upstream connection until it drops, caching
+// and rebroadcasting each station update. It blocks; the caller reconnects.
+func (s *Server) streamUpstreamRadio(conn *websocket.Conn) {
+	defer func() {
+		conn.Close()
+		s.mu.Lock()
+		if s.upstreamRadioConn == conn {
+			s.upstreamRadioConn = nil
+		}
+		s.mu.Unlock()
+	}()
+
+	for {
+		// A live link is never silent for long — AzuraCast/Centrifugo pings
+		// keep it warm. If even those stop arriving, the deadline fires and we
+		// treat the connection as dead instead of blocking on it forever.
+		conn.SetReadDeadline(time.Now().Add(upstreamRadioReadTimeout))
+		_, message, err := conn.ReadMessage()
+		if err != nil {
+			log.Printf("Upstream radio read error: %v", err)
+			return
+		}
+
+		// Centrifugo keepalive: the server sends an empty object "{}" and
+		// expects the same back, or it eventually drops us. Answer it and move
+		// on without rebroadcasting.
+		if strings.TrimSpace(string(message)) == "{}" {
+			if err := conn.WriteMessage(websocket.TextMessage, []byte("{}")); err != nil {
+				log.Printf("Upstream radio ping reply failed: %v", err)
+				return
+			}
+			continue
+		}
+
+		// Cache the last message per station so a new client can be seeded for
+		// whichever station it switches to. The station shortcode lives in the
+		// payload; messages without one are still rebroadcast but not cached.
+		if len(message) > 4 {
+			if code := radioStationShortcode(message); code != "" {
+				songChanged := false
+				nightPlaylist := ""
+				s.mu.Lock()
+				s.lastRadioMessages[code] = message
+				// The wallpaper follows the Vaporwave (night) station: when its
+				// current song changes, pick a new mood (biased by the song's
+				// playlist). AzuraCast also pushes now_playing frames for
+				// non-musical events (listeners, etc.), so we key on sh_id
+				// (unique per play) and ignore repeats. The first song we
+				// observe just sets the baseline — no change.
+				if code == "night" {
+					if id, playlist := nowPlaying(message); id != "" && id != s.lastNightSong {
+						songChanged = s.lastNightSong != ""
+						s.lastNightSong = id
+						nightPlaylist = playlist
+					}
+				}
+				s.mu.Unlock()
+				if songChanged && s.moods != nil {
+					s.moods.tick(nightPlaylist)
+				}
+			}
+		}
+
+		s.broadcastRadio(message)
+	}
+}

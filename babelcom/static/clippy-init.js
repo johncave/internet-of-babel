@@ -1,12 +1,13 @@
-// ESM bootstrap for clippyjs. Loads the agent from CDN and hands it to the
-// shell, which manages everything else. Kept tiny so a CDN miss doesn't take
-// the rest of the desktop with it.
+// ESM bootstrap for clippyjs. Loads the agent and hands it to the shell, which
+// manages everything else. Kept tiny so a load failure doesn't take the rest of
+// the desktop with it.
 //
-// Uses esm.sh because the clippyjs package ships an `exports` map and jsdelivr
-// now rejects raw `/dist/*.mjs` paths (HTTP 400, served as text/plain), which
-// the browser refuses to execute as a module.
-import { initAgent } from 'https://esm.sh/clippyjs';
-import { Clippy } from 'https://esm.sh/clippyjs/agents';
+// Self-hosted from /static/vendor/clippyjs (clippyjs@0.1.0). The agent's sprite
+// sheet and sounds are inlined as data-URI modules, so the only thing the
+// browser fetches is these .mjs files — no external CDN. The Go static handler
+// must serve .mjs as application/javascript or the browser won't run them.
+import { initAgent } from '/static/vendor/clippyjs/dist/index.mjs';
+import Clippy from '/static/vendor/clippyjs/dist/agents/clippy/index.mjs';
 
 (async () => {
     // The shell (app.js) loads as a normal script and synchronously sets
