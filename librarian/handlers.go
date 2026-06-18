@@ -95,17 +95,22 @@ func initializeSearchIndex() error {
 
 	searchIndex = index
 
-	// Always re-index both dirs on startup. Re-indexing is idempotent
-	// (same doc ID → overwrite). This catches articles added to disk
-	// outside the upload flow — manual copies, restored backups, or
-	// anything that landed before a schema change — that would otherwise
-	// be invisible to search.
-	if err := indexDir(index, articlesDir, "ai"); err != nil {
-		log.Printf("Warning: failed to index AI articles: %v", err)
-	}
-	if err := indexDir(index, wikiDir, "wiki"); err != nil {
-		log.Printf("Warning: failed to index wiki articles: %v", err)
-	}
+	// Re-index both dirs in the background. Re-indexing is idempotent
+	// (same doc ID → overwrite) and catches articles added to disk outside
+	// the upload flow — manual copies, restored backups, or anything that
+	// landed before a schema change — that would otherwise be invisible to
+	// search. It walks the whole corpus, which on a large library takes
+	// long enough to blow past the liveness probe budget; running it off
+	// the startup path lets the server bind its port immediately. Search
+	// returns "not ready" until the first pass completes.
+	go func() {
+		if err := indexDir(index, articlesDir, "ai"); err != nil {
+			log.Printf("Warning: failed to index AI articles: %v", err)
+		}
+		if err := indexDir(index, wikiDir, "wiki"); err != nil {
+			log.Printf("Warning: failed to index wiki articles: %v", err)
+		}
+	}()
 
 	return nil
 }
@@ -119,7 +124,23 @@ func indexDir(index bleve.Index, dir, kind string) error {
 		return err
 	}
 
+	// Index in batches. Single-document index.Index calls each commit
+	// their own segment, which is orders of magnitude slower than batching
+	// on a large corpus — slow enough that a full rebuild can outrun the
+	// liveness probe. Flushing every batchSize docs keeps memory bounded.
+	const batchSize = 500
 	count := 0
+	batch := index.NewBatch()
+	flush := func() {
+		if batch.Size() == 0 {
+			return
+		}
+		if err := index.Batch(batch); err != nil {
+			log.Printf("Warning: failed to flush %s index batch: %v", kind, err)
+		}
+		batch = index.NewBatch()
+	}
+
 	for _, f := range files {
 		if f.IsDir() || !strings.HasSuffix(f.Name(), ".md") {
 			continue
@@ -148,12 +169,16 @@ func indexDir(index bleve.Index, dir, kind string) error {
 		if kind != "ai" {
 			id = kind + ":" + filename
 		}
-		if err := index.Index(id, doc); err != nil {
+		if err := batch.Index(id, doc); err != nil {
 			log.Printf("Warning: failed to index %s (%s): %v", id, kind, err)
 			continue
 		}
 		count++
+		if batch.Size() >= batchSize {
+			flush()
+		}
 	}
+	flush()
 
 	log.Printf("Indexed %d %s articles", count, kind)
 	return nil
