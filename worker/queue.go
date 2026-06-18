@@ -11,7 +11,7 @@ import (
 
 func sanitizeFilename(name string) string {
 	re := regexp.MustCompile(`[^a-zA-Z0-9_-]+`)
-	return strings.Trim(re.ReplaceAllString(name, "_"), "_")
+	return strings.Trim(re.ReplaceAllString(name, "_"), "_-")
 }
 
 func ensureDir(path string) error {

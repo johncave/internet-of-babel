@@ -157,6 +157,12 @@ func parseMarkdownList(input string) []string {
 		// Match markdown list items: * item, - item, + item
 		if strings.HasPrefix(line, "* ") || strings.HasPrefix(line, "- ") || strings.HasPrefix(line, "+ ") {
 			item := strings.TrimSpace(line[2:]) // Remove the list marker and space
+			// Strip any further nested markers the LLM emits (e.g. "- - Term")
+			for strings.HasPrefix(item, "* ") || strings.HasPrefix(item, "- ") || strings.HasPrefix(item, "+ ") {
+				item = strings.TrimSpace(item[2:])
+			}
+			// Strip leading bullet-like punctuation with no trailing space (e.g. "-Term", "–Term")
+			item = strings.TrimSpace(strings.TrimLeft(item, "-*+–— "))
 			if item != "" {
 				items = append(items, item)
 			}
@@ -210,6 +216,14 @@ func work() {
 
 		// Normalize the topic for better duplication checking
 		normalizedTopic := normalizeTitle(topic)
+
+		// Skip topics that sanitize to an empty slug (e.g. pure punctuation),
+		// which would otherwise write a ".md" file and break indexing.
+		if sanitizeFilename(normalizedTopic) == "" {
+			log.Printf("Skipping topic with empty slug: %q", topic)
+			_ = writeQueue(queuePath, queueItems)
+			continue
+		}
 
 		filename := sanitizeFilename(normalizedTopic) + ".md"
 		articlePath := filepath.Join(articlesDir, filename)
@@ -335,6 +349,9 @@ func work() {
 
 				// Normalize the keyword for better duplication checking
 				normalizedKw := normalizeTitle(kw)
+				if sanitizeFilename(normalizedKw) == "" {
+					continue
+				}
 
 				// Make file existence check case-insensitive by checking all files in the directory
 				alreadyProcessed := false

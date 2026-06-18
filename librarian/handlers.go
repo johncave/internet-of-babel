@@ -125,6 +125,10 @@ func indexDir(index bleve.Index, dir, kind string) error {
 			continue
 		}
 		filename := strings.TrimSuffix(f.Name(), ".md")
+		if filename == "" {
+			log.Printf("Warning: skipping article with empty filename: %q", f.Name())
+			continue
+		}
 		title := desanitizeTitle(filename)
 
 		content, err := os.ReadFile(filepath.Join(dir, f.Name()))

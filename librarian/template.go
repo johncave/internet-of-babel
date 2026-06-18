@@ -92,6 +92,12 @@ func parseMarkdownList(input string) []string {
 		// Match markdown list items: * item, - item, + item
 		if strings.HasPrefix(line, "* ") || strings.HasPrefix(line, "- ") || strings.HasPrefix(line, "+ ") {
 			item := strings.TrimSpace(line[2:]) // Remove the list marker and space
+			// Strip any further nested markers the LLM emits (e.g. "- - Term")
+			for strings.HasPrefix(item, "* ") || strings.HasPrefix(item, "- ") || strings.HasPrefix(item, "+ ") {
+				item = strings.TrimSpace(item[2:])
+			}
+			// Strip leading bullet-like punctuation with no trailing space (e.g. "-Term", "–Term")
+			item = strings.TrimSpace(strings.TrimLeft(item, "-*+–— "))
 			if item != "" {
 				items = append(items, item)
 			}
@@ -176,7 +182,7 @@ func addKeywordLinks(mdContent string, keywordsPath string, articlesDir string) 
 
 func sanitizeFilename(name string) string {
 	re := regexp.MustCompile(`[^a-zA-Z0-9_-]+`)
-	return strings.Trim(re.ReplaceAllString(name, "_"), "_")
+	return strings.Trim(re.ReplaceAllString(name, "_"), "_-")
 }
 
 func desanitizeTitle(filename string) string {
