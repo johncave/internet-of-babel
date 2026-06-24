@@ -579,12 +579,22 @@ const RadioApp = {
         }, 5000);
     },
 
+    // Dev hosts (localhost / loopback) show debug overlays; production hides them.
+    isDevHost: function() {
+        const h = location.hostname;
+        return /(^|\.)localhost$/i.test(h) || h === '127.0.0.1' || h === '::1' || h === '';
+    },
+
     render: function() {
+        // The on-screen FPS readout is a dev-only debug overlay — hide it in
+        // production. The measurement itself still runs (it drives adaptive
+        // visualiser quality); only the visible counter is suppressed.
+        const fpsDisplay = this.isDevHost() ? 'block' : 'none';
         this.container.innerHTML = `
             <div class="radio-app">
                 <audio id="radio-audio" preload="none" crossorigin="anonymous"></audio>
                 <canvas id="visualizer-canvas" width="800" height="600" style="width:100%;height:100%;display:block;position:absolute;top:0;left:0;"></canvas>
-                <div id="visualizer-fps" style="position:absolute;top:4px;right:8px;z-index:30;color:#0f0;font:11px monospace;text-shadow:0 0 2px #000;pointer-events:none;">— fps</div>
+                <div id="visualizer-fps" style="position:absolute;top:4px;right:8px;z-index:30;color:#0f0;font:11px monospace;text-shadow:0 0 2px #000;pointer-events:none;display:${fpsDisplay};">— fps</div>
                 <div class="station-bar">
                     <div class="station-switcher" id="station-switcher"></div>
                 </div>

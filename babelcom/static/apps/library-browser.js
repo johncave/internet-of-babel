@@ -1,8 +1,10 @@
-// Web of Babel — shadow DOM custom element. Wiki lives on the wiki.* sibling
-// host of whatever babelcom.* host we're on; falls back to prod if unparsed.
+// Web of Babel — shadow DOM custom element. The wiki lives on the web4.* sibling
+// host of whatever babelcom.* host we're on (both the dev merged binary and prod
+// route web4.* to the librarian; there is no wiki.johncave.co.nz in prod). Falls
+// back to the prod wiki if the host doesn't parse.
 const LIBRARY_HOME_URL = (() => {
     const m = /^babelcom\.(.+)$/i.exec(location.host);
-    return m ? `${location.protocol}//wiki.${m[1]}/` : 'https://web4.johncave.co.nz/';
+    return m ? `${location.protocol}//web4.${m[1]}/` : 'https://web4.johncave.co.nz/';
 })();
 
 class BabelLibraryBrowser extends HTMLElement {
