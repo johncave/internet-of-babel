@@ -58,7 +58,7 @@ const RadioApp = {
     // resets to 1.0x and re-assesses from scratch.
     VIZ_SCALE_STEPS: [1, 0.75, 0.5, 0.35, 0.25],
     VIZ_FPS_LOW: 30,        // below this → drop a level (matches the on-screen meter)
-    VIZ_FPS_BLACKLIST: 10,  // below this AT min resolution → blacklist + skip the preset
+    VIZ_FPS_BLACKLIST: 15,  // below this AT min resolution → blacklist + skip the preset
     VIZ_DROP_GAIN: 1.15,    // min fps ratio a drop must yield, else it's an external cap
     VIZ_SETTLE_MARGIN_MS: 1500, // extra hold after a crossfade finishes before judging fps
     VIZ_STEP_SETTLE_MS: 1200,   // re-measure delay after we change a level
@@ -126,10 +126,21 @@ const RadioApp = {
             const helped = fps > this._vizProbeFps * this.VIZ_DROP_GAIN;
             this._vizProbeFps = null;
             if (!helped) {
-                this._vizThrottled = true;
-                this._vizScaleIdx = 0;
-                this.applyVizResolution();
-                console.warn(`📻 Visualizer: ${fps}fps unchanged by lowering resolution — external frame-rate cap (throttle/vsync), not GPU load. Holding full res.`);
+                // Lowering resolution didn't move the framerate. Disambiguate by
+                // absolute fps: no display refresh caps below ~10fps, so a rate
+                // that's catastrophically low AND resolution-independent is a
+                // genuinely broken/heavy preset (a GPU-choking effect whose cost
+                // doesn't scale with pixels) → blacklist it. A higher pinned rate
+                // (e.g. 25) is a real external cap (vsync / inactive secondary
+                // screen / unfocused window) → hold full res and stop adapting.
+                if (fps < this.VIZ_FPS_BLACKLIST) {
+                    this._skipHeavyPreset(fps);
+                } else {
+                    this._vizThrottled = true;
+                    this._vizScaleIdx = 0;
+                    this.applyVizResolution();
+                    console.warn(`📻 Visualizer: ${fps}fps unchanged by lowering resolution — external frame-rate cap (throttle/vsync), not GPU load. Holding full res.`);
+                }
                 return;
             }
         }
@@ -629,7 +640,7 @@ const RadioApp = {
         if (!el) return;
         el.innerHTML = this.STATIONS.map(s =>
             `<button class="station-tab${s.code === this.currentStation ? ' active' : ''}"`
-            + ` data-station="${s.code}" onclick="RadioApp.switchStation('${s.code}')">${s.name}</button>`
+            + ` data-station="${s.code}" onclick="RadioApp.toggleStation()">${s.name}</button>`
         ).join('');
     },
 
@@ -668,6 +679,13 @@ const RadioApp = {
             if (a) a.textContent = 'Loading...';
         }
         this.handleUserInteraction();
+    },
+
+    // The switcher behaves as a toggle: a click on EITHER tab flips to the
+    // other station (with two stations, "next" is always "the other"). Clicking
+    // the already-active tab therefore switches too, rather than no-opping.
+    toggleStation: function() {
+        this.cycleStation(1);
     },
 
     // Cycle to the next/previous station (dir = +1 / -1), wrapping around.
@@ -1336,6 +1354,12 @@ const RadioApp = {
         // Going fullscreen shows the in-window visualizer, so if it's currently
         // the desktop wallpaper, recall it into the window first.
         if (document.getElementById('desktop-visualizer')) this.setAsWallpaper();
+        // Going fullscreen means the user wants to SEE the visualiser — if it was
+        // disabled, re-enable it (and resync the loop + hide/show button) so we
+        // don't fill the screen with a black canvas. (Disabling *while already*
+        // fullscreen still works via the hide button — a black screen, but that's
+        // a deliberate choice.)
+        this.setVisualizerEnabled(true);
         const target = this.winboxWindow.body || this.winboxWindow.window;
         const req = target.requestFullscreen || target.webkitRequestFullscreen;
         if (req) {
@@ -1382,32 +1406,37 @@ const RadioApp = {
         }
     },
 
-    toggleVisualizer: function() {
-        const canvas = document.getElementById('visualizer-canvas');
-        const btn = document.getElementById('viz-toggle-btn');
-        if (!canvas) return;
+    // The live canvas, wherever it currently lives — in the radio window
+    // (#visualizer-canvas) or promoted to the desktop wallpaper
+    // (#desktop-visualizer). The three viz controls all act through this so they
+    // compose regardless of which mode you're in.
+    vizCanvas: function() {
+        return document.getElementById('visualizer-canvas')
+            || document.getElementById('desktop-visualizer');
+    },
 
-        if (canvas.style.display === 'none') {
-            // Enable visualizer
-            canvas.style.display = 'block';
-            if (btn) {
-                btn.setAttribute('data-tooltip', 'Hide visual');
-                btn.classList.remove('viz-off');
-            }
-            this.visualizerEnabled = true;
-            if (!this.visualizerFrame && this.renderFrame) {
-                this.renderFrame();
-            }
+    // Single source of truth for the enabled/disabled state. Applies it to
+    // whichever canvas exists (window or wallpaper), reconciles the toggle
+    // button, and starts/stops the render loop + preset cycling to match. Safe
+    // to call repeatedly and in any mode — startPresetCycling clears its own
+    // prior interval, and the renderFrame guard prevents a double loop.
+    setVisualizerEnabled: function(enabled) {
+        this.visualizerEnabled = enabled;
+        const canvas = this.vizCanvas();
+        if (canvas) canvas.style.display = enabled ? 'block' : 'none';
+        const btn = document.getElementById('viz-toggle-btn');
+        if (btn) {
+            btn.setAttribute('data-tooltip', enabled ? 'Hide visual' : 'Show visual');
+            btn.classList.toggle('viz-off', !enabled);
+        }
+        if (enabled) {
+            // A canvas hidden via display:none reports 0×0, so a move that
+            // happened while disabled may have left it sized wrong. Recompute now
+            // that it's visible again before resuming the loop.
+            this.applyVizResolution();
+            if (!this.visualizerFrame && this.renderFrame) this.renderFrame();
             this.startPresetCycling();
-            console.log('📻 Visualizer: Enabled');
         } else {
-            // Disable visualizer
-            canvas.style.display = 'none';
-            if (btn) {
-                btn.setAttribute('data-tooltip', 'Show visual');
-                btn.classList.add('viz-off');
-            }
-            this.visualizerEnabled = false;
             if (this.visualizerFrame) {
                 cancelAnimationFrame(this.visualizerFrame);
                 this.visualizerFrame = null;
@@ -1416,8 +1445,13 @@ const RadioApp = {
                 clearInterval(this.presetInterval);
                 this.presetInterval = null;
             }
-            console.log('📻 Visualizer: Disabled');
         }
+        console.log('📻 Visualizer: ' + (enabled ? 'Enabled' : 'Disabled'));
+    },
+
+    toggleVisualizer: function() {
+        if (!this.vizCanvas()) return;
+        this.setVisualizerEnabled(!this.visualizerEnabled);
     },
 
     setAsWallpaper: function() {
@@ -1485,6 +1519,10 @@ const RadioApp = {
             if (wallpaperBtn) wallpaperBtn.setAttribute('data-tooltip', 'Back to window');
             console.log('📻 Visualizer: Moved to desktop wallpaper');
         }
+        // Moving to/from wallpaper means the user wants to SEE the visualiser, so
+        // ensure it's on — if it was disabled, this re-enables it, restarts the
+        // render loop, and resyncs the hide/show button.
+        this.setVisualizerEnabled(true);
         // Always reveal the fading controls when setting as wallpaper.
         const fadeControls = document.querySelector('.fade-controls');
         if (fadeControls) fadeControls.classList.remove('faded');

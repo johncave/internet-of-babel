@@ -459,7 +459,28 @@ const Clippy = (() => {
         if (idx >= 0) activeAppStack.splice(idx, 1);
     }
 
+    // If Clippy's center is currently inside Writer's rect — most often
+    // because he just commented and parked at Writer's bottom-right rest spot
+    // — treat Writer as active for idle purposes regardless of which window
+    // the user last focused. He's visibly *in the document*, so his idle
+    // chatter should be about writing, not about the System Monitor he
+    // happens to have on top.
+    function clippyIsOverWriter() {
+        if (!agent?._el) return false;
+        const writer = document.querySelector('babel-writer');
+        if (!writer) return false;
+        const w = writer.getBoundingClientRect();
+        if (w.width === 0 || w.height === 0) return false;
+        const c = agent._el.getBoundingClientRect();
+        const cx = c.left + c.width / 2;
+        const cy = c.top + c.height / 2;
+        return cx >= w.left && cx <= w.right && cy >= w.top && cy <= w.bottom;
+    }
+
     function activeProfile() {
+        if (clippyIsOverWriter()) {
+            return profiles.get('writer') || profiles.get('default');
+        }
         const id = activeAppStack[activeAppStack.length - 1];
         return profiles.get(id) || profiles.get('default');
     }
@@ -1456,6 +1477,21 @@ function restoreSession() {
 // Flush any pending debounced save before the page goes away.
 window.addEventListener('beforeunload', saveSession);
 
+// WinBox freezes each window's maxwidth/maxheight to the viewport size at
+// creation time (its open issue #151) and never updates them when the browser
+// resizes — so a window created on a narrow screen stays un-resizable past that
+// width even after the screen grows. Re-sync them to the live viewport on every
+// resize so manual resizing always reaches the current screen edge. (The drag
+// clamp already includes a live `root_w - x - right` term, so this just stops
+// the stale maxwidth from being the binding constraint.)
+window.addEventListener('resize', () => {
+    runningApps.forEach((win) => {
+        if (!win) return;
+        win.maxwidth = Math.max(win.minwidth || 150, window.innerWidth - (win.left || 0) - (win.right || 0));
+        win.maxheight = Math.max(win.minheight || 0, window.innerHeight - (win.top || 0) - (win.bottom || 0));
+    });
+});
+
 // Clear the saved layout and reload — gives a fresh boot (animation + Welcome).
 // The `restarting` flag stops the beforeunload flush from re-writing the
 // session we just cleared.
@@ -1464,6 +1500,21 @@ function restartBabelcom() {
     try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
     Clippy.clearSavedPosition();
     location.reload();
+}
+
+// Keep a window's geometry inside the current viewport (above the 50px taskbar)
+// so a layout saved on a larger screen can't open a window off-screen where it
+// can't be reached. Oversized windows shrink to fit; stray positions are pulled
+// back on-screen.
+function clampToViewport(x, y, width, height) {
+    const TASKBAR = 50;
+    const vw = window.innerWidth;
+    const vh = Math.max(0, window.innerHeight - TASKBAR);
+    const w = Math.max(200, Math.min(width, vw));
+    const h = Math.max(150, Math.min(height, vh));
+    const cx = Math.max(0, Math.min(x, vw - w));
+    const cy = Math.max(0, Math.min(y, vh - h));
+    return { x: Math.round(cx), y: Math.round(cy), width: Math.round(w), height: Math.round(h) };
 }
 
 function openApp(appId, opts) {
@@ -1508,22 +1559,23 @@ function openApp(appId, opts) {
     };
     
     if (isMobile) {
-        if (appId === 'radio') {
-            // Radio opens at 0,0 on mobile
-            windowConfig.x = 0;
-            windowConfig.y = 0;
-            windowConfig.width = appConfig.defaultWidth || 400;
-            windowConfig.height = appConfig.defaultHeight || 200;
-        } else {
-            // All other apps open maximized on mobile
-            windowConfig.max = true;
-        }
+        // Mobile: every app is maximised and pinned full-screen (the mobile
+        // @media block in styles.css enforces the geometry). Saved desktop
+        // geometry is irrelevant here, so ignore it.
+        windowConfig.max = true;
     } else {
-        // Desktop positioning — use restored geometry from opts when present.
-        windowConfig.width = (opts && Number.isFinite(opts.width)) ? opts.width : (appConfig.defaultWidth || 800);
-        windowConfig.height = (opts && Number.isFinite(opts.height)) ? opts.height : (appConfig.defaultHeight || 600);
-        windowConfig.x = (opts && Number.isFinite(opts.x)) ? opts.x : 100 + (runningApps.size * 50);
-        windowConfig.y = (opts && Number.isFinite(opts.y)) ? opts.y : 25 + (runningApps.size * 50);
+        // Desktop positioning — use restored geometry from opts when present,
+        // clamped to the current viewport so a layout saved on a larger screen
+        // can't strand a window off-screen and unreachable.
+        const w = (opts && Number.isFinite(opts.width)) ? opts.width : (appConfig.defaultWidth || 800);
+        const h = (opts && Number.isFinite(opts.height)) ? opts.height : (appConfig.defaultHeight || 600);
+        const x = (opts && Number.isFinite(opts.x)) ? opts.x : 100 + (runningApps.size * 50);
+        const y = (opts && Number.isFinite(opts.y)) ? opts.y : 25 + (runningApps.size * 50);
+        const g = clampToViewport(x, y, w, h);
+        windowConfig.width = g.width;
+        windowConfig.height = g.height;
+        windowConfig.x = g.x;
+        windowConfig.y = g.y;
     }
     
     // Create window using WinBox

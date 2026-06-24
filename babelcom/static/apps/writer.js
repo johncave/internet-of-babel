@@ -166,22 +166,31 @@ class BabelWriter extends HTMLElement {
         const hasFuzzy = hasExact || fullText.toLowerCase().replace(/\s+/g, ' ').indexOf(needle) >= 0;
         if (!hasFuzzy) return null;
 
+        // Find the LAST occurrence of the quote across the article. We collect
+        // every candidate hit (using lastIndexOf within each text node so each
+        // candidate is the latest match inside its node), then try to wrap
+        // them from the end backwards — the latest candidate that's a
+        // surroundable range wins. Falling back to earlier candidates handles
+        // the case where the last match straddles element boundaries.
         const tryWrap = (matcher) => {
             const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT);
+            const candidates = [];
             let node;
             while ((node = walker.nextNode())) {
                 const hit = matcher(node.textContent);
-                if (hit) {
-                    const range = document.createRange();
-                    range.setStart(node, hit.start);
-                    range.setEnd(node, hit.end);
-                    const mark = document.createElement('mark');
-                    mark.className = 'clippy-target';
-                    try {
-                        range.surroundContents(mark);
-                        return mark;
-                    } catch (e) { /* range crosses element boundaries — try next node */ }
-                }
+                if (hit) candidates.push({ node, start: hit.start, end: hit.end });
+            }
+            for (let i = candidates.length - 1; i >= 0; i--) {
+                const c = candidates[i];
+                const range = document.createRange();
+                range.setStart(c.node, c.start);
+                range.setEnd(c.node, c.end);
+                const mark = document.createElement('mark');
+                mark.className = 'clippy-target';
+                try {
+                    range.surroundContents(mark);
+                    return mark;
+                } catch (e) { /* range crosses element boundaries — try earlier candidate */ }
             }
             return null;
         };
@@ -190,7 +199,7 @@ class BabelWriter extends HTMLElement {
         let mark = null;
         if (hasExact) {
             mark = tryWrap((text) => {
-                const i = text.indexOf(quote);
+                const i = text.lastIndexOf(quote);
                 return i >= 0 ? { start: i, end: i + quote.length } : null;
             });
         }
@@ -199,7 +208,7 @@ class BabelWriter extends HTMLElement {
         if (!mark) {
             mark = tryWrap((text) => {
                 const hay = text.toLowerCase().replace(/\s+/g, ' ');
-                const i = hay.indexOf(needle);
+                const i = hay.lastIndexOf(needle);
                 return i >= 0 ? { start: i, end: i + needle.length } : null;
             });
         }

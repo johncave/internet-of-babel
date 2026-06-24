@@ -59,11 +59,13 @@ spec:
         # Attribution header for the OpenRouter dashboard (optional, cosmetic).
         - name: OPENROUTER_REFERER
           value: "https://babelcom.johncave.co.nz"
-        # Defaults are fine; uncomment to tune.
+        # Keep the comment rate low in prod — every fired turn is a billed
+        # OpenRouter call. ~5% per new sentence.
+        - name: CLIPPY_TRIGGER_PERCENT
+          value: "5"
+        # Model default is fine; uncomment to override.
         # - name: CLIPPY_MODEL
         #   value: "ibm-granite/granite-4.1-8b"
-        # - name: CLIPPY_TRIGGER_PERCENT
-        #   value: "30"
         resources:
           requests:
             memory: "512Mi"
